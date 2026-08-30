@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-toastify';
 import { 
   Mail, 
   Lock, 
@@ -13,9 +14,12 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
+import { useAuth } from '../../contexts/AuthContext';
+import { apiClient } from '../../lib/apiClient';
 
 export const SignInForm: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,46 +54,24 @@ export const SignInForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/v1/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.accessToken) {
-          localStorage.setItem('nebula_access_token', data.accessToken);
-          localStorage.setItem('nebula_refresh_token', data.refreshToken || '');
-        }
-        setIsLoading(false);
-        navigate('/');
-        return;
-      }
-    } catch (err) {
-      // Fall through to dev simulation if offline
-    }
-
-    setTimeout(() => {
+      const { data } = await apiClient.post('/auth/login', { email, password });
+      login(data.accessToken, data.refreshToken, data.user, data.organization);
+      toast.success(`Welcome back, ${data.user.fullName}! 👋`, { toastId: 'login-success' });
+      navigate('/dashboard');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string }; status?: number } };
+      const msg =
+        axiosErr?.response?.data?.error ||
+        'Sign in failed. Please check your credentials and try again.';
+      setErrorBanner(msg);
+      toast.error(msg, { toastId: 'login-error' });
+    } finally {
       setIsLoading(false);
-      if (email.includes('error') || password === 'wrongpassword') {
-        setErrorBanner('Authentication failed. Invalid work email or password.');
-      } else {
-        alert(`Authentication successful! Welcome back, ${email}. Redirecting to your organization workspace...`);
-        navigate('/');
-      }
-    }, 900);
+    }
   };
 
   const handleGoogleOAuth = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      alert('Authenticated via Google Workspace SSO. Redirecting to your organization workspace...');
-      navigate('/');
-    }, 800);
+    toast.info('Google Workspace SSO is coming soon!', { toastId: 'google-sso' });
   };
 
   const handleForgotPassword = (e: React.FormEvent) => {

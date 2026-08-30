@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { 
   Building2, 
   User, 
@@ -14,6 +16,8 @@ import {
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { TeammateInvite } from './WizardStepInvites';
+import { useAuth } from '../../contexts/AuthContext';
+import { apiClient } from '../../lib/apiClient';
 
 interface WizardStepReviewProps {
   formData: {
@@ -35,6 +39,8 @@ export const WizardStepReview: React.FC<WizardStepReviewProps> = ({
   onBack,
   onComplete,
 }) => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -56,32 +62,23 @@ export const WizardStepReview: React.FC<WizardStepReviewProps> = ({
     };
 
     try {
-      const response = await fetch('/api/v1/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.accessToken) {
-          localStorage.setItem('nebula_access_token', data.accessToken);
-          localStorage.setItem('nebula_refresh_token', data.refreshToken || '');
-        }
-        setIsLoading(false);
-        onComplete();
-        return;
-      }
-    } catch (err) {
-      // Offline / dev fallback: process setup simulation gracefully
-    }
-
-    setTimeout(() => {
+      const { data } = await apiClient.post('/auth/signup', payload);
+      login(data.accessToken, data.refreshToken, data.user, data.organization);
+      toast.success(
+        `🎉 Workspace "${data.organization.name}" is live! Welcome, ${data.user.fullName}.`,
+        { toastId: 'signup-success', autoClose: 5000 }
+      );
+      navigate('/dashboard');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      const msg =
+        axiosErr?.response?.data?.error ||
+        'Workspace creation failed. Please try again.';
+      setApiError(msg);
+      toast.error(msg, { toastId: 'signup-error' });
+    } finally {
       setIsLoading(false);
-      onComplete();
-    }, 1200);
+    }
   };
 
   return (
