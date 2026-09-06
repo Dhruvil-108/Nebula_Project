@@ -11,7 +11,6 @@ import {
   Play
 } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { Badge } from '../ui/Badge';
 import { CompositeHeroDashboard } from '../mockups/CompositeHeroDashboard';
 
 export const Hero: React.FC = () => {
@@ -19,10 +18,10 @@ export const Hero: React.FC = () => {
 
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-      {/* Background Decorative Gradients & Mesh */}
+      {/* Background Decorative Gradients & Mesh (Zorvi warm sunset ambiance) */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] bg-radial-gradient pointer-events-none opacity-90" />
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-40 left-1/4 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[650px] h-[350px] bg-[#f0512f]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-40 left-1/4 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
       
       {/* Subtle Dot Pattern */}
       <div className="absolute inset-0 bg-dot-pattern opacity-40 pointer-events-none" />
@@ -34,11 +33,11 @@ export const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-6 shadow-sm shadow-indigo-500/10"
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#f0512f]/10 border border-[#f0512f]/30 text-[#ff8c70] text-xs font-semibold mb-6 shadow-sm shadow-[#f0512f]/10"
         >
-          <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+          <Sparkles className="w-3.5 h-3.5 text-[#f0512f]" />
           <span>One Platform. Every Business Operation.</span>
-          <span className="w-1 h-1 rounded-full bg-indigo-400" />
+          <span className="w-1 h-1 rounded-full bg-[#f0512f]" />
           <span className="text-slate-400 font-normal">v2.4 Enterprise Release</span>
         </motion.div>
 
@@ -75,7 +74,7 @@ export const Hero: React.FC = () => {
             variant="primary"
             onClick={() => navigate('/signup')}
             rightIcon={<ArrowRight className="w-4 h-4" />}
-            className="w-full sm:w-auto text-base px-8 py-3.5 shadow-xl shadow-indigo-600/30"
+            className="w-full sm:w-auto text-base px-8 py-3.5 shadow-xl shadow-[#f0512f]/25"
           >
             Start 14-Day Free Trial
           </Button>
@@ -84,8 +83,8 @@ export const Hero: React.FC = () => {
             <Button
               size="lg"
               variant="secondary"
-              leftIcon={<Play className="w-4 h-4 text-indigo-400 fill-indigo-400/20" />}
-              className="w-full sm:w-auto text-base px-7 py-3.5"
+              leftIcon={<Play className="w-4 h-4 text-[#ff7a59] fill-[#f0512f]/20" />}
+              className="w-full sm:w-auto text-base px-7 py-3.5 hover:border-[#f0512f]/30"
             >
               Explore 6 Core Modules
             </Button>

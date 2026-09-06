@@ -61,13 +61,13 @@ export const WizardStepInvites: React.FC<WizardStepInvitesProps> = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs text-slate-300 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <UserPlus className="w-4 h-4 text-indigo-400 shrink-0" />
+          <UserPlus className="w-4 h-4 text-[#ff7a59] shrink-0" />
           <span>Invite your leadership team or managers to your tenant workspace.</span>
         </div>
         <button
           type="button"
           onClick={onNext}
-          className="text-xs text-indigo-400 font-semibold hover:text-indigo-300 transition-colors cursor-pointer shrink-0"
+          className="text-xs text-[#ff7a59] font-semibold hover:text-[#ff8c70] transition-colors cursor-pointer shrink-0"
         >
           Skip for now →
         </button>
@@ -96,7 +96,7 @@ export const WizardStepInvites: React.FC<WizardStepInvitesProps> = ({
                   placeholder="colleague@company.com"
                   value={invite.email}
                   onChange={(e) => handleChangeEmail(idx, e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 text-xs rounded-md px-3 py-2 pl-8 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-slate-950 border border-slate-800 text-slate-100 text-xs rounded-md px-3 py-2 pl-8 focus:outline-none focus:border-[#f0512f]"
                 />
                 <Mail className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
               </div>
@@ -104,7 +104,7 @@ export const WizardStepInvites: React.FC<WizardStepInvitesProps> = ({
               <select
                 value={invite.role}
                 onChange={(e) => handleChangeRole(idx, e.target.value as TeammateInvite['role'])}
-                className="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md px-2.5 py-2 focus:outline-none focus:border-indigo-500"
+                className="bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md px-2.5 py-2 focus:outline-none focus:border-[#f0512f]"
               >
                 {roleOptions.map((r) => (
                   <option key={r.value} value={r.value}>
@@ -130,7 +130,7 @@ export const WizardStepInvites: React.FC<WizardStepInvitesProps> = ({
         <button
           type="button"
           onClick={handleAddRow}
-          className="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1.5 cursor-pointer py-1"
+          className="text-xs text-[#ff7a59] hover:text-[#ff8c70] font-medium flex items-center gap-1.5 cursor-pointer py-1"
         >
           <Plus className="w-3.5 h-3.5" />
           Add another teammate row

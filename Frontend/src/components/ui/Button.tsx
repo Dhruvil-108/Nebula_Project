@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger' | 'brand';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -30,10 +30,11 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantStyles = {
-    primary: 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25 border border-indigo-500/50 hover:shadow-indigo-500/35 focus:ring-indigo-500 active:scale-[0.98]',
-    secondary: 'bg-slate-800/90 hover:bg-slate-700/90 text-slate-100 border border-slate-700/80 hover:border-slate-600 shadow-sm focus:ring-slate-400 active:scale-[0.98]',
-    outline: 'bg-transparent hover:bg-white/5 text-slate-200 border border-slate-700/80 hover:border-slate-500 focus:ring-indigo-500',
-    ghost: 'bg-transparent hover:bg-white/5 text-slate-300 hover:text-white focus:ring-slate-500',
+    primary: 'bg-[#f0512f] hover:bg-[#d63f1e] text-white shadow-md shadow-[#f0512f]/25 border border-[#f0512f]/60 hover:shadow-[#f0512f]/35 focus:ring-[#f0512f] active:scale-[0.98]',
+    brand: 'bg-[#f0512f] hover:bg-[#d63f1e] text-white shadow-md shadow-[#f0512f]/25 border border-[#f0512f]/60 hover:shadow-[#f0512f]/35 focus:ring-[#f0512f] active:scale-[0.98]',
+    secondary: 'bg-slate-800/90 hover:bg-slate-750/90 text-slate-100 border border-slate-700/70 hover:border-slate-600 shadow-sm focus:ring-[#f0512f] active:scale-[0.98]',
+    outline: 'bg-transparent hover:bg-white/5 text-slate-200 border border-slate-750 hover:border-[#f0512f]/40 focus:ring-[#f0512f]',
+    ghost: 'bg-transparent hover:bg-white/5 text-slate-300 hover:text-white focus:ring-[#f0512f]',
     danger: 'bg-rose-600 hover:bg-rose-500 text-white border border-rose-500 shadow-rose-600/20 focus:ring-rose-500',
   };
 

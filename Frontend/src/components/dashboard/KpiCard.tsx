@@ -66,7 +66,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({ data, index }) => {
         duration: 0.4,
         ease: [0.16, 1, 0.3, 1],
       }}
-      className="group p-5 rounded-2xl bg-slate-900/60 border border-slate-800/60 hover:border-slate-700/80 hover:bg-slate-900/80 transition-all duration-300 hover:shadow-card-border cursor-default"
+      className="group p-5 rounded-2xl bg-slate-900/60 border border-slate-800/60 hover:border-[#f0512f]/40 hover:bg-slate-900/80 transition-all duration-300 hover:shadow-card-border cursor-default"
     >
       <div className="flex items-start justify-between mb-4">
         {/* Icon */}
@@ -117,12 +117,12 @@ export const KpiCard: React.FC<KpiCardProps> = ({ data, index }) => {
                 <linearGradient id={`grad-${data.id}`} x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
-                    stopColor={isNegative ? '#f43f5e' : '#6366f1'}
+                    stopColor={isNegative ? '#ef4444' : '#f0512f'}
                     stopOpacity={0.3}
                   />
                   <stop
                     offset="95%"
-                    stopColor={isNegative ? '#f43f5e' : '#6366f1'}
+                    stopColor={isNegative ? '#ef4444' : '#f0512f'}
                     stopOpacity={0}
                   />
                 </linearGradient>
@@ -133,7 +133,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({ data, index }) => {
               <Area
                 type="monotone"
                 dataKey="v"
-                stroke={isNegative ? '#f43f5e' : '#6366f1'}
+                stroke={isNegative ? '#ef4444' : '#f0512f'}
                 strokeWidth={1.5}
                 fill={`url(#grad-${data.id})`}
                 dot={false}

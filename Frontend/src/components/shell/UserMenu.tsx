@@ -55,14 +55,14 @@ export const UserMenu: React.FC<UserMenuProps> = ({ collapsed }) => {
       <button
         onClick={() => setOpen((o) => !o)}
         className={clsx(
-          'w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800/60 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950',
+          'w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800/60 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0512f] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950',
           open && 'bg-slate-800/60'
         )}
         aria-expanded={open}
         aria-haspopup="true"
       >
         {/* Avatar */}
-        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-xs font-bold shadow-glow-sm">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-[#f0512f] to-[#ff7a59] flex items-center justify-center text-white text-xs font-bold shadow-md shadow-[#f0512f]/25">
           {initials}
         </div>
 

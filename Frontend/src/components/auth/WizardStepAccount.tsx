@@ -36,7 +36,7 @@ export const WizardStepAccount: React.FC<WizardStepAccountProps> = ({
     if (!formData.password) return { label: 'None', color: 'bg-slate-700', text: 'text-slate-500' };
     if (passwordScore <= 1) return { label: 'Weak', color: 'bg-rose-500', text: 'text-rose-400' };
     if (passwordScore === 2) return { label: 'Fair', color: 'bg-amber-500', text: 'text-amber-400' };
-    if (passwordScore === 3) return { label: 'Good', color: 'bg-cyan-500', text: 'text-cyan-400' };
+    if (passwordScore === 3) return { label: 'Good', color: 'bg-[#ff7a59]', text: 'text-[#ff7a59]' };
     return { label: 'Strong', color: 'bg-emerald-500', text: 'text-emerald-400' };
   };
 

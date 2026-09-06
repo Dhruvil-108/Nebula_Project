@@ -43,8 +43,8 @@ export const ModuleShowcase: React.FC = () => {
       name: 'CRM & Pipeline',
       tagline: 'Full sales lifecycle management from initial lead capture to closed-won deals.',
       description: 'Streamline your sales process with a multi-stage visual deal pipeline (New → Contacted → Qualified → Proposal → Negotiation → Won/Lost). Track customer interaction histories, deal probabilities, and revenue forecasts with zero manual spreadsheet wrangling.',
-      icon: <TrendingUp className="w-5 h-5 text-indigo-400" />,
-      accentColor: 'indigo',
+      icon: <TrendingUp className="w-5 h-5 text-[#ff7a59]" />,
+      accentColor: 'brand',
       badgeText: 'Module 01',
       features: [
         'Visual 6-stage deal pipeline with drag-and-drop velocity',
@@ -64,8 +64,8 @@ export const ModuleShowcase: React.FC = () => {
       name: 'HRMS & People Ops',
       tagline: 'Modern workforce management, time tracking, and team directory.',
       description: 'Maintain secure digital employee records, track daily attendance and shift schedules, process leave requests with customized approval policies, and manage company documents in a single compliant system.',
-      icon: <Users className="w-5 h-5 text-cyan-400" />,
-      accentColor: 'cyan',
+      icon: <Users className="w-5 h-5 text-amber-400" />,
+      accentColor: 'amber',
       badgeText: 'Module 02',
       features: [
         'Comprehensive employee profiles with role & team mappings',
@@ -85,8 +85,8 @@ export const ModuleShowcase: React.FC = () => {
       name: 'Recruitment & ATS',
       tagline: 'End-to-end applicant tracking and streamlined hiring workflows.',
       description: 'Post open requisitions, capture candidates across channels, collaborate on candidate evaluations, schedule structured interviews, and instantly convert accepted offers into new employee profiles in HRMS.',
-      icon: <Briefcase className="w-5 h-5 text-violet-400" />,
-      accentColor: 'violet',
+      icon: <Briefcase className="w-5 h-5 text-[#f0512f]" />,
+      accentColor: 'brand',
       badgeText: 'Module 03',
       features: [
         'Multi-channel job posting and candidate pipeline stages',
@@ -103,9 +103,9 @@ export const ModuleShowcase: React.FC = () => {
         <div className="w-full bg-slate-900/90 rounded-xl border border-slate-800 p-4 text-xs font-sans shadow-xl">
           <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-violet-400 animate-pulse" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#f0512f] animate-pulse" />
               <span className="font-semibold text-slate-200 text-sm">Recruitment (ATS)</span>
-              <Badge variant="indigo" size="sm">5 Open Requisitions</Badge>
+              <Badge variant="brand" size="sm">5 Open Requisitions</Badge>
             </div>
             <span className="text-[11px] text-slate-400 font-mono">38 Active Candidates</span>
           </div>
@@ -122,7 +122,7 @@ export const ModuleShowcase: React.FC = () => {
                 <div className="font-semibold text-slate-200 text-[11px]">Enterprise Account Executive</div>
                 <div className="text-[10px] text-slate-400">Sales · Stage: Technical Demo & Case Study</div>
               </div>
-              <Badge variant="cyan" size="sm">Interview (3/4)</Badge>
+              <Badge variant="brand" size="sm">Interview (3/4)</Badge>
             </div>
           </div>
         </div>
@@ -175,8 +175,8 @@ export const ModuleShowcase: React.FC = () => {
       name: 'Unified Analytics & AI',
       tagline: 'Cross-department executive KPIs with plain-language AI recommendations.',
       description: 'Break data silos with unified executive dashboards that synthesize sales, HR, expense, and inventory metrics. Receive plain-language AI operational recommendations that tell you not just what happened, but what to do next.',
-      icon: <Sparkles className="w-5 h-5 text-sky-400" />,
-      accentColor: 'sky',
+      icon: <Sparkles className="w-5 h-5 text-[#ff8c70]" />,
+      accentColor: 'brand',
       badgeText: 'Module 06',
       features: [
         'Cross-department KPI dashboards (Revenue, CAC, Headcount, Runway)',
@@ -198,13 +198,13 @@ export const ModuleShowcase: React.FC = () => {
   return (
     <section id="modules" className="py-24 relative overflow-hidden bg-slate-950/90 border-t border-slate-800/80">
       {/* Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#f0512f]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <Badge variant="indigo" size="md" className="mb-4">
+          <Badge variant="brand" size="md" className="mb-4">
             The 6 Core Modules
           </Badge>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
@@ -226,7 +226,7 @@ export const ModuleShowcase: React.FC = () => {
                 onClick={() => setActiveModuleId(mod.id)}
                 className={`p-3.5 rounded-xl border text-left transition-all duration-200 flex flex-col justify-between cursor-pointer ${
                   isActive 
-                    ? 'bg-slate-900 border-indigo-500 shadow-lg shadow-indigo-500/15 ring-1 ring-indigo-500/50' 
+                    ? 'bg-slate-900 border-[#f0512f] shadow-lg shadow-[#f0512f]/15 ring-1 ring-[#f0512f]/50' 
                     : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 hover:bg-slate-900/70'
                 }`}
               >
@@ -234,7 +234,7 @@ export const ModuleShowcase: React.FC = () => {
                   <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80">
                     {mod.icon}
                   </div>
-                  <span className={`text-[10px] font-mono font-semibold ${isActive ? 'text-indigo-400' : 'text-slate-500'}`}>
+                  <span className={`text-[10px] font-mono font-semibold ${isActive ? 'text-[#ff7a59]' : 'text-slate-500'}`}>
                     {mod.badgeText}
                   </span>
                 </div>
@@ -262,7 +262,7 @@ export const ModuleShowcase: React.FC = () => {
                 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <Badge variant="indigo" size="sm">{activeModule.badgeText}</Badge>
+                    <Badge variant="brand" size="sm">{activeModule.badgeText}</Badge>
                     <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">
                       Module Deep Dive
                     </span>
@@ -282,7 +282,7 @@ export const ModuleShowcase: React.FC = () => {
                   </span>
                   {activeModule.features.map((feat, i) => (
                     <div key={i} className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 mt-0.5 border border-indigo-500/30">
+                      <div className="w-5 h-5 rounded-full bg-[#f0512f]/20 text-[#ff8c70] flex items-center justify-center shrink-0 mt-0.5 border border-[#f0512f]/30">
                         <Check className="w-3 h-3" />
                       </div>
                       <span className="text-xs sm:text-sm text-slate-200">{feat}</span>
@@ -294,7 +294,7 @@ export const ModuleShowcase: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-slate-800/80">
                   {activeModule.capabilities.map((cap, idx) => (
                     <div key={idx} className="p-3 bg-slate-950/50 rounded-xl border border-slate-800/80">
-                      <div className="text-xs font-semibold text-indigo-300 mb-1">{cap.title}</div>
+                      <div className="text-xs font-semibold text-[#ff8c70] mb-1">{cap.title}</div>
                       <div className="text-[11px] text-slate-400 leading-snug">{cap.detail}</div>
                     </div>
                   ))}
@@ -305,7 +305,7 @@ export const ModuleShowcase: React.FC = () => {
               {/* Right Column: Live Mockup Widget Preview (5 cols) */}
               <div className="lg:col-span-5">
                 <div className="relative">
-                  <div className="absolute -inset-2 bg-indigo-500/10 rounded-2xl blur-xl pointer-events-none" />
+                  <div className="absolute -inset-2 bg-[#f0512f]/10 rounded-2xl blur-xl pointer-events-none" />
                   <div className="relative">
                     {activeModule.mockup}
                   </div>

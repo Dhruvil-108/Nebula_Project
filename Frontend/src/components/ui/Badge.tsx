@@ -2,7 +2,7 @@ import React from 'react';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'indigo' | 'emerald' | 'cyan' | 'amber' | 'rose' | 'outline';
+  variant?: 'default' | 'indigo' | 'brand' | 'emerald' | 'cyan' | 'amber' | 'rose' | 'outline';
   size?: 'sm' | 'md';
   className?: string;
   dot?: boolean;
@@ -24,7 +24,8 @@ export const Badge: React.FC<BadgeProps> = ({
 
   const variantStyles = {
     default: 'bg-slate-800 text-slate-300 border border-slate-700/60',
-    indigo: 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/30',
+    indigo: 'bg-[#f0512f]/10 text-[#ff8c70] border border-[#f0512f]/30',
+    brand: 'bg-[#f0512f]/10 text-[#ff8c70] border border-[#f0512f]/30',
     emerald: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30',
     cyan: 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30',
     amber: 'bg-amber-500/10 text-amber-300 border border-amber-500/30',
@@ -34,12 +35,13 @@ export const Badge: React.FC<BadgeProps> = ({
 
   const dotColors = {
     default: 'bg-slate-400',
-    indigo: 'bg-indigo-400 animate-pulse',
+    indigo: 'bg-[#f0512f] animate-pulse',
+    brand: 'bg-[#f0512f] animate-pulse',
     emerald: 'bg-emerald-400 animate-pulse',
     cyan: 'bg-cyan-400 animate-pulse',
     amber: 'bg-amber-400 animate-pulse',
     rose: 'bg-rose-400 animate-pulse',
-    outline: 'bg-indigo-400',
+    outline: 'bg-[#f0512f]',
   };
 
   return (

@@ -94,16 +94,16 @@ export const SignInForm: React.FC = () => {
       transition={{ duration: 0.4 }}
       className="space-y-5"
     >
-      <div className="p-2.5 rounded-lg bg-indigo-950/40 border border-indigo-500/30 flex items-center justify-between text-xs">
-        <span className="text-indigo-300 flex items-center gap-1.5 font-medium">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+      <div className="p-2.5 rounded-lg bg-[#f0512f]/10 border border-[#f0512f]/30 flex items-center justify-between text-xs">
+        <span className="text-[#ff8c70] flex items-center gap-1.5 font-medium">
+          <Sparkles className="w-3.5 h-3.5 text-[#f0512f]" />
           Demo Mode:
         </span>
         <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => handleDemoFill('valid')}
-            className="px-2 py-0.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-medium transition-colors cursor-pointer"
+            className="px-2 py-0.5 rounded bg-[#f0512f] hover:bg-[#d63f1e] text-white text-[11px] font-medium transition-colors cursor-pointer"
           >
             Autofill Valid
           </button>
@@ -184,7 +184,7 @@ export const SignInForm: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowForgotPasswordModal(true)}
-              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+              className="text-xs text-[#ff7a59] hover:text-[#ff8c70] transition-colors cursor-pointer"
             >
               Forgot password?
             </button>
@@ -219,7 +219,7 @@ export const SignInForm: React.FC = () => {
               type="checkbox"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-950"
+              className="w-4 h-4 rounded bg-slate-900 border-slate-750 text-[#f0512f] focus:ring-[#f0512f] focus:ring-offset-slate-950 accent-[#f0512f]"
             />
             <span>Keep me signed in for 30 days</span>
           </label>
@@ -240,7 +240,7 @@ export const SignInForm: React.FC = () => {
 
         <div className="pt-4 text-center text-xs text-slate-400 border-t border-slate-800/80">
           Don't have a workspace yet?{' '}
-          <Link to="/signup" className="text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">
+          <Link to="/signup" className="text-[#ff7a59] font-semibold hover:text-[#ff8c70] transition-colors">
             Get Started with 5-Step Wizard →
           </Link>
         </div>

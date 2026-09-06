@@ -77,8 +77,8 @@ export const WizardStepOrganization: React.FC<WizardStepOrganizationProps> = ({
                 }}
                 className={`py-2 px-3 rounded-lg border text-xs font-medium transition-all text-center cursor-pointer ${
                   isSelected
-                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-600/20'
-                    : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white'
+                    ? 'bg-[#f0512f] border-[#f0512f] text-white shadow-md shadow-[#f0512f]/25'
+                    : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-750 hover:text-white'
                 }`}
               >
                 {size}

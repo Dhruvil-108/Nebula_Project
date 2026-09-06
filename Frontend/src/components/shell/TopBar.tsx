@@ -28,7 +28,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       {/* ── Hamburger (mobile only) ── */}
       <button
         onClick={onMobileToggle}
-        className="md:hidden flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+        className="md:hidden flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0512f]"
         aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
       >
         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -57,7 +57,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           <div className="flex items-center gap-3">
             <h1 className="text-base font-semibold text-slate-100 truncate">{pageTitle}</h1>
             {organization && (
-              <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-[10px] font-mono text-slate-400 uppercase tracking-wider">
+              <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-slate-850 border border-slate-750 text-[10px] font-mono text-[#ff8c70] uppercase tracking-wider">
                 {organization.name}
               </span>
             )}
@@ -66,10 +66,10 @@ export const TopBar: React.FC<TopBarProps> = ({
       </div>
 
       {/* ── Global search (visual stub) ── */}
-      <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors w-52 cursor-text">
+      <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors w-52 cursor-text focus-within:border-[#f0512f]/60">
         <Search className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
         <span className="text-sm text-slate-500 select-none">Search...</span>
-        <kbd className="ml-auto text-[10px] text-slate-600 font-mono bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
+        <kbd className="ml-auto text-[10px] text-slate-500 font-mono bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
           ⌘K
         </kbd>
       </div>
@@ -78,7 +78,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       <div className="relative">
         <button
           onClick={() => setNotifOpen((o) => !o)}
-          className="relative w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="relative w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0512f]"
           aria-label={`Notifications${notifCount > 0 ? ` (${notifCount} unread)` : ''}`}
         >
           <Bell className="w-4.5 h-4.5" />
@@ -86,7 +86,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             <motion.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-500 border-2 border-slate-950"
+              className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#f0512f] border-2 border-slate-950"
             />
           )}
         </button>

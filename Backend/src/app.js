@@ -8,6 +8,9 @@ const swaggerSpec = require('./config/swagger');
 
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
+const leaveRoutes = require('./routes/leaveRoutes');
+const holidayRoutes = require('./routes/holidayRoutes');
 
 const app = express();
 
@@ -90,6 +93,9 @@ app.get('/api/v1/docs.json', (_req, res) => {
 // ── Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/attendance', attendanceRoutes);
+app.use('/api/v1/leaves', leaveRoutes);
+app.use('/api/v1/holidays', holidayRoutes);
 
 /**
  * @swagger

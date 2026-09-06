@@ -100,12 +100,12 @@ export const WizardStepReview: React.FC<WizardStepReviewProps> = ({
               Super Admin Account
             </span>
             <div className="font-semibold text-white flex items-center gap-1.5 text-sm">
-              <User className="w-4 h-4 text-indigo-400" />
+              <User className="w-4 h-4 text-[#ff7a59]" />
               {formData.fullName || 'Sarah Jenkins'}
             </div>
             <div className="text-slate-400 text-[11px] mt-0.5">{formData.email || 'sarah@company.com'}</div>
           </div>
-          <Badge variant="indigo" size="sm">Super Admin</Badge>
+          <Badge variant="brand" size="sm">Super Admin</Badge>
         </div>
 
         {/* Section 2: Organization */}
@@ -115,7 +115,7 @@ export const WizardStepReview: React.FC<WizardStepReviewProps> = ({
               Organization Tenant
             </span>
             <div className="font-semibold text-white flex items-center gap-1.5 text-sm">
-              <Building2 className="w-4 h-4 text-cyan-400" />
+              <Building2 className="w-4 h-4 text-[#f0512f]" />
               {formData.organizationName || 'Acme BioCorp'}
             </div>
             <div className="text-slate-400 text-[11px] mt-0.5">
@@ -132,7 +132,7 @@ export const WizardStepReview: React.FC<WizardStepReviewProps> = ({
           </span>
           <div className="flex flex-wrap gap-1.5">
             {formData.primaryFocus.map((f) => (
-              <Badge key={f} variant="indigo" size="sm">
+              <Badge key={f} variant="brand" size="sm">
                 {f.toUpperCase()}
               </Badge>
             ))}
@@ -150,7 +150,7 @@ export const WizardStepReview: React.FC<WizardStepReviewProps> = ({
             <div className="flex flex-wrap gap-1.5">
               {validInvites.map((inv, i) => (
                 <span key={i} className="px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-slate-300 flex items-center gap-1">
-                  <Mail className="w-3 h-3 text-indigo-400" />
+                  <Mail className="w-3 h-3 text-[#ff7a59]" />
                   {inv.email} ({inv.role})
                 </span>
               ))}
@@ -185,7 +185,7 @@ export const WizardStepReview: React.FC<WizardStepReviewProps> = ({
           size="lg"
           isLoading={isLoading}
           onClick={handleFinalSubmit}
-          className="w-2/3 shadow-xl shadow-indigo-600/30"
+          className="w-2/3 shadow-xl shadow-[#f0512f]/25"
         >
           Create Workspace & Launch Hub
         </Button>

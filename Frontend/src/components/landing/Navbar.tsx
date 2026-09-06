@@ -37,7 +37,7 @@ export const Navbar: React.FC = () => {
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled 
-          ? 'bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40 py-3' 
+          ? 'bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40 py-3' 
           : 'bg-transparent py-5'
       }`}
     >
@@ -45,15 +45,15 @@ export const Navbar: React.FC = () => {
         
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-[1px] shadow-lg shadow-indigo-500/25 transition-transform group-hover:scale-105">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#bd3a1e] via-[#f0512f] to-[#ff7a59] p-[1px] shadow-lg shadow-[#f0512f]/25 transition-transform group-hover:scale-105">
             <div className="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-              <div className="w-4 h-4 rounded-md bg-gradient-to-br from-indigo-500 to-cyan-400 transform rotate-45 group-hover:rotate-90 transition-transform duration-500" />
+              <div className="w-4 h-4 rounded-md bg-gradient-to-br from-[#f0512f] to-[#ff8c70] transform rotate-45 group-hover:rotate-90 transition-transform duration-500 shadow-sm shadow-[#f0512f]/40" />
             </div>
           </div>
           <div className="flex flex-col">
             <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5">
               Nebula
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#f0512f]/10 text-[#ff7a59] border border-[#f0512f]/30">
                 Hub
               </span>
             </span>
@@ -61,12 +61,12 @@ export const Navbar: React.FC = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1 lg:gap-2 px-3 py-1.5 rounded-full bg-slate-900/60 border border-slate-800/80 backdrop-blur-md">
+        <nav className="hidden md:flex items-center gap-1 lg:gap-2 px-3 py-1.5 rounded-full bg-slate-900/70 border border-slate-800/80 backdrop-blur-md">
           {navLinks.map((link) => (
             <a
               key={link.name}
               href={link.href}
-              className="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white rounded-full hover:bg-white/5 transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white rounded-full hover:bg-white/5 hover:text-[#ff8c70] transition-colors"
             >
               {link.name}
             </a>
@@ -79,7 +79,7 @@ export const Navbar: React.FC = () => {
             variant="ghost" 
             size="sm" 
             onClick={() => navigate('/signin')}
-            className="text-slate-300 hover:text-white"
+            className="text-slate-300 hover:text-white hover:bg-white/5"
           >
             Sign In
           </Button>
@@ -123,7 +123,7 @@ export const Navbar: React.FC = () => {
                 key={link.name}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-900 rounded-lg transition-colors"
+                className="px-3 py-2 text-sm font-medium text-slate-300 hover:text-[#ff8c70] hover:bg-slate-900 rounded-lg transition-colors"
               >
                 {link.name}
               </a>

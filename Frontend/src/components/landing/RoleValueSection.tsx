@@ -39,7 +39,7 @@ export const RoleValueSection: React.FC = () => {
       badge: 'Executive Command',
       title: 'Full operational clarity with zero departmental blind spots.',
       description: 'Stop waiting for weekly synthesis meetings and outdated slide decks. Get continuous real-time visibility across customer acquisition, employee capacity, cash burn, and operational fulfillment.',
-      icon: <Building2 className="w-5 h-5 text-indigo-400" />,
+      icon: <Building2 className="w-5 h-5 text-[#ff7a59]" />,
       keyBenefits: [
         'Single pane of glass unifying revenue, headcount, spend, and inventory',
         'AI plain-language briefings delivered automatically each morning',
@@ -62,7 +62,7 @@ export const RoleValueSection: React.FC = () => {
       badge: 'Revenue Velocity',
       title: 'Close enterprise deals faster with automated operations sync.',
       description: 'Move deals seamlessly through the 6-stage pipeline. Automatically check warehouse inventory availability before committing delivery dates, and hand off closed accounts directly to finance for billing.',
-      icon: <TrendingUp className="w-5 h-5 text-cyan-400" />,
+      icon: <TrendingUp className="w-5 h-5 text-[#f0512f]" />,
       keyBenefits: [
         'Visual 6-stage deal pipeline with automated contact enrichment',
         'Real-time inventory stock checks embedded in deal proposal views',
@@ -85,7 +85,7 @@ export const RoleValueSection: React.FC = () => {
       badge: 'People & Culture',
       title: 'Seamless recruitment, attendance, and leave management.',
       description: 'Run smooth candidate hiring pipelines in ATS, then transition new hires into HRMS with a single click. Keep employee records, leave requests, and company policies organized in one compliant vault.',
-      icon: <Users className="w-5 h-5 text-violet-400" />,
+      icon: <Users className="w-5 h-5 text-amber-400" />,
       keyBenefits: [
         '1-click candidate to employee profile generation without duplicate data',
         'Customizable multi-tier leave approval policies & automated balance tracking',
@@ -135,7 +135,7 @@ export const RoleValueSection: React.FC = () => {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <Badge variant="indigo" size="md" className="mb-4">
+          <Badge variant="brand" size="md" className="mb-4">
             Built For The Entire Organization
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
@@ -156,7 +156,7 @@ export const RoleValueSection: React.FC = () => {
                 onClick={() => setActiveRoleId(persona.id)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
                   isActive 
-                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25 border border-indigo-500' 
+                    ? 'bg-[#f0512f] text-white shadow-lg shadow-[#f0512f]/25 border border-[#f0512f]' 
                     : 'bg-slate-900/80 text-slate-300 border border-slate-800 hover:border-slate-700 hover:text-white'
                 }`}
               >
@@ -182,7 +182,7 @@ export const RoleValueSection: React.FC = () => {
               {/* Left Column (7 cols) */}
               <div className="lg:col-span-7 space-y-6">
                 <div className="space-y-2">
-                  <Badge variant="indigo" size="sm">{activePersona.badge}</Badge>
+                  <Badge variant="brand" size="sm">{activePersona.badge}</Badge>
                   <h3 className="text-2xl sm:text-3xl font-bold text-white">
                     {activePersona.title}
                   </h3>
@@ -204,7 +204,7 @@ export const RoleValueSection: React.FC = () => {
                 <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs italic text-slate-300">
                   <p className="mb-2">"{activePersona.quote.text}"</p>
                   <div className="not-italic font-semibold text-slate-100 flex items-center gap-2">
-                    <span className="text-indigo-400">{activePersona.quote.author}</span>
+                    <span className="text-[#ff7a59]">{activePersona.quote.author}</span>
                     <span className="text-slate-600">·</span>
                     <span className="text-slate-400 font-normal">{activePersona.quote.org}</span>
                   </div>
@@ -228,7 +228,7 @@ export const RoleValueSection: React.FC = () => {
                   </div>
                 ))}
 
-                <div className="p-3 rounded-lg bg-indigo-950/30 border border-indigo-500/20 text-[11px] text-indigo-300 flex items-center justify-between">
+                <div className="p-3 rounded-lg bg-[#f0512f]/10 border border-[#f0512f]/20 text-[11px] text-[#ff8c70] flex items-center justify-between">
                   <span>Custom RBAC views enabled</span>
                   <span className="font-semibold text-white">Full Privacy Isolation</span>
                 </div>

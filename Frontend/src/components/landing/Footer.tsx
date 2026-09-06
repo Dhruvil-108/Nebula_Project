@@ -16,9 +16,9 @@ export const Footer: React.FC = () => {
           {/* Brand Info (2 cols on md) */}
           <div className="col-span-2 space-y-4">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-cyan-400 p-[1px]">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#f0512f] to-[#ff7a59] p-[1px] shadow-md shadow-[#f0512f]/20">
                 <div className="w-full h-full bg-slate-950 rounded-[7px] flex items-center justify-center">
-                  <div className="w-3.5 h-3.5 rounded-sm bg-gradient-to-br from-indigo-500 to-cyan-400 transform rotate-45" />
+                  <div className="w-3.5 h-3.5 rounded-sm bg-gradient-to-br from-[#f0512f] to-[#ff8c70] transform rotate-45" />
                 </div>
               </div>
               <span className="font-bold text-base text-white">Nebula Hub</span>
@@ -37,12 +37,12 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h4 className="font-semibold text-slate-200 uppercase tracking-wider text-[11px]">Core Modules</h4>
             <ul className="space-y-2">
-              <li><a href="#modules" className="hover:text-white transition-colors">CRM & Pipeline</a></li>
-              <li><a href="#modules" className="hover:text-white transition-colors">HRMS & People Ops</a></li>
-              <li><a href="#modules" className="hover:text-white transition-colors">Recruitment (ATS)</a></li>
-              <li><a href="#modules" className="hover:text-white transition-colors">Expense Approvals</a></li>
-              <li><a href="#modules" className="hover:text-white transition-colors">Inventory & Stock</a></li>
-              <li><a href="#analytics" className="hover:text-white transition-colors">Unified AI Analytics</a></li>
+              <li><a href="#modules" className="hover:text-[#ff7a59] transition-colors">CRM & Pipeline</a></li>
+              <li><a href="#modules" className="hover:text-[#ff7a59] transition-colors">HRMS & People Ops</a></li>
+              <li><a href="#modules" className="hover:text-[#ff7a59] transition-colors">Recruitment (ATS)</a></li>
+              <li><a href="#modules" className="hover:text-[#ff7a59] transition-colors">Expense Approvals</a></li>
+              <li><a href="#modules" className="hover:text-[#ff7a59] transition-colors">Inventory & Stock</a></li>
+              <li><a href="#analytics" className="hover:text-[#ff7a59] transition-colors">Unified AI Analytics</a></li>
             </ul>
           </div>
 
@@ -50,11 +50,11 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h4 className="font-semibold text-slate-200 uppercase tracking-wider text-[11px]">By Persona</h4>
             <ul className="space-y-2">
-              <li><a href="#roles" className="hover:text-white transition-colors">For Founders & CEOs</a></li>
-              <li><a href="#roles" className="hover:text-white transition-colors">For Sales Leaders</a></li>
-              <li><a href="#roles" className="hover:text-white transition-colors">For People Ops & HR</a></li>
-              <li><a href="#roles" className="hover:text-white transition-colors">For Finance & Ops</a></li>
-              <li><a href="#security" className="hover:text-white transition-colors">Enterprise Security</a></li>
+              <li><a href="#roles" className="hover:text-[#ff7a59] transition-colors">For Founders & CEOs</a></li>
+              <li><a href="#roles" className="hover:text-[#ff7a59] transition-colors">For Sales Leaders</a></li>
+              <li><a href="#roles" className="hover:text-[#ff7a59] transition-colors">For People Ops & HR</a></li>
+              <li><a href="#roles" className="hover:text-[#ff7a59] transition-colors">For Finance & Ops</a></li>
+              <li><a href="#security" className="hover:text-[#ff7a59] transition-colors">Enterprise Security</a></li>
             </ul>
           </div>
 
@@ -62,10 +62,10 @@ export const Footer: React.FC = () => {
           <div className="space-y-3">
             <h4 className="font-semibold text-slate-200 uppercase tracking-wider text-[11px]">Account & Access</h4>
             <ul className="space-y-2">
-              <li><Link to="/signup" className="hover:text-indigo-400 font-medium transition-colors flex items-center gap-1">Create Workspace <ArrowUpRight className="w-3 h-3" /></Link></li>
+              <li><Link to="/signup" className="hover:text-[#ff7a59] font-medium transition-colors flex items-center gap-1">Create Workspace <ArrowUpRight className="w-3 h-3" /></Link></li>
               <li><Link to="/signin" className="hover:text-white transition-colors">Sign In</Link></li>
-              <li><a href="#security" className="hover:text-white transition-colors">Multi-Tenant RBAC</a></li>
-              <li><a href="#comparison" className="hover:text-white transition-colors">Migration Guide</a></li>
+              <li><a href="#security" className="hover:text-[#ff7a59] transition-colors">Multi-Tenant RBAC</a></li>
+              <li><a href="#comparison" className="hover:text-[#ff7a59] transition-colors">Migration Guide</a></li>
             </ul>
           </div>
 

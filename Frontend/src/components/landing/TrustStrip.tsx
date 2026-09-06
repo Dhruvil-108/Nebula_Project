@@ -25,7 +25,7 @@ export const TrustStrip: React.FC = () => {
               key={company.name}
               className="flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors font-mono font-semibold tracking-wider text-xs"
             >
-              <div className="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-[10px] text-indigo-400 font-bold border border-slate-700/60">
+              <div className="w-6 h-6 rounded bg-slate-850 flex items-center justify-center text-[10px] text-[#ff7a59] font-bold border border-slate-750">
                 {company.symbol}
               </div>
               <span>{company.name}</span>
@@ -46,7 +46,7 @@ export const TrustStrip: React.FC = () => {
           </div>
 
           <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-indigo-400 font-mono tracking-tight">
+            <div className="text-3xl sm:text-4xl font-extrabold text-[#f0512f] font-mono tracking-tight">
               40%
             </div>
             <p className="text-xs text-slate-400 mt-1">
@@ -55,7 +55,7 @@ export const TrustStrip: React.FC = () => {
           </div>
 
           <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-cyan-400 font-mono tracking-tight">
+            <div className="text-3xl sm:text-4xl font-extrabold text-[#ff9b80] font-mono tracking-tight">
               100%
             </div>
             <p className="text-xs text-slate-400 mt-1">

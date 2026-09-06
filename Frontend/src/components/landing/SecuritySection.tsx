@@ -16,13 +16,13 @@ export const SecuritySection: React.FC = () => {
     {
       title: 'Multi-Tenant Data Isolation',
       desc: 'Strict organization-level boundaries guarantee your business data is never co-mingled or accessible by other tenants.',
-      icon: <Server className="w-5 h-5 text-indigo-400" />,
+      icon: <Server className="w-5 h-5 text-[#ff7a59]" />,
       badge: 'Architecture'
     },
     {
       title: 'Granular RBAC Permissioning',
       desc: 'Role-Based Access Control down to the module, view, and specific action level (Create, Read, Update, Delete, Approve).',
-      icon: <KeyRound className="w-5 h-5 text-cyan-400" />,
+      icon: <KeyRound className="w-5 h-5 text-amber-400" />,
       badge: 'Access Control'
     },
     {
@@ -34,13 +34,13 @@ export const SecuritySection: React.FC = () => {
     {
       title: 'JWT Auth & Optional OAuth',
       desc: 'Secure token authentication with short-lived access tokens, refresh token rotation, and Google Workspace OAuth support.',
-      icon: <Lock className="w-5 h-5 text-violet-400" />,
+      icon: <Lock className="w-5 h-5 text-[#f0512f]" />,
       badge: 'Authentication'
     },
     {
       title: 'End-to-End Encryption',
       desc: 'TLS 1.3 encryption in transit for all API traffic and AES-256 encryption at rest for sensitive files and credentials.',
-      icon: <ShieldCheck className="w-5 h-5 text-sky-400" />,
+      icon: <ShieldCheck className="w-5 h-5 text-emerald-400" />,
       badge: 'Data Protection'
     },
     {
@@ -57,7 +57,7 @@ export const SecuritySection: React.FC = () => {
         
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <Badge variant="indigo" size="md" className="mb-4">
+          <Badge variant="brand" size="md" className="mb-4">
             Enterprise Security & Architecture
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
@@ -73,15 +73,15 @@ export const SecuritySection: React.FC = () => {
           {securityPillars.map((pillar, idx) => (
             <div 
               key={idx}
-              className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/5 group"
+              className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-[#f0512f]/40 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#f0512f]/5 group"
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 group-hover:border-indigo-500/40 transition-colors">
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 group-hover:border-[#f0512f]/40 transition-colors">
                   {pillar.icon}
                 </div>
                 <Badge variant="outline" size="sm">{pillar.badge}</Badge>
               </div>
-              <h3 className="text-base font-bold text-white mb-2 group-hover:text-indigo-200 transition-colors">
+              <h3 className="text-base font-bold text-white mb-2 group-hover:text-[#ff8c70] transition-colors">
                 {pillar.title}
               </h3>
               <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">

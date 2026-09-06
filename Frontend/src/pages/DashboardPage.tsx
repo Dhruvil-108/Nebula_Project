@@ -15,6 +15,11 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { KpiCard, KpiCardSkeleton } from '../components/dashboard/KpiCard';
 import { EmptyState } from '../components/dashboard/EmptyState';
+import { AttendanceCard } from '../components/dashboard/AttendanceCard';
+import { LeaveBalanceCard } from '../components/dashboard/LeaveBalanceCard';
+import { MonthlyHoursCard } from '../components/dashboard/MonthlyHoursCard';
+import { UpcomingHolidaysCard } from '../components/dashboard/UpcomingHolidaysCard';
+import { PresentAbsentCard } from '../components/dashboard/PresentAbsentCard';
 import type { Role } from '../types/user';
 import type { DashboardData, KpiCardData, ChartDataPoint } from '../types/dashboard';
 import {
@@ -42,10 +47,10 @@ const getDashboardData = (role: Role): DashboardData => {
 };
 
 // ─────────────────────────────────────────────────────────
-// Chart color palette (matches design system)
+// Chart color palette (Zorvi brand + semantic colors)
 // ─────────────────────────────────────────────────────────
 
-const CHART_COLORS = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#0ea5e9'];
+const CHART_COLORS = ['#f0512f', '#ff7a59', '#0e9f6e', '#f59e0b', '#ef4444', '#f97316', '#38bdf8'];
 
 const CustomTooltip = ({
   active,
@@ -94,7 +99,7 @@ const ExecutiveCharts: React.FC<{ revenueChart: ChartDataPoint[]; headcountChart
         </div>
         <div className="flex items-center gap-3 text-[10px]">
           <span className="flex items-center gap-1.5 text-slate-400">
-            <span className="w-2 h-2 rounded-full bg-indigo-500" />Revenue
+            <span className="w-2 h-2 rounded-full bg-[#f0512f]" />Revenue
           </span>
           <span className="flex items-center gap-1.5 text-slate-400">
             <span className="w-2 h-2 rounded-full bg-rose-500" />Expenses
@@ -105,20 +110,20 @@ const ExecutiveCharts: React.FC<{ revenueChart: ChartDataPoint[]; headcountChart
         <AreaChart data={revenueChart} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
           <defs>
             <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25} />
-              <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+              <stop offset="5%" stopColor="#f0512f" stopOpacity={0.25} />
+              <stop offset="95%" stopColor="#f0512f" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.2} />
-              <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
+              <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
           <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`} />
           <Tooltip content={<CustomTooltip />} />
-          <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2} fill="url(#revGrad)" dot={false} />
-          <Area type="monotone" dataKey="secondary" stroke="#f43f5e" strokeWidth={2} fill="url(#expGrad)" dot={false} />
+          <Area type="monotone" dataKey="value" stroke="#f0512f" strokeWidth={2} fill="url(#revGrad)" dot={false} />
+          <Area type="monotone" dataKey="secondary" stroke="#ef4444" strokeWidth={2} fill="url(#expGrad)" dot={false} />
         </AreaChart>
       </ResponsiveContainer>
     </motion.div>
@@ -140,7 +145,7 @@ const ExecutiveCharts: React.FC<{ revenueChart: ChartDataPoint[]; headcountChart
           <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
           <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="value" radius={[6, 6, 0, 0]} fill="#6366f1" fillOpacity={0.8} />
+          <Bar dataKey="value" radius={[6, 6, 0, 0]} fill="#f0512f" fillOpacity={0.85} />
         </BarChart>
       </ResponsiveContainer>
     </motion.div>
@@ -209,7 +214,7 @@ const GenericBarChart: React.FC<{ data: ChartDataPoint[]; title: string; subtitl
 // DashboardPage
 // ─────────────────────────────────────────────────────────
 
-const SHOW_EMPTY_STATE = true; // Set to true to show clean first-run state without mock data
+const SHOW_EMPTY_STATE = false; // Set to false to show the active interactive daily-use attendance dashboard
 
 const DashboardPage: React.FC = () => {
   const { user, organization, isLoading } = useAuth();
@@ -235,7 +240,7 @@ const DashboardPage: React.FC = () => {
 
   if (!user || !organization) return null;
 
-  // ── Empty state ──
+  // ── Empty state fallback (if specifically toggled) ──
   if (SHOW_EMPTY_STATE) {
     return (
       <div className="relative overflow-hidden">
@@ -259,8 +264,7 @@ const DashboardPage: React.FC = () => {
             <span className="text-gradient-accent">{user.fullName.split(' ')[0]}</span> 👋
           </h2>
           <p className="text-sm text-slate-400 mt-1">
-            {organization.name} · Here's your{' '}
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} overview.
+            {organization.name} · Here's your daily attendance & operations overview.
           </p>
         </div>
 
@@ -271,11 +275,56 @@ const DashboardPage: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* ── KPI Cards grid ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map((kpi, i) => (
-          <KpiCard key={kpi.id} data={kpi} index={i} />
-        ))}
+      {/* ── Attendance & Time Tracking Section (Primary daily-use surface) ── */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+            Daily Time & Attendance
+          </h3>
+        </div>
+
+        {/* Top 3 Attendance Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Primary Check In / Out Card (Largest, top-left) */}
+          <div className="lg:col-span-5 flex flex-col">
+            <AttendanceCard />
+          </div>
+
+          {/* Monthly Hours Card */}
+          <div className="lg:col-span-4 flex flex-col">
+            <MonthlyHoursCard />
+          </div>
+
+          {/* Leave Balance Card */}
+          <div className="lg:col-span-3 flex flex-col">
+            <LeaveBalanceCard />
+          </div>
+        </div>
+
+        {/* Secondary Attendance Row: Present/Absent Matrix & Upcoming Holidays */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pt-1">
+          {/* Present/Absent Summary & Heatmap */}
+          <div className="lg:col-span-7 flex flex-col">
+            <PresentAbsentCard />
+          </div>
+
+          {/* Upcoming Holidays */}
+          <div className="lg:col-span-5 flex flex-col">
+            <UpcomingHolidaysCard />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Role KPIs & Overview ── */}
+      <div className="pt-4 space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+          Organization & Performance KPIs
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {kpis.map((kpi, i) => (
+            <KpiCard key={kpi.id} data={kpi} index={i} />
+          ))}
+        </div>
       </div>
 
       {/* ── Charts (role-specific) ── */}

@@ -92,7 +92,7 @@ export const SignUpWizard: React.FC = () => {
         {/* Top Progress Bar Component (Step X of 5) */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-mono text-indigo-400 font-semibold uppercase tracking-wider">
+            <span className="font-mono text-[#ff8c70] font-semibold uppercase tracking-wider">
               Step {currentStep} of 5
             </span>
             <span className="text-slate-400 font-mono text-[11px]">
@@ -105,7 +105,7 @@ export const SignUpWizard: React.FC = () => {
               <div
                 key={stepNum}
                 className={`h-full flex-1 rounded-full transition-all duration-300 ${
-                  stepNum <= currentStep ? 'bg-gradient-to-r from-indigo-500 to-cyan-400' : 'bg-slate-800'
+                  stepNum <= currentStep ? 'bg-gradient-to-r from-[#f0512f] to-[#ff8c70]' : 'bg-slate-800'
                 }`}
               />
             ))}

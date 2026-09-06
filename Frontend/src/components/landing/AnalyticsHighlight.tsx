@@ -45,18 +45,18 @@ export const AnalyticsHighlight: React.FC = () => {
   return (
     <section id="analytics" className="py-24 relative overflow-hidden bg-slate-950 border-t border-slate-800/80">
       {/* Background ambient lighting */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-indigo-500/10 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-[#f0512f]/10 via-amber-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <Badge variant="indigo" size="md" className="mb-4">
+          <Badge variant="brand" size="md" className="mb-4">
             Unified Analytics + Autonomous AI
           </Badge>
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
             Not just raw data. <br />
-            <span className="text-gradient-indigo">Actionable intelligence that guides decisions.</span>
+            <span className="text-gradient-accent">Actionable intelligence that guides decisions.</span>
           </h2>
           <p className="text-slate-400 text-base sm:text-lg">
             Traditional dashboards force you to spend hours hunting for correlations. Nebula’s AI engine analyzes cross-module patterns in real-time and provides clear, plain-language recommendations.
@@ -68,8 +68,8 @@ export const AnalyticsHighlight: React.FC = () => {
           
           {/* Left Column (5 cols): Feature details */}
           <div className="lg:col-span-5 space-y-6 text-left">
-            <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 inline-flex items-center gap-2 text-indigo-300 text-xs font-semibold">
-              <BrainCircuit className="w-4 h-4 text-indigo-400" />
+            <div className="p-3 rounded-xl bg-[#f0512f]/10 border border-[#f0512f]/20 inline-flex items-center gap-2 text-[#ff8c70] text-xs font-semibold">
+              <BrainCircuit className="w-4 h-4 text-[#f0512f]" />
               <span>Plain-Language Operational Guidance</span>
             </div>
 
@@ -83,7 +83,7 @@ export const AnalyticsHighlight: React.FC = () => {
 
             <div className="space-y-3 pt-2">
               <div className="flex items-start gap-3">
-                <div className="p-1.5 rounded-md bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 shrink-0">
+                <div className="p-1.5 rounded-md bg-[#f0512f]/20 text-[#ff8c70] border border-[#f0512f]/30 shrink-0">
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
                 <div>
@@ -93,7 +93,7 @@ export const AnalyticsHighlight: React.FC = () => {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="p-1.5 rounded-md bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shrink-0">
+                <div className="p-1.5 rounded-md bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
                 <div>
@@ -132,7 +132,7 @@ export const AnalyticsHighlight: React.FC = () => {
             <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl relative overflow-hidden">
               <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800/80">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-indigo-500" />
+                  <div className="w-3 h-3 rounded-full bg-[#f0512f]" />
                   <span className="font-bold text-slate-100 text-sm">Enterprise Cross-Department Velocity</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -149,27 +149,27 @@ export const AnalyticsHighlight: React.FC = () => {
                     <span className="font-mono text-emerald-400 font-semibold">$1.48M (114% of Target)</span>
                   </div>
                   <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full w-[88%]" />
+                    <div className="h-full bg-gradient-to-r from-[#f0512f] to-[#ff8c70] rounded-full w-[88%]" />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between text-xs text-slate-300 mb-1">
                     <span>Staffing Fulfillment & Retention (HRMS/ATS)</span>
-                    <span className="font-mono text-cyan-300 font-semibold">96.4% Operational</span>
+                    <span className="font-mono text-amber-300 font-semibold">96.4% Operational</span>
                   </div>
                   <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 rounded-full w-[94%]" />
+                    <div className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 rounded-full w-[94%]" />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between text-xs text-slate-300 mb-1">
                     <span>Spend Efficiency (Expenses & Inventory)</span>
-                    <span className="font-mono text-amber-300 font-semibold">92.8% Policy Match</span>
+                    <span className="font-mono text-emerald-300 font-semibold">92.8% Policy Match</span>
                   </div>
                   <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-amber-500 to-indigo-500 rounded-full w-[78%]" />
+                    <div className="h-full bg-gradient-to-r from-emerald-500 to-[#f0512f] rounded-full w-[78%]" />
                   </div>
                 </div>
               </div>
@@ -183,11 +183,11 @@ export const AnalyticsHighlight: React.FC = () => {
                 {insights.map((item, idx) => (
                   <div 
                     key={idx}
-                    className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800/90 hover:border-indigo-500/40 transition-colors"
+                    className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800/90 hover:border-[#f0512f]/40 transition-colors"
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[11px] font-semibold text-indigo-300 flex items-center gap-1.5">
-                        <Sparkles className="w-3 h-3 text-indigo-400" />
+                      <span className="text-[11px] font-semibold text-[#ff8c70] flex items-center gap-1.5">
+                        <Sparkles className="w-3 h-3 text-[#f0512f]" />
                         {item.type}
                       </span>
                       <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">
@@ -202,7 +202,7 @@ export const AnalyticsHighlight: React.FC = () => {
                     </p>
                     <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-800/60">
                       <span className="text-slate-400">{item.tag}</span>
-                      <span className="text-indigo-400 font-medium cursor-pointer hover:underline">
+                      <span className="text-[#ff7a59] font-medium cursor-pointer hover:underline">
                         Apply Suggested Action →
                       </span>
                     </div>

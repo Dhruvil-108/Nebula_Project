@@ -7,9 +7,9 @@ export const HrmsCardMock: React.FC = () => {
     <div className="w-full bg-slate-900/90 rounded-xl border border-slate-800 p-4 text-xs font-sans shadow-xl">
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
           <span className="font-semibold text-slate-200 text-sm">HRMS & People Ops</span>
-          <Badge variant="cyan" size="sm">142 Active Staff</Badge>
+          <Badge variant="amber" size="sm">142 Active Staff</Badge>
         </div>
         <span className="text-[11px] text-slate-400 font-mono">Today: 96.4% Present</span>
       </div>
@@ -27,7 +27,7 @@ export const HrmsCardMock: React.FC = () => {
           <span className="text-[10px] text-slate-400 block mb-1">Pending Leave Requests</span>
           <div className="flex items-center justify-between">
             <span className="text-base font-bold text-amber-300 font-mono">3 Requests</span>
-            <span className="text-[10px] text-indigo-400 font-medium">Review →</span>
+            <span className="text-[10px] text-[#ff7a59] font-medium">Review →</span>
           </div>
         </div>
       </div>
@@ -35,7 +35,7 @@ export const HrmsCardMock: React.FC = () => {
       {/* Leave preview row */}
       <div className="p-2.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-full bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 flex items-center justify-center font-bold text-xs">
+          <div className="w-7 h-7 rounded-full bg-[#f0512f]/20 border border-[#f0512f]/40 text-[#ff8c70] flex items-center justify-center font-bold text-xs">
             AL
           </div>
           <div>

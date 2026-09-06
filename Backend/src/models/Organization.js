@@ -33,6 +33,16 @@ const organizationSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    shiftStartTime: {
+      type: String,
+      default: '09:30',
+      trim: true,
+    },
+    timezone: {
+      type: String,
+      default: 'Asia/Kolkata',
+      trim: true,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

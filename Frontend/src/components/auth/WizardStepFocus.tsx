@@ -27,13 +27,13 @@ export const WizardStepFocus: React.FC<WizardStepFocusProps> = ({
   onBack,
 }) => {
   const focusModules = [
-    { id: 'all', name: 'All of the above', desc: 'Pre-configure the complete 6-module business operating hub.', icon: <Layers className="w-5 h-5 text-indigo-400" /> },
-    { id: 'crm', name: 'CRM & Pipeline', desc: 'Lead tracking, 6-stage deal pipeline, ARR forecasting.', icon: <TrendingUp className="w-5 h-5 text-cyan-400" /> },
-    { id: 'hrms', name: 'HRMS & People Ops', desc: 'Employee records, attendance tracking, leave requests.', icon: <Users className="w-5 h-5 text-violet-400" /> },
-    { id: 'recruitment', name: 'Recruitment (ATS)', desc: 'Job requisitions, candidate pipelines, interview scorecards.', icon: <Briefcase className="w-5 h-5 text-emerald-400" /> },
-    { id: 'expenses', name: 'Expense Management', desc: 'Multi-tier expense submission, receipt matching, GL audit.', icon: <Receipt className="w-5 h-5 text-sky-400" /> },
+    { id: 'all', name: 'All of the above', desc: 'Pre-configure the complete 6-module business operating hub.', icon: <Layers className="w-5 h-5 text-[#f0512f]" /> },
+    { id: 'crm', name: 'CRM & Pipeline', desc: 'Lead tracking, 6-stage deal pipeline, ARR forecasting.', icon: <TrendingUp className="w-5 h-5 text-[#ff7a59]" /> },
+    { id: 'hrms', name: 'HRMS & People Ops', desc: 'Employee records, attendance tracking, leave requests.', icon: <Users className="w-5 h-5 text-amber-400" /> },
+    { id: 'recruitment', name: 'Recruitment (ATS)', desc: 'Job requisitions, candidate pipelines, interview scorecards.', icon: <Briefcase className="w-5 h-5 text-[#f0512f]" /> },
+    { id: 'expenses', name: 'Expense Management', desc: 'Multi-tier expense submission, receipt matching, GL audit.', icon: <Receipt className="w-5 h-5 text-emerald-400" /> },
     { id: 'inventory', name: 'Inventory & Stock', desc: 'Warehouse tracking, low-stock pulse alerts, auto POs.', icon: <Package className="w-5 h-5 text-amber-400" /> },
-    { id: 'analytics', name: 'Unified AI Analytics', desc: 'Cross-module executive KPIs and plain-language insights.', icon: <Sparkles className="w-5 h-5 text-indigo-300" /> },
+    { id: 'analytics', name: 'Unified AI Analytics', desc: 'Cross-module executive KPIs and plain-language insights.', icon: <Sparkles className="w-5 h-5 text-[#ff8c70]" /> },
   ];
 
   const toggleFocus = (id: string) => {
@@ -72,8 +72,8 @@ export const WizardStepFocus: React.FC<WizardStepFocusProps> = ({
               onClick={() => toggleFocus(mod.id)}
               className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
                 isSelected
-                  ? 'bg-indigo-950/40 border-indigo-500 shadow-md shadow-indigo-500/10 ring-1 ring-indigo-500/40'
-                  : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
+                  ? 'bg-[#f0512f]/10 border-[#f0512f] shadow-md shadow-[#f0512f]/10 ring-1 ring-[#f0512f]/40'
+                  : 'bg-slate-900/60 border-slate-800 hover:border-slate-750 hover:bg-slate-900'
               }`}
             >
               <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 shrink-0 mt-0.5">
@@ -83,7 +83,7 @@ export const WizardStepFocus: React.FC<WizardStepFocusProps> = ({
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-xs text-white">{mod.name}</span>
                   {isSelected && (
-                    <div className="w-4 h-4 rounded-full bg-indigo-500 text-white flex items-center justify-center">
+                    <div className="w-4 h-4 rounded-full bg-[#f0512f] text-white flex items-center justify-center">
                       <Check className="w-2.5 h-2.5" />
                     </div>
                   )}

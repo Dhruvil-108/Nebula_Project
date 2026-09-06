@@ -27,9 +27,9 @@ export const CompositeHeroDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'crm' | 'hrms' | 'expenses' | 'inventory'>('all');
 
   return (
-    <div className="relative w-full max-w-6xl mx-auto rounded-2xl p-1 bg-gradient-to-b from-indigo-500/30 via-slate-800/40 to-slate-900/60 shadow-2xl shadow-indigo-950/50">
+    <div className="relative w-full max-w-6xl mx-auto rounded-2xl p-1 bg-gradient-to-b from-[#f0512f]/30 via-slate-800/40 to-slate-900/60 shadow-2xl shadow-[#f0512f]/20">
       {/* Outer Glow Halo */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-sky-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-60 pointer-events-none" />
+      <div className="absolute -inset-1 bg-gradient-to-r from-[#f0512f]/20 via-amber-500/20 to-[#ff7a59]/20 rounded-2xl blur-xl opacity-60 pointer-events-none" />
 
       {/* Main Container Shell */}
       <div className="relative bg-slate-950/95 backdrop-blur-xl rounded-xl border border-slate-800/80 overflow-hidden shadow-2xl">
@@ -44,10 +44,10 @@ export const CompositeHeroDashboard: React.FC = () => {
             </div>
             <div className="h-4 w-[1px] bg-slate-800" />
             <div className="flex items-center gap-2 text-slate-300 font-medium">
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#f0512f] animate-pulse" />
               <span className="font-mono text-slate-400">app.nebula.io</span>
               <span className="text-slate-600">/</span>
-              <span className="text-indigo-400 font-medium">Apex Global Ops</span>
+              <span className="text-[#ff7a59] font-medium">Apex Global Ops</span>
             </div>
           </div>
 
@@ -63,7 +63,7 @@ export const CompositeHeroDashboard: React.FC = () => {
         {/* Top KPI Metrics Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-slate-900/40 border-b border-slate-800/60 text-left">
           
-          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 hover:border-slate-700 transition-colors">
+          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 hover:border-[#f0512f]/30 transition-colors">
             <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
               <span>Pipeline ARR</span>
               <span className="text-emerald-400 font-medium flex items-center text-[11px]">
@@ -74,10 +74,10 @@ export const CompositeHeroDashboard: React.FC = () => {
             <div className="text-[10px] text-slate-500 mt-1">CRM · 18 deals in closing</div>
           </div>
 
-          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 hover:border-slate-700 transition-colors">
+          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 hover:border-[#f0512f]/30 transition-colors">
             <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
               <span>Headcount & HR</span>
-              <span className="text-cyan-400 font-medium flex items-center text-[11px]">
+              <span className="text-amber-400 font-medium flex items-center text-[11px]">
                 96% Attendance
               </span>
             </div>
@@ -85,7 +85,7 @@ export const CompositeHeroDashboard: React.FC = () => {
             <div className="text-[10px] text-slate-500 mt-1">HRMS · 4 offers pending in ATS</div>
           </div>
 
-          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 hover:border-slate-700 transition-colors">
+          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 hover:border-[#f0512f]/30 transition-colors">
             <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
               <span>Monthly Spend</span>
               <span className="text-emerald-400 font-medium flex items-center text-[11px]">
@@ -96,7 +96,7 @@ export const CompositeHeroDashboard: React.FC = () => {
             <div className="text-[10px] text-slate-500 mt-1">Expenses · 3 approvals waiting</div>
           </div>
 
-          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 hover:border-slate-700 transition-colors">
+          <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 hover:border-[#f0512f]/30 transition-colors">
             <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
               <span>Inventory Health</span>
               <span className="text-amber-400 font-medium flex items-center text-[11px]">
@@ -146,7 +146,7 @@ export const CompositeHeroDashboard: React.FC = () => {
             <span className="hidden sm:inline text-slate-600">|</span>
             <span className="hidden sm:inline">Multi-Tenant Isolated Database</span>
           </div>
-          <div className="text-indigo-400 font-medium flex items-center gap-1">
+          <div className="text-[#ff7a59] font-medium flex items-center gap-1">
             <span>Unified Data Fabric Active</span>
             <ChevronRight className="w-3 h-3" />
           </div>

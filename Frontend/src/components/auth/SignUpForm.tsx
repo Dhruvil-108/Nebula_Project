@@ -49,7 +49,7 @@ export const SignUpForm: React.FC = () => {
     if (!formData.password) return { label: 'None', color: 'bg-slate-700', text: 'text-slate-500' };
     if (passwordScore <= 1) return { label: 'Weak', color: 'bg-rose-500', text: 'text-rose-400' };
     if (passwordScore === 2) return { label: 'Fair', color: 'bg-amber-500', text: 'text-amber-400' };
-    if (passwordScore === 3) return { label: 'Good', color: 'bg-cyan-500', text: 'text-cyan-400' };
+    if (passwordScore === 3) return { label: 'Good', color: 'bg-[#ff7a59]', text: 'text-[#ff7a59]' };
     return { label: 'Strong', color: 'bg-emerald-500', text: 'text-emerald-400' };
   };
 
@@ -302,7 +302,7 @@ export const SignUpForm: React.FC = () => {
         {/* Footer Link */}
         <div className="pt-4 text-center text-xs text-slate-400 border-t border-slate-800/80">
           Already have an account?{' '}
-          <Link to="/signin" className="text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">
+          <Link to="/signin" className="text-[#ff7a59] font-semibold hover:text-[#ff8c70] transition-colors">
             Sign in to your workspace →
           </Link>
         </div>

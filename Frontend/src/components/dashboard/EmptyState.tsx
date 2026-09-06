@@ -122,9 +122,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ role, primaryFocus }) =>
     >
       {/* Glow ring */}
       <div className="relative mb-8">
-        <div className="absolute inset-0 rounded-full bg-indigo-500/20 blur-2xl scale-150" />
-        <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-600/20 to-violet-600/20 border border-indigo-500/20 flex items-center justify-center">
-          {Icon && <Icon className="w-10 h-10 text-indigo-400" />}
+        <div className="absolute inset-0 rounded-full bg-[#f0512f]/20 blur-2xl scale-150" />
+        <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-[#f0512f]/20 to-[#ff7a59]/20 border border-[#f0512f]/30 flex items-center justify-center">
+          {Icon && <Icon className="w-10 h-10 text-[#ff7a59]" />}
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ role, primaryFocus }) =>
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: i === 2 ? 1 : 0.4, scale: 1 }}
             transition={{ delay: 0.1 + i * 0.05 }}
-            className={`rounded-full bg-indigo-500 ${i === 2 ? 'w-2 h-2' : 'w-1.5 h-1.5'}`}
+            className={`rounded-full bg-[#f0512f] ${i === 2 ? 'w-2 h-2' : 'w-1.5 h-1.5'}`}
           />
         ))}
       </div>
@@ -148,7 +148,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ role, primaryFocus }) =>
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => navigate(config.ctaHref)}
-        className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-colors shadow-glow-md"
+        className="px-6 py-3 rounded-xl bg-[#f0512f] hover:bg-[#d63f1e] text-white font-semibold text-sm transition-colors shadow-lg shadow-[#f0512f]/25 cursor-pointer"
       >
         {config.ctaLabel}
       </motion.button>

@@ -56,7 +56,7 @@ export const ProblemSolution: React.FC = () => {
     {
       title: 'AI-Assisted Decision Intelligence',
       desc: 'Plain-language operational explanations and predictive recommendations highlighting what to do next.',
-      icon: <BrainCircuit className="w-4 h-4 text-indigo-400" />
+      icon: <BrainCircuit className="w-4 h-4 text-[#ff7a59]" />
     }
   ];
 
@@ -64,13 +64,13 @@ export const ProblemSolution: React.FC = () => {
     <section id="comparison" className="py-24 relative overflow-hidden bg-slate-950">
       {/* Background glow accents */}
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-rose-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 right-0 w-96 h-96 bg-[#f0512f]/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <Badge variant="indigo" size="md" className="mb-4">
+          <Badge variant="brand" size="md" className="mb-4">
             The Shift to Unified Operations
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
@@ -119,14 +119,14 @@ export const ProblemSolution: React.FC = () => {
           </div>
 
           {/* After Nebula Card */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-slate-900/80 border border-emerald-500/30 backdrop-blur-md relative shadow-xl shadow-emerald-950/30">
+          <div className="p-6 sm:p-8 rounded-2xl bg-slate-900/80 border border-[#f0512f]/30 backdrop-blur-md relative shadow-xl shadow-[#f0512f]/10">
             <div className="absolute top-0 right-8 -translate-y-1/2">
-              <Badge variant="emerald" size="sm" dot>The Nebula Standard</Badge>
+              <Badge variant="brand" size="sm" dot>The Nebula Standard</Badge>
             </div>
 
             <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-800">
               <div>
-                <span className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-semibold block mb-1">
+                <span className="text-xs font-mono uppercase tracking-wider text-[#ff8c70] font-semibold block mb-1">
                   The New Operating System
                 </span>
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -134,7 +134,7 @@ export const ProblemSolution: React.FC = () => {
                   After Nebula (Unified Hub)
                 </h3>
               </div>
-              <Sparkles className="w-5 h-5 text-indigo-400" />
+              <Sparkles className="w-5 h-5 text-[#f0512f]" />
             </div>
 
             <div className="space-y-6">
@@ -151,9 +151,9 @@ export const ProblemSolution: React.FC = () => {
               ))}
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-800/80 bg-emerald-950/20 p-4 rounded-xl text-xs text-emerald-300 font-mono flex items-center justify-between">
+            <div className="mt-8 pt-6 border-t border-slate-800/80 bg-[#f0512f]/10 p-4 rounded-xl text-xs text-[#ff8c70] font-mono flex items-center justify-between border border-[#f0512f]/20">
               <span>Outcome: Manage → Analyze → Automate from one login.</span>
-              <span className="text-indigo-400 font-bold">100% Synced</span>
+              <span className="text-white font-bold bg-[#f0512f] px-2 py-0.5 rounded text-[10px]">100% Synced</span>
             </div>
           </div>
 

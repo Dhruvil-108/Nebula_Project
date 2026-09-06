@@ -47,7 +47,7 @@ export const mockExecutiveData: ExecutiveDashboardData = {
       trendPercent: 18.7,
       trendLabel: 'vs last month',
       iconName: 'CircleDollarSign',
-      colorClasses: 'bg-indigo-500/10 text-indigo-400',
+      colorClasses: 'bg-[#f0512f]/10 text-[#ff7a59]',
       sparkline: [140, 148, 158, 165, 172, 180, 188],
     },
     {
@@ -152,7 +152,7 @@ export const mockSalesData: SalesDashboardData = {
       trendPercent: 5.3,
       trendLabel: 'vs last month',
       iconName: 'TrendingUp',
-      colorClasses: 'bg-indigo-500/10 text-indigo-400',
+      colorClasses: 'bg-[#f0512f]/10 text-[#ff7a59]',
       sparkline: [1050, 1080, 1110, 1140, 1180, 1210, 1240],
     },
     {
@@ -271,7 +271,7 @@ export const mockFinanceData: FinanceDashboardData = {
       trendPercent: 7.2,
       trendLabel: 'vs last month',
       iconName: 'CircleDollarSign',
-      colorClasses: 'bg-indigo-500/10 text-indigo-400',
+      colorClasses: 'bg-[#f0512f]/10 text-[#ff7a59]',
       sparkline: [],
     },
   ],
@@ -296,7 +296,7 @@ export const mockInventoryData: InventoryDashboardData = {
       trendPercent: 3.4,
       trendLabel: 'vs last month',
       iconName: 'Package',
-      colorClasses: 'bg-indigo-500/10 text-indigo-400',
+      colorClasses: 'bg-[#f0512f]/10 text-[#ff7a59]',
       sparkline: [440, 452, 460, 468, 474, 478, 482],
     },
     {

@@ -20,8 +20,8 @@ export const CrmKanbanMock: React.FC = () => {
   ]);
 
   const stages = [
-    { name: 'Qualified', count: 4, sum: '$68k', color: 'text-indigo-400 border-indigo-500/30' },
-    { name: 'Proposal', count: 3, sum: '$92k', color: 'text-cyan-400 border-cyan-500/30' },
+    { name: 'Qualified', count: 4, sum: '$68k', color: 'text-[#ff7a59] border-[#f0512f]/30' },
+    { name: 'Proposal', count: 3, sum: '$92k', color: 'text-amber-400 border-amber-500/30' },
     { name: 'Negotiation', count: 2, sum: '$84.5k', color: 'text-emerald-400 border-emerald-500/30' },
   ];
 
@@ -29,9 +29,9 @@ export const CrmKanbanMock: React.FC = () => {
     <div className="w-full bg-slate-900/90 rounded-xl border border-slate-800 p-4 text-xs font-sans shadow-xl">
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#f0512f] animate-pulse" />
           <span className="font-semibold text-slate-200 text-sm">CRM Pipeline</span>
-          <Badge variant="indigo" size="sm">Q3 Enterprise</Badge>
+          <Badge variant="brand" size="sm">Q3 Enterprise</Badge>
         </div>
         <div className="text-slate-400 flex items-center gap-1.5 font-mono">
           <span>Weighted:</span>
@@ -56,7 +56,7 @@ export const CrmKanbanMock: React.FC = () => {
                 {stageDeals.map((deal) => (
                   <div
                     key={deal.id}
-                    className="p-2.5 rounded-md bg-slate-900 border border-slate-800 hover:border-indigo-500/40 transition-all duration-150 group cursor-pointer shadow-sm"
+                    className="p-2.5 rounded-md bg-slate-900 border border-slate-800 hover:border-[#f0512f]/40 transition-all duration-150 group cursor-pointer shadow-sm"
                   >
                     <div className="flex items-center justify-between text-slate-200 font-medium mb-1">
                       <span className="truncate pr-1 text-slate-100">{deal.company}</span>
@@ -68,7 +68,7 @@ export const CrmKanbanMock: React.FC = () => {
                         <User className="w-3 h-3 text-slate-400" />
                         {deal.contact}
                       </span>
-                      <span className="text-indigo-300 bg-indigo-950/60 px-1.5 py-0.5 rounded font-mono text-[9px] border border-indigo-800/40">
+                      <span className="text-[#ff8c70] bg-[#f0512f]/10 px-1.5 py-0.5 rounded font-mono text-[9px] border border-[#f0512f]/30">
                         {deal.probability}
                       </span>
                     </div>

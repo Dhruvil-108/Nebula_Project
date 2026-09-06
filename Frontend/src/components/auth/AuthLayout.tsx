@@ -56,21 +56,21 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           <div>
             <div className="flex items-center justify-between mb-8 sm:mb-10">
               <Link to="/" className="inline-flex items-center gap-2.5 group">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 p-[1px] shadow-md shadow-indigo-500/20">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#bd3a1e] via-[#f0512f] to-[#ff7a59] p-[1px] shadow-md shadow-[#f0512f]/20">
                   <div className="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-                    <div className="w-4 h-4 rounded-md bg-gradient-to-br from-indigo-500 to-cyan-400 transform rotate-45" />
+                    <div className="w-4 h-4 rounded-md bg-gradient-to-br from-[#f0512f] to-[#ff8c70] transform rotate-45" />
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-extrabold text-lg tracking-tight text-white">Nebula</span>
-                  <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+                  <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-[#f0512f]/10 text-[#ff7a59] border border-[#f0512f]/30">
                     Hub
                   </span>
                 </div>
               </Link>
 
               {currentStep && totalSteps && (
-                <Badge variant="indigo" size="sm">
+                <Badge variant="brand" size="sm">
                   Wizard Step {currentStep} of {totalSteps}
                 </Badge>
               )}
@@ -109,8 +109,8 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
         {/* Right Side: Enterprise Branded Visual Panel (Hidden on mobile) */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-950 border-l border-slate-800/80 p-12 lg:p-14 flex-col justify-between relative overflow-hidden">
           
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-10 right-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#f0512f]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-10 right-10 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none" />
 
           {/* Top Status Badge */}
@@ -119,7 +119,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-xs font-mono text-slate-300">Multi-Tenant Tenant Isolation Active</span>
             </div>
-            <Badge variant="indigo" size="sm">
+            <Badge variant="brand" size="sm">
               {currentStep ? `Step ${currentStep}: Provisioning` : 'Enterprise Hub'}
             </Badge>
           </div>
@@ -130,7 +130,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
               
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400">
+                  <div className="p-1.5 rounded-lg bg-[#f0512f]/20 text-[#ff7a59]">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <div>
@@ -144,7 +144,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
               <div className="grid grid-cols-2 gap-2 text-[11px]">
                 <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-slate-300">
-                    <TrendingUp className="w-3.5 h-3.5 text-indigo-400" />
+                    <TrendingUp className="w-3.5 h-3.5 text-[#ff7a59]" />
                     CRM Pipeline
                   </span>
                   <span className="text-emerald-400 font-mono text-[10px]">Active</span>
@@ -152,7 +152,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 
                 <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-slate-300">
-                    <Users className="w-3.5 h-3.5 text-cyan-400" />
+                    <Users className="w-3.5 h-3.5 text-amber-400" />
                     HRMS & People
                   </span>
                   <span className="text-emerald-400 font-mono text-[10px]">Active</span>
@@ -160,7 +160,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 
                 <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-slate-300">
-                    <Zap className="w-3.5 h-3.5 text-violet-400" />
+                    <Zap className="w-3.5 h-3.5 text-[#f0512f]" />
                     Recruitment ATS
                   </span>
                   <span className="text-emerald-400 font-mono text-[10px]">Active</span>
@@ -184,7 +184,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 
                 <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
                   <span className="flex items-center gap-1.5 text-slate-300">
-                    <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#ff8c70]" />
                     Unified AI Engine
                   </span>
                   <span className="text-emerald-400 font-mono text-[10px]">Active</span>

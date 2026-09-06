@@ -17,7 +17,7 @@ export const ExpenseFlowMock: React.FC = () => {
       <div className="p-3 bg-slate-950/60 rounded-lg border border-slate-800/80 mb-3">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Receipt className="w-4 h-4 text-indigo-400" />
+            <Receipt className="w-4 h-4 text-[#f0512f]" />
             <span className="font-medium text-slate-200 text-[11px]">AWS Cloud & Database Tier-2</span>
           </div>
           <span className="font-mono text-emerald-400 font-bold">$1,840.00</span>
@@ -33,8 +33,8 @@ export const ExpenseFlowMock: React.FC = () => {
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>2. Mgr Approved</span>
           </div>
-          <div className="flex items-center gap-1 text-indigo-300 font-medium bg-indigo-950/50 px-1.5 py-0.5 rounded border border-indigo-500/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping" />
+          <div className="flex items-center gap-1 text-[#ff8c70] font-medium bg-[#f0512f]/10 px-1.5 py-0.5 rounded border border-[#f0512f]/30">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#f0512f] animate-ping" />
             <span>3. Finance Audit</span>
           </div>
         </div>

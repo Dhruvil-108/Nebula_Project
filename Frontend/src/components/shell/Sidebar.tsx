@@ -111,57 +111,76 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 
   const sidebarContent = (
-    <div className="flex flex-col h-full">
-      {/* ── Logo ── */}
-      <div className="flex items-center justify-between px-4 py-5 border-b border-slate-800/60">
-        <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-glow-sm">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden"
-              >
-                <span className="text-lg font-bold text-white tracking-tight whitespace-nowrap">
+    <div className="flex flex-col h-full bg-[#0b0f17] select-none">
+      {/* ── Header / Logo ── */}
+      <div
+        className={clsx(
+          'flex items-center border-b border-slate-800/80 py-4 transition-all duration-200',
+          collapsed ? 'justify-center px-2' : 'justify-between px-4'
+        )}
+      >
+        {collapsed ? (
+          <button
+            onClick={onToggle}
+            className="group relative flex items-center justify-center p-1 rounded-xl hover:bg-slate-800/60 transition-colors focus-visible:outline-none"
+            aria-label="Expand sidebar"
+            title="Expand sidebar"
+          >
+            <div className="w-8 h-8 rounded-lg bg-[#f0512f] flex items-center justify-center shadow-md shadow-[#f0512f]/30 group-hover:scale-105 transition-transform flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+          </button>
+        ) : (
+          <>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#f0512f] flex items-center justify-center shadow-md shadow-[#f0512f]/30">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex flex-col justify-center min-w-0">
+                <span className="text-[15px] font-bold text-white tracking-tight whitespace-nowrap leading-none">
                   Nebula
                 </span>
-                <span className="block text-[9px] font-mono text-indigo-400 uppercase tracking-widest -mt-0.5 whitespace-nowrap">
+                <span className="text-[9px] font-semibold text-[#f0512f] uppercase tracking-widest mt-1 whitespace-nowrap">
                   Ops Hub
                 </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+              </div>
+            </div>
 
-        {/* Collapse toggle — hidden on mobile */}
-        <button
-          onClick={onToggle}
-          className="hidden md:flex flex-shrink-0 w-6 h-6 rounded-md hover:bg-slate-800 text-slate-500 hover:text-slate-300 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
+            {/* Collapse toggle — hidden on mobile */}
+            <button
+              onClick={onToggle}
+              className="hidden md:flex flex-shrink-0 w-6 h-6 rounded-md hover:bg-slate-800/80 text-slate-500 hover:text-slate-300 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f0512f]"
+              aria-label="Collapse sidebar"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          </>
+        )}
       </div>
 
-      {/* ── Org name ── */}
+      {/* ── Workspace Card ── */}
       {!collapsed && organization && (
-        <div className="px-4 py-3 border-b border-slate-800/40">
-          <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-0.5">
-            Workspace
-          </p>
-          <p className="text-xs font-semibold text-slate-300 truncate">{organization.name}</p>
+        <div className="px-3 pt-3 pb-1">
+          <div className="px-3 py-2.5 rounded-lg bg-slate-900/80 border border-slate-800/80 flex items-center gap-2.5">
+            <div className="w-6 h-6 rounded bg-[#f0512f]/15 border border-[#f0512f]/30 flex items-center justify-center text-[10px] font-bold text-[#ff8c70] flex-shrink-0">
+              {organization.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[9px] font-mono font-medium text-slate-500 uppercase tracking-wider leading-none mb-0.5">
+                Workspace
+              </p>
+              <p className="text-xs font-semibold text-slate-200 truncate leading-tight">
+                {organization.name}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
       {/* ── Primary nav ── */}
-      <nav aria-label="Primary navigation" className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      <nav aria-label="Primary navigation" className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
         {!collapsed && (
-          <p className="px-3 mb-2 text-[10px] font-mono text-slate-600 uppercase tracking-widest">
+          <p className="px-3 pt-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest">
             Modules
           </p>
         )}
@@ -179,7 +198,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* ── Secondary nav (settings/org) ── */}
       {navConfig.secondary.length > 0 && (
-        <div className="px-3 py-3 border-t border-slate-800/60 space-y-1">
+        <div className="px-3 py-2 border-t border-slate-800/80 space-y-1">
           {navConfig.secondary.map((item) => (
             <SidebarNavItem
               key={item.to}
@@ -193,7 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* ── User menu ── */}
-      <div className="px-3 pb-4 pt-2 border-t border-slate-800/60">
+      <div className="px-3 pb-3 pt-2 border-t border-slate-800/80">
         <UserMenu collapsed={collapsed} />
       </div>
     </div>
