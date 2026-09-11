@@ -4,12 +4,14 @@ import {
   LayoutDashboard,
   Users,
   UserRound,
+  UserPlus,
   Briefcase,
   Receipt,
   Package,
   BarChart3,
   Settings,
   Building2,
+  ShieldCheck,
   ChevronLeft,
   ChevronRight,
   Sparkles,
@@ -36,7 +38,7 @@ const getNavConfig = (
   role: Role,
   _primaryFocus: FocusArea[]
 ): { primary: NavItem[]; secondary: NavItem[] } => {
-  const isEmployee = role === 'employee';
+  const isEmployee = role === 'employee' || role === 'intern';
 
   const allModules: NavItem[] = [
     { to: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
@@ -48,7 +50,7 @@ const getNavConfig = (
     { to: '/dashboard/analytics', icon: <BarChart3 className="w-5 h-5" />, label: 'Analytics' },
   ];
 
-  // Employee gets a simplified nav
+  // Employee and Intern get a simplified nav
   if (isEmployee) {
     return {
       primary: [
@@ -77,9 +79,22 @@ const getNavConfig = (
   }));
 
   const secondary: NavItem[] =
-    role === 'super_admin' || role === 'admin'
+    role === 'super_admin'
       ? [
+          { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
           { to: '/dashboard/org', icon: <Building2 className="w-5 h-5" />, label: 'Organization' },
+          { to: '/dashboard/permissions', icon: <ShieldCheck className="w-5 h-5" />, label: 'Permissions' },
+          { to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' },
+        ]
+      : role === 'admin'
+      ? [
+          { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
+          { to: '/dashboard/org', icon: <Building2 className="w-5 h-5" />, label: 'Organization' },
+          { to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' },
+        ]
+      : role === 'hr'
+      ? [
+          { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
           { to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' },
         ]
       : [{ to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' }];
@@ -199,6 +214,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* ── Secondary nav (settings/org) ── */}
       {navConfig.secondary.length > 0 && (
         <div className="px-3 py-2 border-t border-slate-800/80 space-y-1">
+          {!collapsed && (
+            <p className="px-3 pt-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest">
+              Organization
+            </p>
+          )}
           {navConfig.secondary.map((item) => (
             <SidebarNavItem
               key={item.to}

@@ -13,6 +13,7 @@ const ROLES = {
   FINANCE: 'finance',
   INVENTORY_MANAGER: 'inventory_manager',
   EMPLOYEE: 'employee',
+  INTERN: 'intern',
 };
 
 /** All valid role strings as an array (for Mongoose enum). */

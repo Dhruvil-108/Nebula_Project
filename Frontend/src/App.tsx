@@ -18,6 +18,9 @@ import RecruitmentPage from './pages/modules/RecruitmentPage';
 import ExpensesPage from './pages/modules/ExpensesPage';
 import InventoryPage from './pages/modules/InventoryPage';
 import AnalyticsPage from './pages/modules/AnalyticsPage';
+import { ManagePermissionsPage } from './pages/ManagePermissionsPage';
+import { AccountCreatorPage } from './pages/AccountCreatorPage';
+import ProfilePage from './pages/ProfilePage';
 
 // ── TanStack Query client ──
 const queryClient = new QueryClient({
@@ -64,6 +67,25 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (isLoading) return null;
 
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+};
+
+// ── Super Admin route: redirects to /dashboard if user is not super_admin ──
+const SuperAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) return null;
+
+  return user?.role === 'super_admin' ? <>{children}</> : <Navigate to="/dashboard" replace />;
+};
+
+// ── Account Creator route: accessible to super_admin, admin, and hr ──
+const AccountCreatorRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) return null;
+
+  const isAllowed = user?.role === 'super_admin' || user?.role === 'admin' || user?.role === 'hr';
+  return isAllowed ? <>{children}</> : <Navigate to="/dashboard" replace />;
 };
 
 // ── Placeholder pages for stub routes ──
@@ -136,7 +158,31 @@ export const App: React.FC = () => {
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="settings" element={<PlaceholderPage title="Settings" />} />
               <Route path="org" element={<PlaceholderPage title="Organization" />} />
-              <Route path="profile" element={<PlaceholderPage title="Profile" />} />
+              <Route
+                path="accounts"
+                element={
+                  <AccountCreatorRoute>
+                    <AccountCreatorPage />
+                  </AccountCreatorRoute>
+                }
+              />
+              <Route
+                path="permissions"
+                element={
+                  <SuperAdminRoute>
+                    <ManagePermissionsPage />
+                  </SuperAdminRoute>
+                }
+              />
+              <Route
+                path="org/permissions"
+                element={
+                  <SuperAdminRoute>
+                    <ManagePermissionsPage />
+                  </SuperAdminRoute>
+                }
+              />
+              <Route path="profile" element={<ProfilePage />} />
             </Route>
 
             {/* ── Wildcard ── */}

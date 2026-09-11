@@ -11,7 +11,8 @@ export type Role =
   | 'sales'
   | 'finance'
   | 'inventory_manager'
-  | 'employee';
+  | 'employee'
+  | 'intern';
 
 export interface User {
   id: string;
@@ -31,6 +32,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   finance: 'Finance',
   inventory_manager: 'Inventory Manager',
   employee: 'Employee',
+  intern: 'Intern',
 };
 
 /** Badge color variant for each role */
@@ -44,4 +46,5 @@ export const ROLE_COLORS: Record<Role, string> = {
   finance: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30',
   inventory_manager: 'text-amber-300 bg-amber-500/10 border-amber-500/30',
   employee: 'text-slate-400 bg-slate-500/10 border-slate-500/30',
+  intern: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
 };

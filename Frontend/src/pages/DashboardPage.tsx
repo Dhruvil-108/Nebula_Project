@@ -1,291 +1,672 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  Cell,
-} from 'recharts';
+  Users,
+  CheckCircle2,
+  CalendarClock,
+  ShieldCheck,
+  Clock,
+  Calendar,
+  CalendarCheck,
+  UserPlus,
+  ArrowRight,
+  Sparkles,
+  Check,
+  X,
+  RefreshCw,
+  Search,
+  Coffee,
+  LogOut,
+  AlertCircle,
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { apiClient } from '../lib/apiClient';
 import { KpiCard, KpiCardSkeleton } from '../components/dashboard/KpiCard';
-import { EmptyState } from '../components/dashboard/EmptyState';
 import { AttendanceCard } from '../components/dashboard/AttendanceCard';
 import { LeaveBalanceCard } from '../components/dashboard/LeaveBalanceCard';
 import { MonthlyHoursCard } from '../components/dashboard/MonthlyHoursCard';
 import { UpcomingHolidaysCard } from '../components/dashboard/UpcomingHolidaysCard';
 import { PresentAbsentCard } from '../components/dashboard/PresentAbsentCard';
-import type { Role } from '../types/user';
-import type { DashboardData, KpiCardData, ChartDataPoint } from '../types/dashboard';
-import {
-  mockExecutiveData,
-  mockSalesData,
-  mockHrData,
-  mockFinanceData,
-  mockInventoryData,
-  mockEmployeeData,
-} from '../data/mockDashboardData';
+import { ROLE_LABELS, ROLE_COLORS, type Role } from '../types/user';
+import type { KpiCardData } from '../types/dashboard';
 
-// ─────────────────────────────────────────────────────────
-// Helper: select mock data by role
-// ─────────────────────────────────────────────────────────
+interface OrganizationDashboardStats {
+  organization: {
+    id: string;
+    name: string;
+    timezone: string;
+    shiftStartTime: string;
+  };
+  stats: {
+    totalAccounts: number;
+    roleDistribution: Record<string, number>;
+    activeRolesList: string[];
+    checkedInTodayCount: number;
+    onBreakTodayCount: number;
+    checkedOutTodayCount: number;
+    notCheckedInTodayCount: number;
+    activeTodayTotal: number;
+    todayAttendanceRate: number;
+    pendingLeavesCount: number;
+    configuredPermissionsCount: number;
+    managedStaffCount: number;
+    upcomingHolidaysCount: number;
+  };
+  personal: {
+    myCurrentStatus: 'checked_in' | 'checked_out' | 'on_break' | 'not_checked_in';
+    myDaysPresent: number;
+    myWorkedHours: number;
+    myRemainingLeaves: number;
+    myPendingLeavesCount: number;
+  };
+  todayRoster: Array<{
+    userId: string;
+    fullName: string;
+    email: string;
+    role: Role;
+    status: 'checked_in' | 'checked_out' | 'on_break' | 'not_checked_in';
+    checkInAt: string | null;
+    checkOutAt: string | null;
+    workedMinutes: number;
+    isLate: boolean;
+  }>;
+  pendingLeaves: Array<{
+    id: string;
+    employeeName: string;
+    employeeEmail: string;
+    employeeRole: string;
+    leaveType: string;
+    startDate: string;
+    endDate: string;
+    days: number;
+    reason: string;
+    createdAt: string;
+  }>;
+  upcomingHolidays: Array<{
+    id: string;
+    name: string;
+    date: string;
+    dayOfWeek: string;
+  }>;
+}
 
-const getDashboardData = (role: Role): DashboardData => {
-  if (role === 'super_admin' || role === 'admin' || role === 'manager') {
-    return mockExecutiveData;
-  }
-  if (role === 'sales') return mockSalesData;
-  if (role === 'hr') return mockHrData;
-  if (role === 'finance') return mockFinanceData;
-  if (role === 'inventory_manager') return mockInventoryData;
-  return mockEmployeeData;
-};
+export const DashboardPage: React.FC = () => {
+  const { user, organization, isLoading: isAuthLoading } = useAuth();
+  const queryClient = useQueryClient();
+  const [rosterSearch, setRosterSearch] = useState('');
 
-// ─────────────────────────────────────────────────────────
-// Chart color palette (Zorvi brand + semantic colors)
-// ─────────────────────────────────────────────────────────
+  // ── Fetch real live dashboard statistics ──
+  const {
+    data: dashboardData,
+    isLoading: isStatsLoading,
+    refetch,
+    isRefetching,
+  } = useQuery<OrganizationDashboardStats>({
+    queryKey: ['dashboard', 'stats'],
+    queryFn: async () => {
+      const res = await apiClient.get<OrganizationDashboardStats>('/dashboard/stats');
+      return res.data;
+    },
+    refetchInterval: 15000, // Live poll every 15s for attendance synchronization
+  });
 
-const CHART_COLORS = ['#f0512f', '#ff7a59', '#0e9f6e', '#f59e0b', '#ef4444', '#f97316', '#38bdf8'];
+  // ── Leave approvals mutations (for Admin, Super Admin, HR, Manager) ──
+  const approveLeaveMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.patch(`/leaves/requests/${id}/approve`);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success('Leave request approved successfully.');
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ['leaves'] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error || 'Failed to approve leave request.');
+    },
+  });
 
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  payload?: Array<{ value: number; name?: string }>;
-  label?: string;
-}) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 shadow-xl text-xs">
-      <p className="text-slate-400 mb-1">{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} className="text-slate-100 font-semibold">
-          {typeof p.value === 'number' && p.value >= 1000
-            ? `$${(p.value / 1000).toFixed(0)}K`
-            : p.value}
-        </p>
-      ))}
-    </div>
-  );
-};
+  const rejectLeaveMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiClient.patch(`/leaves/requests/${id}/reject`);
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.info('Leave request rejected.');
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
+      queryClient.invalidateQueries({ queryKey: ['leaves'] });
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error || 'Failed to reject leave request.');
+    },
+  });
 
-// ─────────────────────────────────────────────────────────
-// Chart sections by view type
-// ─────────────────────────────────────────────────────────
+  // ── Generate 100% REAL role-specific KPI cards based on active user role ──
+  const roleKpis: KpiCardData[] = useMemo(() => {
+    if (!dashboardData || !user) return [];
 
-const ExecutiveCharts: React.FC<{ revenueChart: ChartDataPoint[]; headcountChart: ChartDataPoint[] }> = ({
-  revenueChart,
-  headcountChart,
-}) => (
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    {/* Revenue vs Expenses */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5, duration: 0.4 }}
-      className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/60"
-    >
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-100">Revenue vs Expenses</h3>
-          <p className="text-xs text-slate-500">Last 7 months</p>
-        </div>
-        <div className="flex items-center gap-3 text-[10px]">
-          <span className="flex items-center gap-1.5 text-slate-400">
-            <span className="w-2 h-2 rounded-full bg-[#f0512f]" />Revenue
-          </span>
-          <span className="flex items-center gap-1.5 text-slate-400">
-            <span className="w-2 h-2 rounded-full bg-rose-500" />Expenses
-          </span>
-        </div>
-      </div>
-      <ResponsiveContainer width="100%" height={180}>
-        <AreaChart data={revenueChart} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-          <defs>
-            <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#f0512f" stopOpacity={0.25} />
-              <stop offset="95%" stopColor="#f0512f" stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
-              <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-          <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`} />
-          <Tooltip content={<CustomTooltip />} />
-          <Area type="monotone" dataKey="value" stroke="#f0512f" strokeWidth={2} fill="url(#revGrad)" dot={false} />
-          <Area type="monotone" dataKey="secondary" stroke="#ef4444" strokeWidth={2} fill="url(#expGrad)" dot={false} />
-        </AreaChart>
-      </ResponsiveContainer>
-    </motion.div>
+    const { stats, personal } = dashboardData;
+    const role = user.role;
 
-    {/* Headcount trend */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.6, duration: 0.4 }}
-      className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/60"
-    >
-      <div className="mb-4">
-        <h3 className="text-sm font-semibold text-slate-100">Headcount Growth</h3>
-        <p className="text-xs text-slate-500">Last 7 months</p>
-      </div>
-      <ResponsiveContainer width="100%" height={180}>
-        <BarChart data={headcountChart} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barSize={28}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-          <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-          <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="value" radius={[6, 6, 0, 0]} fill="#f0512f" fillOpacity={0.85} />
-        </BarChart>
-      </ResponsiveContainer>
-    </motion.div>
-  </div>
-);
+    if (role === 'super_admin' || role === 'admin') {
+      return [
+        {
+          id: 'total-accounts',
+          title: 'Total Accounts',
+          value: stats.totalAccounts,
+          trendPercent: null,
+          trendLabel: 'Active workspace accounts',
+          iconName: 'Users',
+          colorClasses: 'bg-indigo-500/10 text-indigo-400',
+        },
+        {
+          id: 'checked-in-today',
+          title: "Today's Check-ins",
+          value: `${stats.checkedInTodayCount} / ${stats.totalAccounts}`,
+          trendPercent: stats.todayAttendanceRate > 0 ? stats.todayAttendanceRate : null,
+          trendLabel: `${stats.todayAttendanceRate}% attendance rate`,
+          iconName: 'CheckCircle2',
+          colorClasses: 'bg-emerald-500/10 text-emerald-400',
+        },
+        {
+          id: 'pending-leaves',
+          title: 'Pending Leaves',
+          value: stats.pendingLeavesCount,
+          trendPercent: null,
+          trendLabel: stats.pendingLeavesCount === 1 ? '1 awaiting review' : `${stats.pendingLeavesCount} awaiting review`,
+          iconName: 'CalendarClock',
+          colorClasses: 'bg-amber-500/10 text-amber-400',
+        },
+        {
+          id: 'configured-permissions',
+          title: 'Configured Permissions',
+          value: stats.configuredPermissionsCount,
+          trendPercent: null,
+          trendLabel: `${stats.activeRolesList.length} active roles in matrix`,
+          iconName: 'ShieldCheck',
+          colorClasses: 'bg-orange-500/10 text-orange-400',
+        },
+      ];
+    }
 
-const PipelineChart: React.FC<{ data: ChartDataPoint[] }> = ({ data }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.5 }}
-    className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/60"
-  >
-    <div className="mb-4">
-      <h3 className="text-sm font-semibold text-slate-100">Pipeline Stage Breakdown</h3>
-      <p className="text-xs text-slate-500">Active leads by stage</p>
-    </div>
-    <ResponsiveContainer width="100%" height={200}>
-      <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, left: 40, bottom: 0 }} barSize={18}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
-        <XAxis type="number" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-        <YAxis dataKey="label" type="category" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
-        <Tooltip content={<CustomTooltip />} />
-        <Bar dataKey="value" radius={[0, 6, 6, 0]}>
-          {data.map((_, index) => (
-            <Cell key={index} fill={CHART_COLORS[index % CHART_COLORS.length]} fillOpacity={0.85} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  </motion.div>
-);
+    if (role === 'hr') {
+      return [
+        {
+          id: 'managed-staff',
+          title: 'Managed Team Staff',
+          value: stats.managedStaffCount,
+          trendPercent: null,
+          trendLabel: 'Employees, interns & recruiters',
+          iconName: 'Users',
+          colorClasses: 'bg-rose-500/10 text-rose-400',
+        },
+        {
+          id: 'attendance-rate',
+          title: "Today's Attendance",
+          value: `${stats.todayAttendanceRate}%`,
+          trendPercent: null,
+          trendLabel: `${stats.checkedInTodayCount} of ${stats.totalAccounts} checked in today`,
+          iconName: 'CheckCircle2',
+          colorClasses: 'bg-emerald-500/10 text-emerald-400',
+        },
+        {
+          id: 'hr-pending-leaves',
+          title: 'Pending Leave Approvals',
+          value: stats.pendingLeavesCount,
+          trendPercent: null,
+          trendLabel: stats.pendingLeavesCount > 0 ? 'Requires HR action' : 'All caught up',
+          iconName: 'CalendarClock',
+          colorClasses: 'bg-amber-500/10 text-amber-400',
+        },
+        {
+          id: 'upcoming-holidays',
+          title: 'Upcoming Holidays',
+          value: stats.upcomingHolidaysCount,
+          trendPercent: null,
+          trendLabel: 'Scheduled in organization',
+          iconName: 'Calendar',
+          colorClasses: 'bg-sky-500/10 text-sky-400',
+        },
+      ];
+    }
 
-const GenericBarChart: React.FC<{ data: ChartDataPoint[]; title: string; subtitle: string }> = ({
-  data,
-  title,
-  subtitle,
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.5 }}
-    className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800/60"
-  >
-    <div className="mb-4">
-      <h3 className="text-sm font-semibold text-slate-100">{title}</h3>
-      <p className="text-xs text-slate-500">{subtitle}</p>
-    </div>
-    <ResponsiveContainer width="100%" height={200}>
-      <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barSize={32}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-        <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-        <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
-        <Tooltip content={<CustomTooltip />} />
-        <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-          {data.map((_, index) => (
-            <Cell key={index} fill={CHART_COLORS[index % CHART_COLORS.length]} fillOpacity={0.85} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  </motion.div>
-);
+    if (role === 'manager') {
+      return [
+        {
+          id: 'team-size',
+          title: 'Total Team Size',
+          value: stats.totalAccounts,
+          trendPercent: null,
+          trendLabel: 'Organization roster',
+          iconName: 'Users',
+          colorClasses: 'bg-amber-500/10 text-amber-400',
+        },
+        {
+          id: 'team-checked-in',
+          title: 'Team Present Today',
+          value: `${stats.checkedInTodayCount} / ${stats.totalAccounts}`,
+          trendPercent: null,
+          trendLabel: `${stats.todayAttendanceRate}% clocked in`,
+          iconName: 'CheckCircle2',
+          colorClasses: 'bg-emerald-500/10 text-emerald-400',
+        },
+        {
+          id: 'team-leaves',
+          title: 'Pending Team Leaves',
+          value: stats.pendingLeavesCount,
+          trendPercent: null,
+          trendLabel: 'Requests awaiting decision',
+          iconName: 'CalendarClock',
+          colorClasses: 'bg-rose-500/10 text-rose-400',
+        },
+        {
+          id: 'manager-hours',
+          title: 'My Monthly Hours',
+          value: `${personal.myWorkedHours} hrs`,
+          trendPercent: null,
+          trendLabel: 'Logged this month',
+          iconName: 'Clock',
+          colorClasses: 'bg-sky-500/10 text-sky-400',
+        },
+      ];
+    }
 
-// ─────────────────────────────────────────────────────────
-// DashboardPage
-// ─────────────────────────────────────────────────────────
+    // Default for Employee & Intern (Personal Work Dashboard)
+    return [
+      {
+        id: 'my-days-present',
+        title: 'Days Present this Month',
+        value: `${personal.myDaysPresent} days`,
+        trendPercent: null,
+        trendLabel: 'Actual shift attendance',
+        iconName: 'CalendarCheck',
+        colorClasses: 'bg-emerald-500/10 text-emerald-400',
+      },
+      {
+        id: 'my-worked-hours',
+        title: 'Hours Worked this Month',
+        value: `${personal.myWorkedHours} hrs`,
+        trendPercent: null,
+        trendLabel: 'Total logged time',
+        iconName: 'Clock',
+        colorClasses: 'bg-sky-500/10 text-sky-400',
+      },
+      {
+        id: 'my-leaves-balance',
+        title: 'Remaining Leave Days',
+        value: `${personal.myRemainingLeaves} days`,
+        trendPercent: null,
+        trendLabel: 'Annual, casual & sick balances',
+        iconName: 'Calendar',
+        colorClasses: 'bg-indigo-500/10 text-indigo-400',
+      },
+      {
+        id: 'my-pending-leaves',
+        title: 'My Pending Leave Requests',
+        value: personal.myPendingLeavesCount,
+        trendPercent: null,
+        trendLabel: personal.myPendingLeavesCount > 0 ? 'Awaiting supervisor approval' : 'None pending',
+        iconName: 'CalendarClock',
+        colorClasses: 'bg-amber-500/10 text-amber-400',
+      },
+    ];
+  }, [dashboardData, user]);
 
-const SHOW_EMPTY_STATE = false; // Set to false to show the active interactive daily-use attendance dashboard
-
-const DashboardPage: React.FC = () => {
-  const { user, organization, isLoading } = useAuth();
-
-  const dashboardData = useMemo(() => {
-    if (!user) return null;
-    return getDashboardData(user.role);
-  }, [user]);
-
-  const kpis: KpiCardData[] = dashboardData?.kpis ?? [];
+  // Filter roster by search input
+  const filteredRoster = (dashboardData?.todayRoster || []).filter((emp) => {
+    const q = rosterSearch.toLowerCase();
+    return (
+      emp.fullName.toLowerCase().includes(q) ||
+      emp.email.toLowerCase().includes(q) ||
+      (ROLE_LABELS[emp.role] || emp.role).toLowerCase().includes(q)
+    );
+  });
 
   // ── Loading state ──
-  if (isLoading) {
+  if (isAuthLoading || (isStatsLoading && !dashboardData)) {
     return (
-      <div className="p-6 md:p-8 space-y-6">
-        <div className="h-8 w-48 bg-slate-800 rounded-lg animate-pulse" />
+      <div className="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
+        <div className="h-10 w-64 bg-slate-800 rounded-xl animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(8)].map((_, i) => <KpiCardSkeleton key={i} index={i} />)}
+          {[...Array(4)].map((_, i) => (
+            <KpiCardSkeleton key={i} index={i} />
+          ))}
         </div>
+        <div className="h-64 bg-slate-900/60 rounded-2xl animate-pulse border border-slate-800" />
       </div>
     );
   }
 
   if (!user || !organization) return null;
 
-  // ── Empty state fallback (if specifically toggled) ──
-  if (SHOW_EMPTY_STATE) {
-    return (
-      <div className="relative overflow-hidden">
-        <EmptyState role={user.role} primaryFocus={organization.primaryFocus} />
-      </div>
-    );
-  }
+  const isManagementRole = ['super_admin', 'admin', 'manager', 'hr'].includes(user.role);
 
   return (
     <div className="p-6 md:p-8 space-y-8 max-w-[1600px] mx-auto">
-      {/* ── Welcome header ── */}
+      {/* ── Welcome Header with Role Badge & Actions ── */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-800/60"
       >
         <div>
-          <h2 className="text-2xl font-bold text-white">
+          <div className="flex items-center gap-2 mb-2">
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
+                ROLE_COLORS[user.role] || 'text-slate-300 bg-slate-800 border-slate-700'
+              }`}
+            >
+              <Sparkles className="w-3 h-3 mr-1" />
+              {ROLE_LABELS[user.role] || user.role} Dashboard
+            </span>
+            <span className="text-xs text-slate-500 font-mono">/ {organization.name}</span>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
             Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},{' '}
             <span className="text-gradient-accent">{user.fullName.split(' ')[0]}</span> 👋
           </h2>
           <p className="text-sm text-slate-400 mt-1">
-            {organization.name} · Here's your daily attendance & operations overview.
+            {isManagementRole
+              ? `Real-time operations, attendance, and team overview for ${organization.name}.`
+              : `Your personalized daily shift attendance, time tracking, and leave balances.`}
           </p>
         </div>
 
-        {/* Quick date/time badge */}
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-400 flex-shrink-0">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          Live · {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+        {/* Header Action Controls */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Quick link: Create Account for Super Admin, Admin, and HR */}
+          {(user.role === 'super_admin' || user.role === 'admin' || user.role === 'hr') && (
+            <Link
+              to="/dashboard/accounts"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-all shadow-md shadow-indigo-600/20"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Create Account
+            </Link>
+          )}
+
+          {/* Quick link: Permissions Matrix for Super Admin */}
+          {user.role === 'super_admin' && (
+            <Link
+              to="/dashboard/permissions"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-all"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#f0512f]" />
+              Permissions
+            </Link>
+          )}
+
+          {/* Refresh button */}
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isRefetching}
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-200 bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-colors"
+            title="Refresh dashboard data"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin text-indigo-400' : ''}`} />
+          </button>
+
+          {/* Live time indicator */}
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-400 flex-shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Live · {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+          </div>
         </div>
       </motion.div>
 
-      {/* ── Attendance & Time Tracking Section (Primary daily-use surface) ── */}
+      {/* ── Real Role-Specific Performance KPIs (Zero Dummy Data) ── */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
-            Daily Time & Attendance
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            {isManagementRole ? 'Real-Time Organization Metrics' : 'My Personal Activity Overview'}
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {roleKpis.map((kpi, i) => (
+            <KpiCard key={kpi.id} data={kpi} index={i} />
+          ))}
+        </div>
+      </div>
+
+      {/* ── Management Operational Views (Super Admin, Admin, HR, Manager) ── */}
+      {isManagementRole && dashboardData && (
+        <div className="space-y-6">
+          {/* ── Live Attendance Roster & Summary Row ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Live Today Attendance Breakdown (5 cols) */}
+            <div className="lg:col-span-4 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800/60">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <h4 className="text-sm font-semibold text-white">Today's Team Presence</h4>
+                </div>
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+                  {dashboardData.stats.todayAttendanceRate}% Rate
+                </span>
+              </div>
+
+              {/* Status Breakdown Counters */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <div>
+                    <p className="text-[11px] text-slate-400">Present</p>
+                    <p className="text-base font-bold text-white">{dashboardData.stats.checkedInTodayCount}</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                  <div>
+                    <p className="text-[11px] text-slate-400">On Break</p>
+                    <p className="text-base font-bold text-white">{dashboardData.stats.onBreakTodayCount}</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-sky-400" />
+                  <div>
+                    <p className="text-[11px] text-slate-400">Checked Out</p>
+                    <p className="text-base font-bold text-white">{dashboardData.stats.checkedOutTodayCount}</p>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-600" />
+                  <div>
+                    <p className="text-[11px] text-slate-400">Not Clocked In</p>
+                    <p className="text-base font-bold text-slate-300">{dashboardData.stats.notCheckedInTodayCount}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Roles Summary */}
+              <div className="pt-2 border-t border-slate-800/60">
+                <p className="text-[11px] font-semibold text-slate-400 mb-2 uppercase tracking-wider">
+                  Configured Roles in Org ({dashboardData.stats.activeRolesList.length})
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {dashboardData.stats.activeRolesList.map((r) => (
+                    <span
+                      key={r}
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border ${
+                        ROLE_COLORS[r as Role] || 'text-slate-400 bg-slate-800 border-slate-700'
+                      }`}
+                    >
+                      {ROLE_LABELS[r as Role] || r}: {dashboardData.stats.roleDistribution[r] || 0}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Live Today Team Attendance Roster Table (8 cols) */}
+            <div className="lg:col-span-8 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800/60">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-indigo-400" />
+                  <h4 className="text-sm font-semibold text-white">Today's Team Attendance Roster</h4>
+                  <span className="text-xs text-slate-500 font-mono">({filteredRoster.length} members)</span>
+                </div>
+
+                {/* Filter search */}
+                <div className="relative w-full sm:w-56">
+                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Filter roster..."
+                    value={rosterSearch}
+                    onChange={(e) => setRosterSearch(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              {filteredRoster.length === 0 ? (
+                <div className="py-10 text-center text-slate-500 text-xs">
+                  No accounts match your roster search.
+                </div>
+              ) : (
+                <div className="overflow-x-auto max-h-[260px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-slate-400 text-[11px]">
+                        <th className="pb-2 font-medium">Team Member</th>
+                        <th className="pb-2 font-medium">Role</th>
+                        <th className="pb-2 font-medium">Today's Status</th>
+                        <th className="pb-2 font-medium">Clock-In Time</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/40">
+                      {filteredRoster.map((emp) => {
+                        const roleColor = ROLE_COLORS[emp.role] || 'text-slate-400 bg-slate-800 border-slate-700';
+                        return (
+                          <tr key={emp.userId} className="hover:bg-slate-900/30 transition-colors">
+                            <td className="py-2.5 pr-2">
+                              <div className="font-medium text-white">{emp.fullName}</div>
+                              <div className="text-[10px] text-slate-500 truncate max-w-[160px]">{emp.email}</div>
+                            </td>
+                            <td className="py-2.5 pr-2">
+                              <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold border ${roleColor}`}>
+                                {ROLE_LABELS[emp.role] || emp.role}
+                              </span>
+                            </td>
+                            <td className="py-2.5 pr-2">
+                              {emp.status === 'checked_in' && (
+                                <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                  Present
+                                </span>
+                              )}
+                              {emp.status === 'on_break' && (
+                                <span className="inline-flex items-center gap-1 text-amber-400 font-medium">
+                                  <Coffee className="w-3 h-3" />
+                                  On Break
+                                </span>
+                              )}
+                              {emp.status === 'checked_out' && (
+                                <span className="inline-flex items-center gap-1 text-sky-400 font-medium">
+                                  <LogOut className="w-3 h-3" />
+                                  Checked Out
+                                </span>
+                              )}
+                              {emp.status === 'not_checked_in' && (
+                                <span className="text-slate-500 font-normal">Not Clocked In</span>
+                              )}
+                            </td>
+                            <td className="py-2.5 text-slate-400 font-mono text-[11px]">
+                              {emp.checkInAt ? new Date(emp.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* ── Pending Leave Approvals Section (Shown when requests exist) ── */}
+          {dashboardData.pendingLeaves.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 shadow-lg space-y-3"
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-amber-500/15">
+                <div className="flex items-center gap-2">
+                  <CalendarClock className="w-4 h-4 text-amber-400" />
+                  <h4 className="text-sm font-semibold text-white">
+                    Pending Leave Approvals ({dashboardData.pendingLeaves.length})
+                  </h4>
+                </div>
+                <span className="text-xs text-amber-400 font-medium">Action Required</span>
+              </div>
+
+              <div className="divide-y divide-slate-800/80">
+                {dashboardData.pendingLeaves.map((leave) => (
+                  <div key={leave.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-white">{leave.employeeName}</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-mono">
+                          {leave.employeeRole}
+                        </span>
+                        <span className="text-xs text-amber-300 font-medium">· {leave.leaveType}</span>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {new Date(leave.startDate).toLocaleDateString()} to {new Date(leave.endDate).toLocaleDateString()} ({leave.days} {leave.days === 1 ? 'day' : 'days'})
+                        {leave.reason ? ` — "${leave.reason}"` : ''}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => approveLeaveMutation.mutate(leave.id)}
+                        disabled={approveLeaveMutation.isPending}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 transition-colors shadow-sm"
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                        Approve
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => rejectLeaveMutation.mutate(leave.id)}
+                        disabled={rejectLeaveMutation.isPending}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-rose-600 transition-colors"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      )}
+
+      {/* ── Daily Time & Attendance Section (Real per-user check-in and records) ── */}
+      <div className="space-y-4 pt-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            {isManagementRole ? 'My Personal Shift & Attendance' : 'Daily Time & Shift Tracking'}
           </h3>
         </div>
 
         {/* Top 3 Attendance Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Primary Check In / Out Card (Largest, top-left) */}
+          {/* Primary Check In / Out Card */}
           <div className="lg:col-span-5 flex flex-col">
             <AttendanceCard />
           </div>
@@ -314,54 +695,6 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* ── Role KPIs & Overview ── */}
-      <div className="pt-4 space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
-          Organization & Performance KPIs
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpis.map((kpi, i) => (
-            <KpiCard key={kpi.id} data={kpi} index={i} />
-          ))}
-        </div>
-      </div>
-
-      {/* ── Charts (role-specific) ── */}
-      {dashboardData?.viewType === 'executive' && (
-        <ExecutiveCharts
-          revenueChart={dashboardData.revenueChart}
-          headcountChart={dashboardData.headcountChart}
-        />
-      )}
-
-      {dashboardData?.viewType === 'sales' && (
-        <PipelineChart data={dashboardData.pipelineChart} />
-      )}
-
-      {dashboardData?.viewType === 'hr' && (
-        <GenericBarChart
-          data={dashboardData.attendanceChart}
-          title="Weekly Attendance"
-          subtitle="Present vs absent this week"
-        />
-      )}
-
-      {dashboardData?.viewType === 'finance' && (
-        <GenericBarChart
-          data={dashboardData.spendChart}
-          title="Spend by Category"
-          subtitle="This month's expense breakdown"
-        />
-      )}
-
-      {dashboardData?.viewType === 'inventory' && (
-        <GenericBarChart
-          data={dashboardData.stockChart}
-          title="Stock Value by Category"
-          subtitle="Current inventory breakdown"
-        />
-      )}
     </div>
   );
 };
