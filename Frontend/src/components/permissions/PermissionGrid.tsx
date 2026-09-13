@@ -62,7 +62,7 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
   onBatchColumn,
 }) => {
   return (
-    <div className="w-full overflow-x-auto rounded-2xl border border-slate-800/80 bg-slate-950/60 shadow-xl scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+    <div className="permissions-grid w-full overflow-x-auto rounded-2xl border border-slate-800/80 bg-slate-950/60 shadow-xl scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
       <table className="w-full border-collapse text-left min-w-[900px]">
         {/* Table Header */}
         <thead>

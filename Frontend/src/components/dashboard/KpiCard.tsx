@@ -70,7 +70,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({ data, index }) => {
     >
       <div className="flex items-start justify-between mb-4">
         {/* Icon */}
-        <div className={clsx('w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0', data.colorClasses)}>
+        <div className="w-10 h-10 rounded-xl bg-[#fbeae0] text-[#7a2f05] flex items-center justify-center flex-shrink-0">
           {getIcon(data.iconName)}
         </div>
 
@@ -82,8 +82,8 @@ export const KpiCard: React.FC<KpiCardProps> = ({ data, index }) => {
               isPositive
                 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
                 : isNegative
-                ? 'text-rose-400 bg-rose-500/10 border-rose-500/20'
-                : 'text-slate-400 bg-slate-800 border-slate-700'
+                  ? 'text-rose-400 bg-rose-500/10 border-rose-500/20'
+                  : 'text-slate-400 bg-slate-800 border-slate-700'
             )}
           >
             {isPositive && <TrendingUp className="w-3 h-3" />}

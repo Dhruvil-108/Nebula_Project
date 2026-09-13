@@ -352,7 +352,7 @@ export const AttendanceCard: React.FC = () => {
             id="btn-attendance-checkin"
             onClick={() => checkInMutation.mutate()}
             disabled={isPendingMutation}
-            className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-[#f0512f] to-[#ff7a59] text-white hover:opacity-95 active:scale-[0.99] transition-all duration-200 shadow-lg shadow-[#f0512f]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-[#c2540c] text-white hover:bg-[#d06b28] active:scale-[0.99] transition-all duration-200 shadow-lg shadow-[#c2540c]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <LogIn className="w-4 h-4" />
             <span>Check In</span>
@@ -367,7 +367,7 @@ export const AttendanceCard: React.FC = () => {
                 id="btn-attendance-break-in"
                 onClick={() => breakInMutation.mutate()}
                 disabled={isPendingMutation}
-                className="py-2.5 px-3 rounded-xl font-medium text-xs bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="py-2.5 px-3 rounded-xl font-medium text-xs bg-[#fbeae0] text-[#7a2f05] border border-[#de7a3d] hover:bg-[#f6e8dc] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Coffee className="w-4 h-4" />
                 <span>Start Break</span>
@@ -377,7 +377,7 @@ export const AttendanceCard: React.FC = () => {
                 id="btn-attendance-break-out"
                 onClick={() => breakOutMutation.mutate()}
                 disabled={isPendingMutation}
-                className="py-2.5 px-3 rounded-xl font-medium text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="py-2.5 px-3 rounded-xl font-medium text-xs bg-[#fbeae0] text-[#7a2f05] border border-[#de7a3d] hover:bg-[#f6e8dc] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Play className="w-4 h-4" />
                 <span>End Break</span>
@@ -390,7 +390,7 @@ export const AttendanceCard: React.FC = () => {
               onClick={() => checkOutMutation.mutate()}
               disabled={isPendingMutation || isOnBreak}
               title={isOnBreak ? 'Please end your break before checking out' : 'Check out for today'}
-              className="py-2.5 px-3 rounded-xl font-medium text-xs bg-rose-500/15 text-rose-300 border border-rose-500/30 hover:bg-rose-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="py-2.5 px-3 rounded-xl font-medium text-xs bg-[#fbeae0] text-[#7a2f05] border border-[#de7a3d] hover:bg-[#f6e8dc] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <LogOut className="w-4 h-4" />
               <span>Check Out</span>
@@ -399,9 +399,9 @@ export const AttendanceCard: React.FC = () => {
         )}
 
         {isCheckedOut && (
-          <div className="py-2.5 px-4 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center">
-            <p className="text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <div className="py-2.5 px-4 rounded-xl bg-[#fbeae0] border border-[#de7a3d] text-center">
+            <p className="text-xs text-[#7a2f05] font-medium flex items-center justify-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-[#c2540c]" />
               Day completed · Total {formatHoursMinutes(liveElapsedSeconds)}
             </p>
           </div>

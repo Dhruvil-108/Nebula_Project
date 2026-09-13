@@ -11,12 +11,12 @@ const AnalyticsPage: React.FC = () => (
       className="text-center max-w-md"
     >
       <div className="relative mb-8 inline-block">
-        <div className="absolute inset-0 bg-[#f0512f]/20 blur-3xl rounded-full" />
-        <div className="relative w-20 h-20 rounded-2xl bg-[#f0512f]/10 border border-[#f0512f]/30 flex items-center justify-center mx-auto shadow-lg shadow-[#f0512f]/10">
-          <BarChart3 className="w-9 h-9 text-[#ff7a59]" />
+        <div className="absolute inset-0 bg-[#fbeae0] blur-3xl rounded-full" />
+        <div className="relative w-20 h-20 rounded-2xl bg-[#fbeae0] flex items-center justify-center mx-auto shadow-lg shadow-[#c2540c]/10">
+          <BarChart3 className="w-9 h-9 text-[#7a2f05]" />
         </div>
       </div>
-      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f0512f]/10 border border-[#f0512f]/30 text-[#ff8c70] text-xs font-semibold mb-4">
+      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fbeae0] border border-[#de7a3d] text-[#7a2f05] text-xs font-semibold mb-4">
         Coming Soon
       </div>
       <h2 className="text-2xl font-bold text-white mb-3">Unified Analytics</h2>

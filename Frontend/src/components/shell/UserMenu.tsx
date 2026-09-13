@@ -24,11 +24,11 @@ export const UserMenu: React.FC<UserMenuProps> = ({ collapsed }) => {
 
   const initials = user?.fullName
     ? user.fullName
-        .split(' ')
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase()
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase()
     : 'U';
 
   // Close on outside click
@@ -70,7 +70,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ collapsed }) => {
         {!collapsed && (
           <div className="flex-1 min-w-0 text-left">
             <p className="text-sm font-medium text-slate-100 truncate">{user.fullName}</p>
-            <p className={clsx('text-[10px] font-medium truncate', ROLE_COLORS[user.role])}>
+            <p className="sidebar-user-role text-[10px] font-medium text-white truncate">
               {ROLE_LABELS[user.role]}
             </p>
           </div>
@@ -135,7 +135,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ collapsed }) => {
             <div className="py-1 border-t border-slate-800">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white hover:bg-[#d06b28] hover:text-white transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Sign Out

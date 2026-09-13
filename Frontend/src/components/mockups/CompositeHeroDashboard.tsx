@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
-  Briefcase, 
-  Receipt, 
-  Package, 
-  Sparkles, 
-  ArrowUpRight, 
-  CheckCircle2, 
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
+  Briefcase,
+  Receipt,
+  Package,
+  Sparkles,
+  ArrowUpRight,
+  CheckCircle2,
   Layers,
   ShieldCheck,
   Search,
@@ -27,13 +27,11 @@ export const CompositeHeroDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'crm' | 'hrms' | 'expenses' | 'inventory'>('all');
 
   return (
-    <div className="relative w-full max-w-6xl mx-auto rounded-2xl p-1 bg-gradient-to-b from-[#f0512f]/30 via-slate-800/40 to-slate-900/60 shadow-2xl shadow-[#f0512f]/20">
-      {/* Outer Glow Halo */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-[#f0512f]/20 via-amber-500/20 to-[#ff7a59]/20 rounded-2xl blur-xl opacity-60 pointer-events-none" />
+    <div className="relative w-full max-w-6xl mx-auto rounded-2xl p-1 bg-[#ece0d6] shadow-2xl shadow-black/10">
 
       {/* Main Container Shell */}
       <div className="relative bg-slate-950/95 backdrop-blur-xl rounded-xl border border-slate-800/80 overflow-hidden shadow-2xl">
-        
+
         {/* Fake App Header */}
         <div className="flex items-center justify-between px-4 py-3 bg-slate-900/80 border-b border-slate-800/80 text-xs">
           <div className="flex items-center gap-3">
@@ -62,7 +60,7 @@ export const CompositeHeroDashboard: React.FC = () => {
 
         {/* Top KPI Metrics Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-slate-900/40 border-b border-slate-800/60 text-left">
-          
+
           <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800/80 hover:border-[#f0512f]/30 transition-colors">
             <div className="flex items-center justify-between text-slate-400 text-xs mb-1">
               <span>Pipeline ARR</span>
@@ -111,13 +109,13 @@ export const CompositeHeroDashboard: React.FC = () => {
 
         {/* Dashboard Main Visual Layout */}
         <div className="p-4 sm:p-5 space-y-4">
-          
+
           {/* AI Banner */}
           <AiInsightMock />
 
           {/* Dual Column Layout: CRM Kanban & Other Modular Highlights */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            
+
             {/* Left: CRM Interactive Kanban (7 cols) */}
             <div className="lg:col-span-7">
               <CrmKanbanMock />

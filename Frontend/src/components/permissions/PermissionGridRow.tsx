@@ -42,7 +42,7 @@ export const PermissionGridRow: React.FC<PermissionGridRowProps> = ({
   return (
     <tr className="group border-b border-slate-800/60 hover:bg-slate-900/30 transition-colors">
       {/* Pinned Sticky Left Column for Role */}
-      <td className="sticky left-0 z-10 bg-[#0b0f17] group-hover:bg-[#0f1420] transition-colors px-4 py-4 min-w-[240px] max-w-[260px] border-r border-slate-800/80 shadow-[4px_0_12px_rgba(0,0,0,0.3)]">
+      <td className="permissions-role-cell sticky left-0 z-10 bg-[#0b0f17] group-hover:bg-[#0f1420] transition-colors px-4 py-4 min-w-[240px] max-w-[260px] border-r border-slate-800/80 shadow-[4px_0_12px_rgba(0,0,0,0.3)]">
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">

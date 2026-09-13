@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Sparkles, 
-  ArrowRight, 
-  ShieldCheck, 
-  Layers, 
-  Zap, 
-  CheckCircle2, 
+import {
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  Layers,
+  Zap,
+  CheckCircle2,
   Play
 } from 'lucide-react';
 import { Button } from '../ui/Button';
@@ -22,12 +22,12 @@ export const Hero: React.FC = () => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] bg-radial-gradient pointer-events-none opacity-90" />
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[650px] h-[350px] bg-[#f0512f]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-40 left-1/4 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-      
+
       {/* Subtle Dot Pattern */}
       <div className="absolute inset-0 bg-dot-pattern opacity-40 pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        
+
         {/* Eyebrow Pill */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -38,7 +38,7 @@ export const Hero: React.FC = () => {
           <Sparkles className="w-3.5 h-3.5 text-[#f0512f]" />
           <span>One Platform. Every Business Operation.</span>
           <span className="w-1 h-1 rounded-full bg-[#f0512f]" />
-          <span className="text-slate-400 font-normal">v2.4 Enterprise Release</span>
+          <span className="text-[#7a2f05] font-normal">v2.4 Enterprise Release</span>
         </motion.div>
 
         {/* Strong H1 Headline */}

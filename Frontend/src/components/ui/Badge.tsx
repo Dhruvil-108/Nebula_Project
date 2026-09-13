@@ -16,7 +16,7 @@ export const Badge: React.FC<BadgeProps> = ({
   dot = false,
 }) => {
   const baseStyles = 'inline-flex items-center font-medium rounded-full';
-  
+
   const sizeStyles = {
     sm: 'px-2 py-0.5 text-xs gap-1.5',
     md: 'px-2.5 py-1 text-xs gap-1.5',
@@ -24,8 +24,8 @@ export const Badge: React.FC<BadgeProps> = ({
 
   const variantStyles = {
     default: 'bg-slate-800 text-slate-300 border border-slate-700/60',
-    indigo: 'bg-[#f0512f]/10 text-[#ff8c70] border border-[#f0512f]/30',
-    brand: 'bg-[#f0512f]/10 text-[#ff8c70] border border-[#f0512f]/30',
+    indigo: 'bg-[#fbeae0] text-[#7a2f05] border border-[#de7a3d]',
+    brand: 'bg-[#fbeae0] text-[#7a2f05] border border-[#de7a3d]',
     emerald: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30',
     cyan: 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30',
     amber: 'bg-amber-500/10 text-amber-300 border border-amber-500/30',

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { LoaderCircle } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -48,10 +49,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   if (isLoading) {
     // Silent session restore in progress — show nothing to avoid flash
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-950">
+      <div className="flex items-center justify-center h-screen bg-white">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 animate-pulse" />
-          <p className="text-xs text-slate-500 font-mono">Restoring session...</p>
+          <LoaderCircle className="w-10 h-10 text-[#c2540c] animate-spin" aria-hidden="true" />
+          <p className="text-xs text-[#6b6b6b] font-mono">Restoring session...</p>
         </div>
       </div>
     );
@@ -102,7 +103,7 @@ export const App: React.FC = () => {
         <BrowserRouter>
           <ScrollToTop />
 
-          {/* Toastify container — styled to match the dark design system */}
+          {/* Toastify container — styled to match the orange and white theme */}
           <ToastContainer
             position="top-right"
             autoClose={4000}
@@ -110,11 +111,13 @@ export const App: React.FC = () => {
             newestOnTop
             closeOnClick
             pauseOnHover
-            theme="dark"
+            theme="light"
+            className="theme-toast-container"
+            progressClassName="theme-toast-progress"
             toastStyle={{
-              background: '#0f172a',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: '#f1f5f9',
+              background: '#fbf0e7',
+              border: '1px solid #de7a3d',
+              color: '#7a2f05',
               fontSize: '13px',
               borderRadius: '12px',
             }}

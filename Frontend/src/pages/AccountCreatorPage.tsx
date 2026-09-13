@@ -50,19 +50,19 @@ export const AccountCreatorPage: React.FC = () => {
 
   const allowedRoles: Role[] = isSuperAdminOrAdmin
     ? [
-        'admin',
-        'manager',
-        'hr',
-        'recruiter',
-        'sales',
-        'finance',
-        'inventory_manager',
-        'employee',
-        'intern',
-      ]
+      'admin',
+      'manager',
+      'hr',
+      'recruiter',
+      'sales',
+      'finance',
+      'inventory_manager',
+      'employee',
+      'intern',
+    ]
     : isHR
-    ? ['employee', 'intern', 'recruiter']
-    : [];
+      ? ['employee', 'intern', 'recruiter']
+      : [];
 
   // Form State
   const [fullName, setFullName] = useState('');
@@ -100,7 +100,7 @@ export const AccountCreatorPage: React.FC = () => {
     onSuccess: (data: any) => {
       const roleName = ROLE_LABELS[selectedRole] || selectedRole;
       toast.success(`Account for "${fullName}" (${roleName}) created successfully.`);
-      
+
       // Invalidate both users list and permissions matrix so new roles appear immediately
       queryClient.invalidateQueries({ queryKey: ['users'] });
       queryClient.invalidateQueries({ queryKey: ['permissions', 'matrix'] });
@@ -162,7 +162,7 @@ export const AccountCreatorPage: React.FC = () => {
   });
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-[1600px] mx-auto space-y-8">
+    <div className="account-creator-page px-4 sm:px-6 lg:px-8 py-6 max-w-[1600px] mx-auto space-y-8">
       {/* ── Page Header ── */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
@@ -221,7 +221,7 @@ export const AccountCreatorPage: React.FC = () => {
           initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="lg:col-span-5 bg-gradient-to-b from-slate-900/90 to-slate-950/80 border border-slate-800/80 rounded-2xl p-6 sm:p-7 shadow-xl backdrop-blur-sm relative overflow-hidden"
+          className="account-creator-form lg:col-span-5 bg-white border border-[#ece0d6] rounded-2xl p-6 sm:p-7 shadow-xl relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -294,11 +294,10 @@ export const AccountCreatorPage: React.FC = () => {
                       key={roleKey}
                       type="button"
                       onClick={() => setSelectedRole(roleKey)}
-                      className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition-all ${
-                        isSelected
-                          ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_12px_rgba(99,102,241,0.15)] ring-1 ring-indigo-500'
+                      className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition-all ${isSelected
+                          ? 'account-role-option-selected border-indigo-500 bg-indigo-500/10 shadow-[0_0_12px_rgba(99,102,241,0.15)] ring-1 ring-indigo-500'
                           : 'border-slate-800/80 bg-slate-950/40 hover:bg-slate-900/60 hover:border-slate-700'
-                      }`}
+                        }`}
                     >
                       <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold border mb-1 ${colorClass}`}>
                         {label}
@@ -385,7 +384,7 @@ export const AccountCreatorPage: React.FC = () => {
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="lg:col-span-7 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6 sm:p-7 shadow-xl"
+          className="account-creator-roster lg:col-span-7 bg-[#fbf0e7] border border-[#ece0d6] rounded-2xl p-6 sm:p-7 shadow-xl"
         >
           {/* Section Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-5 border-b border-slate-800/80">

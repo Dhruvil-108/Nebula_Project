@@ -21,7 +21,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer';
+  const baseStyles = 'inline-flex items-center justify-center font-medium transition-all duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer';
 
   const sizeStyles = {
     sm: 'px-3 py-1.5 text-xs gap-1.5',
@@ -32,10 +32,10 @@ export const Button: React.FC<ButtonProps> = ({
   const variantStyles = {
     primary: 'bg-[#f0512f] hover:bg-[#d63f1e] text-white shadow-md shadow-[#f0512f]/25 border border-[#f0512f]/60 hover:shadow-[#f0512f]/35 focus:ring-[#f0512f] active:scale-[0.98]',
     brand: 'bg-[#f0512f] hover:bg-[#d63f1e] text-white shadow-md shadow-[#f0512f]/25 border border-[#f0512f]/60 hover:shadow-[#f0512f]/35 focus:ring-[#f0512f] active:scale-[0.98]',
-    secondary: 'bg-slate-800/90 hover:bg-slate-750/90 text-slate-100 border border-slate-700/70 hover:border-slate-600 shadow-sm focus:ring-[#f0512f] active:scale-[0.98]',
-    outline: 'bg-transparent hover:bg-white/5 text-slate-200 border border-slate-750 hover:border-[#f0512f]/40 focus:ring-[#f0512f]',
-    ghost: 'bg-transparent hover:bg-white/5 text-slate-300 hover:text-white focus:ring-[#f0512f]',
-    danger: 'bg-rose-600 hover:bg-rose-500 text-white border border-rose-500 shadow-rose-600/20 focus:ring-rose-500',
+    secondary: 'bg-[#fbf0e7] hover:bg-[#f6e8dc] text-[#7a2f05] border border-[#de7a3d] hover:border-[#c2540c] shadow-sm focus:ring-[#c2540c] active:scale-[0.98]',
+    outline: 'bg-transparent hover:bg-[#fbf0e7] text-[#7a2f05] border border-[#de7a3d] hover:border-[#c2540c] focus:ring-[#c2540c]',
+    ghost: 'bg-transparent hover:bg-[#fbf0e7] text-[#6b6b6b] hover:text-[#1a1a1a] focus:ring-[#c2540c]',
+    danger: 'bg-[#c2540c] hover:bg-[#a6470a] text-white border border-[#c2540c] shadow-[#c2540c]/20 focus:ring-[#c2540c]',
   };
 
   return (

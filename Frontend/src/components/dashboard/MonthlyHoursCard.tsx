@@ -141,15 +141,7 @@ export const MonthlyHoursCard: React.FC = () => {
                   <Cell
                     key={`cell-${index}`}
                     fill={
-                      entry.workedHours >= 7.5
-                        ? '#0e9f6e'
-                        : entry.workedHours > 0
-                        ? '#f0512f'
-                        : entry.status === 'holiday'
-                        ? '#8b5cf6'
-                        : entry.status === 'on_leave'
-                        ? '#38bdf8'
-                        : '#334155'
+                      entry.workedHours > 0 ? '#c2540c' : '#f6e8dc'
                     }
                   />
                 ))}

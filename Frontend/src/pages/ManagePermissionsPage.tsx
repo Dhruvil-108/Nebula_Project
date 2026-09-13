@@ -233,7 +233,7 @@ export const ManagePermissionsPage: React.FC = () => {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-[1600px] mx-auto space-y-6 select-none">
+    <div className="permissions-page px-4 sm:px-6 lg:px-8 py-6 max-w-[1600px] mx-auto space-y-6 select-none">
       {/* ── Page Header ── */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
@@ -312,7 +312,7 @@ export const ManagePermissionsPage: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.4 }}
-        className="p-4 rounded-2xl bg-gradient-to-r from-slate-900/90 to-slate-900/40 border border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg"
+        className="permissions-callout p-4 rounded-2xl bg-gradient-to-r from-slate-900/90 to-slate-900/40 border border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg"
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">

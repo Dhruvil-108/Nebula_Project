@@ -22,6 +22,7 @@ import { UserMenu } from './UserMenu';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Role } from '../../types/user';
 import type { FocusArea } from '../../types/organization';
+import { NebulaLogo } from '../ui/NebulaLogo';
 
 // ─────────────────────────────────────────────────────────
 // Nav configuration based on role
@@ -81,23 +82,23 @@ const getNavConfig = (
   const secondary: NavItem[] =
     role === 'super_admin'
       ? [
-          { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
-          { to: '/dashboard/org', icon: <Building2 className="w-5 h-5" />, label: 'Organization' },
-          { to: '/dashboard/permissions', icon: <ShieldCheck className="w-5 h-5" />, label: 'Permissions' },
-          { to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' },
-        ]
+        { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
+        { to: '/dashboard/org', icon: <Building2 className="w-5 h-5" />, label: 'Organization' },
+        { to: '/dashboard/permissions', icon: <ShieldCheck className="w-5 h-5" />, label: 'Permissions' },
+        { to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' },
+      ]
       : role === 'admin'
-      ? [
+        ? [
           { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
           { to: '/dashboard/org', icon: <Building2 className="w-5 h-5" />, label: 'Organization' },
           { to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' },
         ]
-      : role === 'hr'
-      ? [
-          { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
-          { to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' },
-        ]
-      : [{ to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' }];
+        : role === 'hr'
+          ? [
+            { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
+            { to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' },
+          ]
+          : [{ to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' }];
 
   return { primary, secondary };
 };
@@ -126,7 +127,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-[#0b0f17] select-none">
+    <div className="post-login-sidebar flex flex-col h-full bg-[#0b0f17] select-none">
       {/* ── Header / Logo ── */}
       <div
         className={clsx(
@@ -141,30 +142,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             aria-label="Expand sidebar"
             title="Expand sidebar"
           >
-            <div className="w-8 h-8 rounded-lg bg-[#f0512f] flex items-center justify-center shadow-md shadow-[#f0512f]/30 group-hover:scale-105 transition-transform flex-shrink-0">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
+            <NebulaLogo compact showWordmark={false} inverted className="group-hover:scale-105 transition-transform" />
           </button>
         ) : (
           <>
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#f0512f] flex items-center justify-center shadow-md shadow-[#f0512f]/30">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex flex-col justify-center min-w-0">
-                <span className="text-[15px] font-bold text-white tracking-tight whitespace-nowrap leading-none">
-                  Nebula
-                </span>
-                <span className="text-[9px] font-semibold text-[#f0512f] uppercase tracking-widest mt-1 whitespace-nowrap">
-                  Ops Hub
-                </span>
-              </div>
+            <div className="flex min-w-0 flex-1 items-center">
+              <NebulaLogo inverted className="max-w-full" />
             </div>
 
             {/* Collapse toggle — hidden on mobile */}
             <button
               onClick={onToggle}
-              className="hidden md:flex flex-shrink-0 w-6 h-6 rounded-md hover:bg-slate-800/80 text-slate-500 hover:text-slate-300 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f0512f]"
+              className="ml-auto hidden md:flex flex-shrink-0 w-6 h-6 rounded-md hover:bg-slate-800/80 text-slate-500 hover:text-slate-300 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f0512f]"
               aria-label="Collapse sidebar"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -177,7 +166,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {!collapsed && organization && (
         <div className="px-3 pt-3 pb-1">
           <div className="px-3 py-2.5 rounded-lg bg-slate-900/80 border border-slate-800/80 flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded bg-[#f0512f]/15 border border-[#f0512f]/30 flex items-center justify-center text-[10px] font-bold text-[#ff8c70] flex-shrink-0">
+            <div className="sidebar-workspace-mark w-6 h-6 rounded bg-[#f0512f]/15 border border-[#f0512f]/30 flex items-center justify-center text-[10px] font-bold text-[#ff8c70] flex-shrink-0">
               {organization.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
@@ -193,7 +182,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       {/* ── Primary nav ── */}
-      <nav aria-label="Primary navigation" className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
+      <nav aria-label="Primary navigation" className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 space-y-1">
         {!collapsed && (
           <p className="px-3 pt-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest">
             Modules
@@ -262,7 +251,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            className="fixed inset-y-0 left-0 z-50 w-72 bg-slate-950 border-r border-slate-800/60 md:hidden"
+            className="post-login-sidebar fixed inset-y-0 left-0 z-50 w-72 bg-slate-950 border-r border-slate-800/60 md:hidden"
             aria-label="Mobile navigation"
           >
             {sidebarContent}
@@ -274,7 +263,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <motion.aside
         animate={{ width: collapsed ? 72 : 256 }}
         transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-        className="hidden md:flex flex-col flex-shrink-0 bg-slate-950 border-r border-slate-800/60 overflow-hidden"
+        className="post-login-sidebar hidden md:flex flex-col flex-shrink-0 bg-slate-950 border-r border-slate-800/60 overflow-hidden"
         aria-label="Primary navigation"
       >
         {sidebarContent}

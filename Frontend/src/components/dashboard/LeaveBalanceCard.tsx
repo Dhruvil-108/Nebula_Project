@@ -44,9 +44,9 @@ export const LeaveBalanceCard: React.FC = () => {
   }
 
   const getProgressColor = (percent: number) => {
-    if (percent > 60) return 'bg-emerald-500';
+    if (percent > 60) return 'bg-[#c2540c]';
     if (percent > 25) return 'bg-[#f0512f]';
-    return 'bg-amber-500';
+    return 'bg-[#c2540c]';
   };
 
   return (
@@ -90,8 +90,8 @@ export const LeaveBalanceCard: React.FC = () => {
                   item.allocated > 0
                     ? Math.min(100, Math.round((item.remaining / item.allocated) * 100))
                     : item.used > 0
-                    ? 0
-                    : 100;
+                      ? 0
+                      : 100;
 
                 return (
                   <div key={item.id || item.leaveTypeId} className="space-y-1.5">

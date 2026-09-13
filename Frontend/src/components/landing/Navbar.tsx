@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Sparkles, 
-  Menu, 
-  X, 
-  Layers, 
-  ShieldCheck, 
-  Zap, 
+import {
+  Sparkles,
+  Menu,
+  X,
+  Layers,
+  ShieldCheck,
+  Zap,
   ArrowRight,
   ChevronDown
 } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { NebulaLogo } from '../ui/NebulaLogo';
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -34,30 +35,17 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40 py-3' 
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+          ? 'bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40 py-3'
           : 'bg-transparent py-5'
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-        
+
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#bd3a1e] via-[#f0512f] to-[#ff7a59] p-[1px] shadow-lg shadow-[#f0512f]/25 transition-transform group-hover:scale-105">
-            <div className="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-              <div className="w-4 h-4 rounded-md bg-gradient-to-br from-[#f0512f] to-[#ff8c70] transform rotate-45 group-hover:rotate-90 transition-transform duration-500 shadow-sm shadow-[#f0512f]/40" />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5">
-              Nebula
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#f0512f]/10 text-[#ff7a59] border border-[#f0512f]/30">
-                Hub
-              </span>
-            </span>
-          </div>
+          <NebulaLogo />
         </Link>
 
         {/* Desktop Navigation */}
@@ -75,16 +63,16 @@ export const Navbar: React.FC = () => {
 
         {/* Action CTAs */}
         <div className="hidden sm:flex items-center gap-3">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => navigate('/signin')}
             className="text-slate-300 hover:text-white hover:bg-white/5"
           >
             Sign In
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             size="sm"
             onClick={() => navigate('/signup')}
             rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
@@ -95,9 +83,9 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile menu trigger */}
         <div className="flex sm:hidden items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => navigate('/signin')}
             className="text-xs px-2"
           >
@@ -130,8 +118,8 @@ export const Navbar: React.FC = () => {
             ))}
           </div>
           <div className="pt-3 border-t border-slate-800 space-y-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full justify-center"
               onClick={() => {
                 setMobileMenuOpen(false);
@@ -140,8 +128,8 @@ export const Navbar: React.FC = () => {
             >
               Sign In
             </Button>
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               className="w-full justify-center"
               onClick={() => {
                 setMobileMenuOpen(false);

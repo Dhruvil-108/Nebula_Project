@@ -45,18 +45,18 @@ export const PresentAbsentCard: React.FC = () => {
     switch (status) {
       case 'present':
       case 'half_day':
-        return 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold';
+        return 'bg-[#c2540c] hover:bg-[#d06b28] text-white font-bold';
       case 'absent':
-        return 'bg-rose-500/80 hover:bg-rose-400 text-white';
+        return 'bg-[#c2540c] hover:bg-[#d06b28] text-white';
       case 'on_leave':
-        return 'bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold';
+        return 'bg-[#c2540c] hover:bg-[#d06b28] text-white font-bold';
       case 'holiday':
-        return 'bg-purple-500/70 hover:bg-purple-400 text-white';
+        return 'bg-[#c2540c] hover:bg-[#d06b28] text-white';
       case 'weekend':
-        return 'bg-slate-800/70 text-slate-500';
+        return 'bg-[#f6e8dc] text-[#7a2f05]';
       case 'pending':
       default:
-        return 'bg-slate-800/30 text-slate-600 border border-slate-800/50';
+        return 'bg-[#fbf0e7] text-[#7a2f05] border border-[#de7a3d]';
     }
   };
 

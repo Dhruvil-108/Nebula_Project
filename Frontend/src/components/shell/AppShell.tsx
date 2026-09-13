@@ -47,7 +47,7 @@ export const AppShell: React.FC = () => {
   const pageTitle = PAGE_TITLES[location.pathname] || 'Dashboard';
 
   return (
-    <div className="flex h-screen bg-slate-950 overflow-hidden">
+    <div className="authenticated-shell flex h-screen bg-slate-950 overflow-hidden">
       <Sidebar
         collapsed={collapsed}
         onToggle={() => setCollapsed((c) => !c)}

@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
   User,
@@ -22,10 +22,16 @@ import {
   Globe,
   Info,
   ChevronRight,
+  Pencil,
+  X,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../lib/apiClient';
 import { ROLE_LABELS, ROLE_COLORS, type Role } from '../types/user';
+import { Input } from '../components/ui/Input';
+import { Button } from '../components/ui/Button';
+import { getMyProfile, updateProfile, deleteProfile } from '../lib/profileApi';
 
 // ─────────────────────────────────────────────────────────
 // Types
@@ -115,38 +121,38 @@ const formatDuration = (minutes: number): string => {
 const STATUS_CONFIG = {
   checked_in: {
     label: 'Checked In',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10 border-emerald-500/30',
+    color: 'text-emerald-700',
+    bg: 'bg-emerald-50 border-emerald-300',
     dot: 'bg-emerald-400',
     Icon: CheckCircle2,
   },
   on_break: {
     label: 'On Break',
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/10 border-amber-500/30',
+    color: 'text-amber-800',
+    bg: 'bg-amber-50 border-amber-300',
     dot: 'bg-amber-400',
     Icon: Coffee,
   },
   checked_out: {
     label: 'Checked Out',
-    color: 'text-slate-400',
-    bg: 'bg-slate-700/30 border-slate-600/30',
-    dot: 'bg-slate-400',
+    color: 'text-slate-700',
+    bg: 'bg-slate-100 border-slate-300',
+    dot: 'bg-slate-500',
     Icon: CheckOut,
   },
   not_checked_in: {
     label: 'Not Checked In',
-    color: 'text-slate-500',
-    bg: 'bg-slate-800/50 border-slate-700/30',
+    color: 'text-slate-700',
+    bg: 'bg-slate-100 border-slate-300',
     dot: 'bg-slate-500',
     Icon: AlertCircle,
   },
 };
 
 const LEAVE_STATUS_COLORS: Record<string, string> = {
-  pending: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-  approved: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-  rejected: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
+  pending: 'text-amber-800 bg-amber-50 border-amber-300',
+  approved: 'text-emerald-700 bg-emerald-50 border-emerald-300',
+  rejected: 'text-rose-700 bg-rose-50 border-rose-300',
 };
 
 // ─────────────────────────────────────────────────────────
@@ -157,52 +163,52 @@ const ROLE_HERO: Record<Role, { headline: string; sub: string; accentColor: stri
   super_admin: {
     headline: 'Super Administrator',
     sub: 'Full system access — managing the entire workspace, accounts, and permissions.',
-    accentColor: '#f0512f',
+    accentColor: '#c2540c',
   },
   admin: {
     headline: 'Administrator',
     sub: 'Oversees daily operations, account provisioning, and organizational governance.',
-    accentColor: '#ff8c70',
+    accentColor: '#c2540c',
   },
   manager: {
     headline: 'Team Manager',
     sub: 'Leads the team, tracks performance, and coordinates daily workflow execution.',
-    accentColor: '#f59e0b',
+    accentColor: '#c2540c',
   },
   hr: {
     headline: 'Human Resources',
     sub: 'Manages employee lifecycle, leaves, onboarding, and team welfare programs.',
-    accentColor: '#f43f5e',
+    accentColor: '#c2540c',
   },
   recruiter: {
     headline: 'Talent Recruiter',
     sub: 'Sources, screens, and onboards talent to build high-performing teams.',
-    accentColor: '#f97316',
+    accentColor: '#c2540c',
   },
   sales: {
     headline: 'Sales Executive',
     sub: 'Drives revenue growth by managing customer relationships and deal pipelines.',
-    accentColor: '#10b981',
+    accentColor: '#c2540c',
   },
   finance: {
     headline: 'Finance Specialist',
     sub: 'Manages budgets, expense approvals, payroll, and financial reporting.',
-    accentColor: '#06b6d4',
+    accentColor: '#c2540c',
   },
   inventory_manager: {
     headline: 'Inventory Manager',
     sub: 'Tracks stock levels, manages supply chains, and ensures operational continuity.',
-    accentColor: '#d97706',
+    accentColor: '#c2540c',
   },
   employee: {
     headline: 'Team Member',
     sub: "Contributing to the organization's success through skilled daily work.",
-    accentColor: '#64748b',
+    accentColor: '#c2540c',
   },
   intern: {
     headline: 'Intern',
     sub: 'Gaining valuable real-world experience and growing within the organization.',
-    accentColor: '#a78bfa',
+    accentColor: '#c2540c',
   },
 };
 
@@ -286,6 +292,40 @@ export const ProfilePage: React.FC = () => {
       .toUpperCase();
   }, [profile, authUser]);
 
+  const queryClient = useQueryClient();
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState(() => ({
+    fullName: profile?.user?.fullName || '',
+    email: profile?.user?.email || '',
+  }));
+
+  // Sync form with latest profile when opening modal
+  React.useEffect(() => {
+    if (editOpen && profile) {
+      setEditForm({ fullName: profile.user.fullName, email: profile.user.email });
+    }
+  }, [editOpen, profile]);
+
+  const updateMutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
+      setEditOpen(false);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteProfile,
+    onSuccess: () => {
+      // Could trigger logout or redirect
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateMutation.mutate({ user: editForm });
+  };
+
   if (isLoading) return <ProfileSkeleton />;
 
   if (isError || !profile) {
@@ -311,14 +351,14 @@ export const ProfilePage: React.FC = () => {
   const monthlyHours = profile.attendance.workedHoursThisMonth;
 
   return (
-    <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8">
+    <div className="profile-page p-6 md:p-8 max-w-5xl mx-auto space-y-8">
 
       {/* ── Hero Banner ── */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="relative overflow-hidden rounded-3xl border border-slate-800/80"
+        className="post-login-profile-hero relative overflow-hidden rounded-3xl border border-slate-800/80"
         style={{
           background: `radial-gradient(ellipse at top left, ${hero.accentColor}18 0%, transparent 60%), #0b0f17`,
         }}
@@ -350,7 +390,7 @@ export const ProfilePage: React.FC = () => {
                 <Sparkles className="w-3 h-3" />
                 {ROLE_LABELS[role]}
               </span>
-              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusCfg.bg} ${statusCfg.color}`}>
+              <span className={`profile-status-pill inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusCfg.bg} ${statusCfg.color}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot} animate-pulse`} />
                 {statusCfg.label}
               </span>
@@ -388,7 +428,7 @@ export const ProfilePage: React.FC = () => {
           </div>
 
           {/* Today's time block */}
-          <div className="flex-shrink-0 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 min-w-[160px] text-center">
+          <div className="profile-time-card flex-shrink-0 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 min-w-[160px] text-center">
             <div className={`flex items-center justify-center gap-1.5 mb-3 ${statusCfg.color}`}>
               <StatusIcon className="w-4 h-4" />
               <span className="text-xs font-semibold">{statusCfg.label}</span>
@@ -480,7 +520,12 @@ export const ProfilePage: React.FC = () => {
           transition={{ delay: 0.25, duration: 0.4 }}
           className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6"
         >
-          <SectionHeader title="Account Information" sub="Your profile & workspace details" />
+          <div className="flex items-center justify-between mb-4">
+            <SectionHeader title="Account Information" sub="Your profile & workspace details" />
+            <Button variant="ghost" size="sm" onClick={() => setEditOpen(true)}>
+              <Pencil className="w-4 h-4 mr-1" /> Edit
+            </Button>
+          </div>
           <div className="space-y-4">
             {[
               { label: 'Full Name', value: profile.user.fullName, Icon: User },
@@ -686,6 +731,83 @@ export const ProfilePage: React.FC = () => {
         </motion.div>
       )}
 
+      {/* Edit Profile Modal */}
+      {editOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setEditOpen(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 20 }}
+            className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-900">Edit Profile</h2>
+              <button
+                onClick={() => setEditOpen(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium text-slate-700 mb-1">
+                  Full Name
+                </label>
+                <Input
+                  id="fullName"
+                  value={editForm.fullName}
+                  onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                  className="w-full"
+                  placeholder="Full Name"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                  Email Address
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full"
+                  placeholder="Email"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <Button type="button" variant="ghost" onClick={() => setEditOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={updateMutation.isPending}>
+                  {updateMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </form>
+            <div className="mt-6 border-t border-slate-200 pt-4">
+              <p className="text-sm text-slate-600 mb-2">Danger Zone</p>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete your profile? This action cannot be undone.')) {
+                    deleteMutation.mutate();
+                  }
+                }}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? 'Deleting...' : 'Delete Profile'}
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };

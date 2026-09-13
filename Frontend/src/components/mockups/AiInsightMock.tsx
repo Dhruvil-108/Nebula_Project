@@ -4,9 +4,7 @@ import { Badge } from '../ui/Badge';
 
 export const AiInsightMock: React.FC = () => {
   return (
-    <div className="w-full bg-slate-900/90 rounded-xl border border-[#f0512f]/30 p-4 text-xs font-sans shadow-xl relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-[#f0512f]/10 rounded-full blur-2xl pointer-events-none" />
+    <div className="mockup-ai-insight w-full bg-slate-900/90 rounded-xl border border-[#f0512f]/30 p-4 text-xs font-sans shadow-xl relative overflow-hidden">
 
       <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800/80">
         <div className="flex items-center gap-2">
@@ -19,7 +17,7 @@ export const AiInsightMock: React.FC = () => {
         <span className="text-[10px] text-[#ff8c70] font-mono">Cross-Module Correlation</span>
       </div>
 
-      <div className="p-3 bg-[#f0512f]/10 border border-[#f0512f]/25 rounded-lg mb-3">
+      <div className="ai-insight-callout p-3 bg-[#f0512f]/10 border border-[#f0512f]/25 rounded-lg mb-3">
         <div className="flex items-start gap-2.5">
           <div className="w-2 h-2 rounded-full bg-[#f0512f] mt-1 shrink-0" />
           <div>

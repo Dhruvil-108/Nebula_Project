@@ -26,12 +26,12 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
       end={to === '/dashboard'}
       className={({ isActive }) =>
         clsx(
-          'group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0512f]',
+          'post-login-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0512f]',
           isActive
-            ? 'bg-[#f0512f]/15 text-white font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
+            ? 'post-login-nav-active bg-[#f0512f]/15 text-white font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
             : emphasized
-            ? 'text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium'
-            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 font-medium'
+              ? 'post-login-nav-emphasized text-slate-300 hover:text-white font-medium'
+              : 'post-login-nav-inactive text-slate-400 hover:text-slate-200 font-medium'
         )
       }
     >
@@ -44,8 +44,8 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
               isActive
                 ? 'text-[#f0512f]'
                 : emphasized
-                ? 'text-slate-300 group-hover:text-white'
-                : 'text-slate-400 group-hover:text-slate-200'
+                  ? 'text-slate-300 group-hover:text-white'
+                  : 'text-slate-400 group-hover:text-slate-200'
             )}
           >
             {icon}

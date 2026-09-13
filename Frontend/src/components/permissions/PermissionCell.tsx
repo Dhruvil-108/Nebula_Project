@@ -28,12 +28,12 @@ const ACTION_CONFIG: Array<{
   icon: React.FC<{ className?: string }>;
   activeColor: string;
 }> = [
-  { action: 'view', label: 'View', icon: Eye, activeColor: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' },
-  { action: 'create', label: 'Create', icon: Plus, activeColor: 'text-sky-400 bg-sky-500/15 border-sky-500/30' },
-  { action: 'edit', label: 'Edit', icon: Pencil, activeColor: 'text-amber-400 bg-amber-500/15 border-amber-500/30' },
-  { action: 'delete', label: 'Delete', icon: Trash2, activeColor: 'text-rose-400 bg-rose-500/15 border-rose-500/30' },
-  { action: 'approve', label: 'Approve', icon: CheckCheck, activeColor: 'text-violet-400 bg-violet-500/15 border-violet-500/30' },
-];
+    { action: 'view', label: 'View', icon: Eye, activeColor: 'text-[#7a2f05] bg-[#fbeae0] border-[#de7a3d]' },
+    { action: 'create', label: 'Create', icon: Plus, activeColor: 'text-[#7a2f05] bg-[#fbeae0] border-[#de7a3d]' },
+    { action: 'edit', label: 'Edit', icon: Pencil, activeColor: 'text-[#7a2f05] bg-[#fbeae0] border-[#de7a3d]' },
+    { action: 'delete', label: 'Delete', icon: Trash2, activeColor: 'text-[#7a2f05] bg-[#fbeae0] border-[#de7a3d]' },
+    { action: 'approve', label: 'Approve', icon: CheckCheck, activeColor: 'text-[#7a2f05] bg-[#fbeae0] border-[#de7a3d]' },
+  ];
 
 export const PermissionCell: React.FC<PermissionCellProps> = ({
   role,

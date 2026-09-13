@@ -328,7 +328,7 @@ export const DashboardPage: React.FC = () => {
   // ── Loading state ──
   if (isAuthLoading || (isStatsLoading && !dashboardData)) {
     return (
-      <div className="p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
+      <div className="dashboard-page p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
         <div className="h-10 w-64 bg-slate-800 rounded-xl animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
@@ -345,7 +345,7 @@ export const DashboardPage: React.FC = () => {
   const isManagementRole = ['super_admin', 'admin', 'manager', 'hr'].includes(user.role);
 
   return (
-    <div className="p-6 md:p-8 space-y-8 max-w-[1600px] mx-auto">
+    <div className="dashboard-page p-6 md:p-8 space-y-8 max-w-[1600px] mx-auto">
       {/* ── Welcome Header with Role Badge & Actions ── */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -356,9 +356,8 @@ export const DashboardPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                ROLE_COLORS[user.role] || 'text-slate-300 bg-slate-800 border-slate-700'
-              }`}
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${ROLE_COLORS[user.role] || 'text-slate-300 bg-slate-800 border-slate-700'
+                }`}
             >
               <Sparkles className="w-3 h-3 mr-1" />
               {ROLE_LABELS[user.role] || user.role} Dashboard
@@ -496,9 +495,8 @@ export const DashboardPage: React.FC = () => {
                   {dashboardData.stats.activeRolesList.map((r) => (
                     <span
                       key={r}
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border ${
-                        ROLE_COLORS[r as Role] || 'text-slate-400 bg-slate-800 border-slate-700'
-                      }`}
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border ${ROLE_COLORS[r as Role] || 'text-slate-400 bg-slate-800 border-slate-700'
+                        }`}
                     >
                       {ROLE_LABELS[r as Role] || r}: {dashboardData.stats.roleDistribution[r] || 0}
                     </span>
