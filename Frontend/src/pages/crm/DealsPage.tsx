@@ -25,6 +25,7 @@ import { Drawer } from '../../components/crm/Drawer';
 import { ActivityTimeline } from '../../components/crm/ActivityTimeline';
 import { StagePill } from '../../components/crm/StagePill';
 import { InfoTile } from '../../components/crm/InfoTile';
+import { useModuleAccess } from '../../hooks/useModuleAccess';
 import {
   PIPELINE_STAGES,
   STAGE_LABELS,
@@ -35,6 +36,10 @@ import {
 type SortKey = 'amount' | 'expectedCloseDate';
 
 export const DealsPage: React.FC = () => {
+  const { can } = useModuleAccess('crm');
+  const canCreate = can('create');
+  const canDelete = can('delete');
+
   const [search, setSearch] = useState('');
   const [stageFilter, setStageFilter] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('amount');
@@ -148,14 +153,16 @@ export const DealsPage: React.FC = () => {
           >
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white shadow-md shadow-[#C2540C]/20 transition-colors"
-          >
-            <Handshake className="w-4 h-4" />
-            Add Deal
-          </button>
+          {canCreate && (
+            <button
+              type="button"
+              onClick={() => setShowCreate(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white shadow-md shadow-[#C2540C]/20 transition-colors"
+            >
+              <Handshake className="w-4 h-4" />
+              Add Deal
+            </button>
+          )}
         </div>
       </motion.div>
 
@@ -265,15 +272,17 @@ export const DealsPage: React.FC = () => {
                       </td>
                       <td className="px-5 py-3.5 text-[#6B6B6B]">{deal.salesperson?.fullName || 'Unassigned'}</td>
                       <td className="px-5 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          type="button"
-                          onClick={() => deleteMutation.mutate(deal._id)}
-                          disabled={deleteMutation.isPending}
-                          className="p-1.5 rounded-lg text-[#6B6B6B] hover:text-[#DC2626] hover:bg-[#DC2626]/10 transition-colors disabled:opacity-50"
-                          title="Delete deal"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {canDelete && (
+                          <button
+                            type="button"
+                            onClick={() => deleteMutation.mutate(deal._id)}
+                            disabled={deleteMutation.isPending}
+                            className="p-1.5 rounded-lg text-[#6B6B6B] hover:text-[#DC2626] hover:bg-[#DC2626]/10 transition-colors disabled:opacity-50"
+                            title="Delete deal"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </td>
                     </motion.tr>
                   ))
@@ -284,7 +293,7 @@ export const DealsPage: React.FC = () => {
       </div>
 
       {/* Create modal */}
-      {showCreate && (
+      {canCreate && showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowCreate(false)} />
           <motion.div

@@ -21,6 +21,7 @@ import { Drawer } from '../../components/crm/Drawer';
 import { ActivityTimeline } from '../../components/crm/ActivityTimeline';
 import { InfoTile } from '../../components/crm/InfoTile';
 import { crmApi } from '../../lib/crmApi';
+import { useModuleAccess } from '../../hooks/useModuleAccess';
 import {
   PIPELINE_STAGES,
   STAGE_LABELS,
@@ -52,6 +53,11 @@ const initialForm = {
 };
 
 export const LeadsPage: React.FC = () => {
+  const { can } = useModuleAccess('crm');
+  const canCreate = can('create');
+  const canEdit = can('edit');
+  const canDelete = can('delete');
+
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [ownerFilter, setOwnerFilter] = useState('');
@@ -152,14 +158,16 @@ export const LeadsPage: React.FC = () => {
           >
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button
-            type="button"
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white shadow-md shadow-[#C2540C]/20 transition-colors"
-          >
-            <UserPlus className="w-4 h-4" />
-            Add Lead
-          </button>
+          {canCreate && (
+            <button
+              type="button"
+              onClick={() => setShowCreate(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white shadow-md shadow-[#C2540C]/20 transition-colors"
+            >
+              <UserPlus className="w-4 h-4" />
+              Add Lead
+            </button>
+          )}
         </div>
       </motion.div>
 
@@ -269,7 +277,7 @@ export const LeadsPage: React.FC = () => {
                     </td>
                     <td className="px-5 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="inline-flex items-center gap-1">
-                        {lead.status !== 'won' && lead.status !== 'lost' && (
+                        {canEdit && lead.status !== 'won' && lead.status !== 'lost' && (
                           <button
                             type="button"
                             onClick={() => handleConvert(lead)}
@@ -280,15 +288,17 @@ export const LeadsPage: React.FC = () => {
                             <ArrowRightLeft className="w-4 h-4" />
                           </button>
                         )}
-                        <button
-                          type="button"
-                          onClick={() => deleteMutation.mutate(lead._id)}
-                          disabled={deleteMutation.isPending}
-                          className="p-1.5 rounded-lg text-[#6B6B6B] hover:text-[#DC2626] hover:bg-[#DC2626]/10 transition-colors disabled:opacity-50"
-                          title="Delete lead"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {canDelete && (
+                          <button
+                            type="button"
+                            onClick={() => deleteMutation.mutate(lead._id)}
+                            disabled={deleteMutation.isPending}
+                            className="p-1.5 rounded-lg text-[#6B6B6B] hover:text-[#DC2626] hover:bg-[#DC2626]/10 transition-colors disabled:opacity-50"
+                            title="Delete lead"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </motion.tr>
@@ -300,7 +310,7 @@ export const LeadsPage: React.FC = () => {
       </div>
 
       {/* ── Create modal ── */}
-      {showCreate && (
+      {canCreate && showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowCreate(false)} />
           <motion.div
@@ -466,7 +476,7 @@ export const LeadsPage: React.FC = () => {
             )}
 
             {/* Convert CTA */}
-            {leadDetail.status !== 'won' && leadDetail.status !== 'lost' && (
+            {canEdit && leadDetail.status !== 'won' && leadDetail.status !== 'lost' && (
               <button
                 type="button"
                 onClick={() => handleConvert(leadDetail)}

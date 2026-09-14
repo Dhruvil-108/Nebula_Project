@@ -14,6 +14,7 @@ import { motion } from 'framer-motion';
 import { GripVertical, Timer } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useMoveDealStage } from '../../hooks/useCrm';
+import { useModuleAccess } from '../../hooks/useModuleAccess';
 import { StagePill } from './StagePill';
 import { PIPELINE_STAGES, STAGE_LABELS, type Deal, type DealPipeline } from '../../types/crm';
 
@@ -69,9 +70,10 @@ const DraggableDealCard: React.FC<{ deal: Deal }> = ({ deal }) => {
 interface KanbanColumnProps {
   stage: (typeof PIPELINE_STAGES)[number];
   deals: Deal[];
+  canEdit: boolean;
 }
 
-const KanbanColumn: React.FC<KanbanColumnProps> = ({ stage, deals }) => {
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ stage, deals, canEdit }) => {
   const { setNodeRef, isOver } = useDroppable({ id: `stage-${stage}` });
   const totalValue = deals.reduce((sum, d) => sum + (d.amount || 0), 0);
 
@@ -93,14 +95,20 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ stage, deals }) => {
         ref={setNodeRef}
         className={clsx(
           'flex-1 space-y-2 p-2.5 min-h-[120px] rounded-b-2xl transition-colors',
-          isOver && 'bg-[#FBEAE0] ring-2 ring-[#C2540C]/30 ring-inset'
+          canEdit && isOver && 'bg-[#FBEAE0] ring-2 ring-[#C2540C]/30 ring-inset'
         )}
       >
-        {deals.map((deal) => (
-          <DraggableDealCard key={deal._id} deal={deal} />
-        ))}
+        {deals.map((deal) =>
+          canEdit ? (
+            <DraggableDealCard key={deal._id} deal={deal} />
+          ) : (
+            <DealCard key={deal._id} deal={deal} />
+          )
+        )}
         {deals.length === 0 && (
-          <p className="text-[10px] text-[#C9C2B8] text-center py-6 italic">Drop deals here</p>
+          <p className="text-[10px] text-[#C9C2B8] text-center py-6 italic">
+            {canEdit ? 'Drop deals here' : 'No deals in this stage'}
+          </p>
         )}
       </div>
     </div>
@@ -115,6 +123,9 @@ interface KanbanBoardProps {
 }
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({ pipeline, isLoading, onDealClick }) => {
+  const { can } = useModuleAccess('crm');
+  const canEdit = can('edit');
+
   const [activeDeal, setActiveDeal] = useState<Deal | null>(null);
   const moveStage = useMoveDealStage();
 
@@ -127,6 +138,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ pipeline, isLoading, o
   const stages = useMemo(() => PIPELINE_STAGES, []);
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (!canEdit) return;
     const dealId = String(event.active.id);
     const all = pipeline ? Object.values(pipeline).flat() : [];
     setActiveDeal(all.find((d) => d._id === dealId) || null);
@@ -134,6 +146,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ pipeline, isLoading, o
 
   const handleDragEnd = (event: DragEndEvent) => {
     setActiveDeal(null);
+    if (!canEdit) return;
     const { active, over } = event;
     if (!over || !pipeline) return;
 
@@ -166,7 +179,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ pipeline, isLoading, o
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="flex gap-4 overflow-x-auto pb-4">
         {stages.map((stage) => (
-          <KanbanColumn key={stage} stage={stage} deals={pipeline?.[stage] || []} />
+          <KanbanColumn key={stage} stage={stage} deals={pipeline?.[stage] || []} canEdit={canEdit} />
         ))}
       </div>
 

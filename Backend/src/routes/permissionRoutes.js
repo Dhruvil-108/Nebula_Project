@@ -10,11 +10,11 @@ const {
 
 const router = express.Router();
 
-// All permission routes require Super Admin authentication
-router.use(requireAuth, requireRole(ROLES.SUPER_ADMIN));
+// All permission routes require authentication
+router.use(requireAuth);
 
 router.get('/catalog', getCatalog);
 router.get('/', getPermissions);
-router.put('/', updatePermissions);
+router.put('/', requireRole(ROLES.SUPER_ADMIN), updatePermissions);
 
 module.exports = router;

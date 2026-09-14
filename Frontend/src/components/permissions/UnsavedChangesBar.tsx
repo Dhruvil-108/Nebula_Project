@@ -25,16 +25,16 @@ export const UnsavedChangesBar: React.FC<UnsavedChangesBarProps> = ({
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="fixed bottom-6 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
         >
-          <div className="pointer-events-auto flex items-center justify-between gap-4 sm:gap-6 px-5 py-3.5 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-slate-700/80 shadow-2xl shadow-black/80 ring-1 ring-white/10 max-w-2xl w-full">
+          <div className="pointer-events-auto flex items-center justify-between gap-4 sm:gap-6 px-5 py-3 rounded-2xl bg-white/95 backdrop-blur-md border border-[#de7a3d]/60 shadow-xl shadow-[#7a2f05]/15 ring-1 ring-[#f0512f]/20 max-w-2xl w-full">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-[#f0512f]/20 border border-[#f0512f]/40 flex items-center justify-center text-[#ff7a59] flex-shrink-0">
-                <AlertCircle className="w-4 h-4 animate-pulse" />
+              <div className="w-9 h-9 rounded-xl bg-[#fbeae0] border border-[#de7a3d]/40 flex items-center justify-center text-[#c2540c] flex-shrink-0 shadow-2xs">
+                <AlertCircle className="w-4 h-4 animate-pulse text-[#c2540c]" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-100 truncate">
+                <p className="text-sm font-bold text-[#1a1a1a] truncate leading-tight">
                   You have unsaved changes
                 </p>
-                <p className="text-xs text-slate-400 font-mono">
+                <p className="text-xs text-[#6b6b6b] font-mono mt-0.5">
                   {dirtyCount} {dirtyCount === 1 ? 'module rule' : 'module rules'} modified
                 </p>
               </div>
@@ -45,9 +45,9 @@ export const UnsavedChangesBar: React.FC<UnsavedChangesBarProps> = ({
                 type="button"
                 onClick={onDiscard}
                 disabled={isSaving}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 transition-all duration-150 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-[#1a1a1a] hover:bg-[#fbf0e7] border border-[#ece0d6] transition-all duration-150 disabled:opacity-50 cursor-pointer"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <RotateCcw className="w-3.5 h-3.5 text-[#6b6b6b]" />
                 Discard
               </button>
 
@@ -55,7 +55,7 @@ export const UnsavedChangesBar: React.FC<UnsavedChangesBarProps> = ({
                 type="button"
                 onClick={onSave}
                 disabled={isSaving}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-[#f0512f] to-[#ff7a59] hover:brightness-110 active:scale-95 shadow-md shadow-[#f0512f]/30 border border-white/10 transition-all duration-150 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-[#d06b28] to-[#f0512f] hover:from-[#c2540c] hover:to-[#d63f1e] active:scale-95 shadow-md shadow-[#d06b28]/30 border border-[#de7a3d] transition-all duration-150 disabled:opacity-50 cursor-pointer"
               >
                 {isSaving ? (
                   <>

@@ -112,11 +112,18 @@ export const ManagePermissionsPage: React.FC = () => {
       const key = `${role}-${module}`;
       setStagedGrid((prev) => {
         const current = prev[key] || { role, module, enabled: false, actions: [] };
+        // If enabling and actions are currently empty, auto-populate with at least 'view'
+        const nextActions =
+          enabled && current.actions.length === 0
+            ? (['view'] as PermissionAction[])
+            : current.actions;
+
         return {
           ...prev,
           [key]: {
             ...current,
             enabled,
+            actions: nextActions,
           },
         };
       });
@@ -239,29 +246,29 @@ export const ManagePermissionsPage: React.FC = () => {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-slate-800/80 pb-6"
+        className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b border-[#ece0d6] pb-6"
       >
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f0512f]/10 border border-[#f0512f]/30 text-[#ff8c70] text-xs font-semibold">
-              <Lock className="w-3 h-3 text-[#f0512f]" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#fbeae0] border border-[#de7a3d] text-[#7a2f05] text-xs font-semibold">
+              <Lock className="w-3 h-3 text-[#c2540c]" />
               Super Admin Settings
             </span>
             {organization && (
-              <span className="text-xs text-slate-500 font-mono">
+              <span className="text-xs text-[#6b6b6b] font-mono">
                 / {organization.name}
               </span>
             )}
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1a1a1a] tracking-tight flex items-center gap-3">
             Manage Permissions
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-mono font-medium">
-              RBAC v1
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-mono font-medium">
+              RBAC Matrix
             </span>
           </h1>
 
-          <p className="text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-sm text-[#6b6b6b] mt-1 max-w-2xl leading-relaxed">
             Control which roles can access each module across your organization.
             Granularly configure module availability and individual action rights.
           </p>
@@ -271,13 +278,13 @@ export const ManagePermissionsPage: React.FC = () => {
         <div className="flex flex-wrap items-center gap-3">
           {/* Search box */}
           <div className="relative min-w-[220px]">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#9b9b9b] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter roles or modules..."
-              className="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#f0512f] transition-all"
+              className="w-full bg-white border border-[#ece0d6] rounded-xl pl-9 pr-3 py-2 text-xs text-[#1a1a1a] placeholder-[#9b9b9b] focus:outline-none focus:ring-2 focus:ring-[#f0512f] transition-all shadow-xs"
             />
           </div>
 
@@ -287,9 +294,9 @@ export const ManagePermissionsPage: React.FC = () => {
               type="button"
               onClick={handleDiscard}
               disabled={updateMutation.isPending}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700/80 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#1a1a1a] hover:bg-[#fbf0e7] bg-white border border-[#ece0d6] transition-all shadow-xs cursor-pointer"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#6b6b6b]" />
               Discard changes ({dirtyCells.size})
             </button>
           )}
@@ -299,10 +306,10 @@ export const ManagePermissionsPage: React.FC = () => {
             type="button"
             onClick={() => refetch()}
             disabled={isLoading || updateMutation.isPending}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-200 bg-slate-900 border border-slate-800 hover:bg-slate-800/80 transition-colors"
+            className="p-2 rounded-xl text-[#6b6b6b] hover:text-[#1a1a1a] bg-white border border-[#ece0d6] hover:bg-[#fbf0e7] transition-colors shadow-xs cursor-pointer"
             title="Refresh permissions matrix"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-[#c2540c]' : ''}`} />
           </button>
         </div>
       </motion.div>
@@ -312,29 +319,29 @@ export const ManagePermissionsPage: React.FC = () => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.4 }}
-        className="permissions-callout p-4 rounded-2xl bg-gradient-to-r from-slate-900/90 to-slate-900/40 border border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg"
+        className="permissions-callout p-4 rounded-2xl bg-[#fbf0e7] border border-[#ece0d6] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-[#fbeae0] border border-[#de7a3d]/40 flex items-center justify-center text-[#c2540c] flex-shrink-0 shadow-2xs">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-200">
+            <p className="text-xs font-bold text-[#1a1a1a]">
               Super Admin bypass is permanently active
             </p>
-            <p className="text-[11px] text-slate-400">
-              The <span className="text-amber-400 font-mono font-medium">super_admin</span> role
+            <p className="text-[11px] text-[#6b6b6b]">
+              The <span className="text-[#c2540c] font-mono font-semibold">super_admin</span> role
               is the organization owner and is omitted from the grid because it always retains unrestricted access.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="text-[11px] text-slate-400 font-mono bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800">
-            Available Roles: <span className="text-white font-semibold">{data?.catalog.roles.length ?? 0}</span>
+          <div className="text-[11px] text-[#6b6b6b] font-mono bg-white px-3 py-1.5 rounded-lg border border-[#ece0d6] shadow-2xs">
+            Available Roles: <span className="text-[#1a1a1a] font-bold">{data?.catalog.roles.length ?? 0}</span>
           </div>
-          <div className="text-[11px] text-slate-400 font-mono bg-slate-950/60 px-3 py-1.5 rounded-lg border border-slate-800">
-            Staged Diffs: <span className={dirtyCells.size > 0 ? 'text-[#f0512f] font-bold' : 'text-emerald-400'}>{dirtyCells.size}</span>
+          <div className="text-[11px] text-[#6b6b6b] font-mono bg-white px-3 py-1.5 rounded-lg border border-[#ece0d6] shadow-2xs">
+            Staged Diffs: <span className={dirtyCells.size > 0 ? 'text-[#c2540c] font-bold' : 'text-emerald-700 font-semibold'}>{dirtyCells.size}</span>
           </div>
         </div>
       </motion.div>

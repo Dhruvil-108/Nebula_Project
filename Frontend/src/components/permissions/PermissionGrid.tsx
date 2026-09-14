@@ -30,17 +30,17 @@ interface PermissionGridProps {
 
 export const PermissionGridSkeleton: React.FC = () => {
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/60 animate-pulse">
-      <div className="h-16 bg-slate-900/80 border-b border-slate-800" />
-      <div className="divide-y divide-slate-800/60">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+    <div className="w-full overflow-hidden rounded-2xl border border-[#ece0d6] bg-white shadow-xs animate-pulse">
+      <div className="h-16 bg-[#fbf5f0] border-b border-[#ece0d6]" />
+      <div className="divide-y divide-[#ece0d6]">
+        {[1, 2, 3, 4].map((i) => (
           <div key={i} className="flex items-center gap-4 px-6 py-5">
-            <div className="w-40 h-8 bg-slate-800/80 rounded-xl" />
+            <div className="w-44 h-9 bg-[#fbf0e7] rounded-xl" />
             <div className="flex-1 grid grid-cols-4 gap-4">
-              <div className="h-14 bg-slate-800/40 rounded-xl" />
-              <div className="h-14 bg-slate-800/40 rounded-xl" />
-              <div className="h-14 bg-slate-800/40 rounded-xl" />
-              <div className="h-14 bg-slate-800/40 rounded-xl" />
+              <div className="h-16 bg-[#faf8f6] rounded-xl border border-[#ece0d6]/50" />
+              <div className="h-16 bg-[#faf8f6] rounded-xl border border-[#ece0d6]/50" />
+              <div className="h-16 bg-[#faf8f6] rounded-xl border border-[#ece0d6]/50" />
+              <div className="h-16 bg-[#faf8f6] rounded-xl border border-[#ece0d6]/50" />
             </div>
           </div>
         ))}
@@ -62,18 +62,18 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
   onBatchColumn,
 }) => {
   return (
-    <div className="permissions-grid w-full overflow-x-auto rounded-2xl border border-slate-800/80 bg-slate-950/60 shadow-xl scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+    <div className="permissions-grid w-full overflow-x-auto rounded-2xl border border-[#ece0d6] bg-white shadow-sm scrollbar-thin">
       <table className="w-full border-collapse text-left min-w-[900px]">
         {/* Table Header */}
         <thead>
-          <tr className="border-b border-slate-800/80 bg-slate-900/90 text-slate-400">
+          <tr className="border-b border-[#ece0d6] bg-[#fbf5f0] text-[#6b6b6b]">
             {/* Pinned Sticky Header for Role Column */}
-            <th className="sticky left-0 z-30 bg-slate-900 px-4 py-4 text-xs font-semibold tracking-wider uppercase min-w-[240px] max-w-[260px] border-r border-slate-800/80 shadow-[4px_0_12px_rgba(0,0,0,0.3)]">
+            <th className="sticky left-0 z-30 bg-[#fbf5f0] px-4 py-4 text-xs font-semibold tracking-wider uppercase min-w-[240px] max-w-[260px] border-r border-[#ece0d6] shadow-[3px_0_10px_rgba(0,0,0,0.03)]">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#f0512f]" />
-                <span className="text-slate-200">Role / Module Matrix</span>
+                <ShieldCheck className="w-4 h-4 text-[#c2540c]" />
+                <span className="text-[#1a1a1a] font-bold">Role / Module Matrix</span>
               </div>
-              <p className="text-[10px] text-slate-500 font-normal lowercase tracking-normal mt-0.5">
+              <p className="text-[10px] text-[#6b6b6b] font-normal lowercase tracking-normal mt-0.5 font-mono">
                 {roles.length} {roles.length === 1 ? 'available role' : 'available roles'}
               </p>
             </th>
@@ -82,15 +82,15 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
             {modules.map((mod) => {
               const meta = MODULE_METADATA[mod];
               return (
-                <th key={mod} className="px-3 py-3 min-w-[200px] align-top">
-                  <div className="flex flex-col gap-1.5 p-2 rounded-xl bg-slate-900/50 border border-slate-800/60">
+                <th key={mod} className="px-3 py-3 min-w-[200px] align-top bg-[#fbf5f0]">
+                  <div className="flex flex-col gap-1.5 p-2.5 rounded-xl bg-white border border-[#ece0d6] shadow-2xs">
                     <div className="flex items-center justify-between">
                       <span
                         className={clsx(
-                          'inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold border',
-                          meta?.badgeBg || 'bg-slate-800',
-                          meta?.color || 'text-slate-200',
-                          meta?.badgeBorder || 'border-slate-700'
+                          'inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold border shadow-2xs',
+                          meta?.badgeBg || 'bg-[#fbeae0]',
+                          meta?.color || 'text-[#7a2f05]',
+                          meta?.badgeBorder || 'border-[#de7a3d]'
                         )}
                       >
                         {meta?.label || mod.toUpperCase()}
@@ -101,7 +101,7 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
                           type="button"
                           onClick={() => onBatchColumn(mod, true)}
                           title={`Enable ${meta?.label || mod} for all roles`}
-                          className="p-1 rounded text-slate-500 hover:text-emerald-400 hover:bg-slate-800/80 transition-colors"
+                          className="p-1 rounded-md text-[#6b6b6b] hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
                         >
                           <CheckCheck className="w-3.5 h-3.5" />
                         </button>
@@ -109,14 +109,14 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
                           type="button"
                           onClick={() => onBatchColumn(mod, false)}
                           title={`Disable ${meta?.label || mod} for all roles`}
-                          className="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-800/80 transition-colors"
+                          className="p-1 rounded-md text-[#6b6b6b] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                         >
                           <XCircle className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
 
-                    <p className="text-[11px] text-slate-400 line-clamp-1 font-normal" title={meta?.description}>
+                    <p className="text-[11px] text-[#6b6b6b] line-clamp-1 font-normal leading-tight" title={meta?.description}>
                       {meta?.description}
                     </p>
                   </div>
@@ -127,21 +127,21 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
         </thead>
 
         {/* Table Body */}
-        <tbody className="divide-y divide-slate-800/40">
+        <tbody className="divide-y divide-[#ece0d6] bg-white">
           {roles.length === 0 ? (
             <tr>
               <td
                 colSpan={modules.length + 1}
-                className="px-6 py-16 text-center text-slate-400 bg-slate-950/30"
+                className="px-6 py-16 text-center text-[#6b6b6b] bg-[#faf8f6]/50"
               >
                 <div className="flex flex-col items-center justify-center gap-3 max-w-md mx-auto">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400">
-                    <Users className="w-6 h-6 text-slate-400" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#fbf0e7] border border-[#ece0d6] flex items-center justify-center text-[#c2540c]">
+                    <Users className="w-6 h-6 text-[#c2540c]" />
                   </div>
-                  <h4 className="text-base font-semibold text-slate-200">
+                  <h4 className="text-base font-semibold text-[#1a1a1a]">
                     {searchQuery ? 'No matching roles found' : 'No Role Accounts Available'}
                   </h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-xs text-[#6b6b6b] leading-relaxed">
                     {searchQuery ? (
                       <>
                         No active role accounts match &ldquo;{searchQuery}&rdquo;. Try clearing your search query.
@@ -154,7 +154,7 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
                     <button
                       type="button"
                       onClick={onClearSearch}
-                      className="mt-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors"
+                      className="mt-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[#1a1a1a] hover:bg-[#fbf0e7] border border-[#ece0d6] transition-colors cursor-pointer"
                     >
                       Clear search filter
                     </button>

@@ -35,29 +35,29 @@ export const PermissionGridRow: React.FC<PermissionGridRowProps> = ({
   onBatchRow,
 }) => {
   const roleLabel = ROLE_LABELS[role] || role;
-  const roleColorClass = ROLE_COLORS[role] || 'text-slate-300 bg-slate-800 border-slate-700';
+  const roleColorClass = ROLE_COLORS[role] || 'text-[#7a2f05] bg-[#fbeae0] border-[#de7a3d]';
 
   const enabledCount = modules.filter((m) => rowValues[m]?.enabled).length;
 
   return (
-    <tr className="group border-b border-slate-800/60 hover:bg-slate-900/30 transition-colors">
+    <tr className="group border-b border-[#ece0d6] hover:bg-[#fffbf8] transition-colors">
       {/* Pinned Sticky Left Column for Role */}
-      <td className="permissions-role-cell sticky left-0 z-10 bg-[#0b0f17] group-hover:bg-[#0f1420] transition-colors px-4 py-4 min-w-[240px] max-w-[260px] border-r border-slate-800/80 shadow-[4px_0_12px_rgba(0,0,0,0.3)]">
+      <td className="permissions-role-cell sticky left-0 z-10 bg-white group-hover:bg-[#fffbf8] transition-colors px-4 py-4 min-w-[240px] max-w-[260px] border-r border-[#ece0d6] shadow-[3px_0_10px_rgba(0,0,0,0.03)]">
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <span
                 className={clsx(
-                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border',
+                  'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border shadow-2xs',
                   roleColorClass
                 )}
               >
-                <Shield className="w-3 h-3 mr-1" />
+                <Shield className="w-3 h-3 mr-1 text-[#c2540c]" />
                 {roleLabel}
               </span>
             </div>
 
-            <span className="text-[11px] text-slate-500 font-mono">
+            <span className="text-[11px] text-[#6b6b6b] font-mono font-medium">
               {enabledCount}/{modules.length} active
             </span>
           </div>
@@ -66,19 +66,19 @@ export const PermissionGridRow: React.FC<PermissionGridRowProps> = ({
             <button
               type="button"
               onClick={() => onBatchRow(role, true)}
-              className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 px-2 py-1 rounded transition-colors"
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200/80 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
               title="Grant full access to all modules for this role"
             >
-              <CheckSquare className="w-3 h-3 text-emerald-400" />
+              <CheckSquare className="w-3 h-3 text-emerald-600" />
               All On
             </button>
             <button
               type="button"
               onClick={() => onBatchRow(role, false)}
-              className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-rose-400 hover:bg-slate-800/80 px-2 py-1 rounded transition-colors"
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-[#6b6b6b] hover:text-rose-600 bg-stone-100 hover:bg-rose-50 border border-stone-200 hover:border-rose-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
               title="Disable all modules for this role"
             >
-              <Square className="w-3 h-3 text-slate-500" />
+              <Square className="w-3 h-3 text-[#9b9b9b]" />
               All Off
             </button>
           </div>

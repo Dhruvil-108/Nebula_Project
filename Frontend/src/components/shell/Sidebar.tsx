@@ -23,11 +23,12 @@ import {
 import { clsx } from 'clsx';
 import { SidebarNavItem } from './SidebarNavItem';
 import { SidebarNavGroup } from './SidebarNavGroup';
-import { useCrmModuleAccess } from '../../hooks/useCrmModuleAccess';
+import { useModuleAccess } from '../../hooks/useModuleAccess';
 import { UserMenu } from './UserMenu';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Role } from '../../types/user';
 import type { FocusArea } from '../../types/organization';
+import type { PermissionModule } from '../../types/permissions';
 import { NebulaLogo } from '../ui/NebulaLogo';
 
 // ─────────────────────────────────────────────────────────
@@ -40,6 +41,15 @@ interface NavItem {
   label: string;
   emphasized?: boolean;
 }
+
+const pathToModuleMap: Record<string, PermissionModule> = {
+  '/dashboard/crm': 'crm',
+  '/dashboard/hrms': 'hrms',
+  '/dashboard/recruitment': 'recruitment',
+  '/dashboard/expenses': 'expenses',
+  '/dashboard/inventory': 'inventory',
+  '/dashboard/analytics': 'analytics',
+};
 
 const getNavConfig = (
   role: Role,
@@ -62,6 +72,7 @@ const getNavConfig = (
     return {
       primary: [
         { to: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'My Dashboard' },
+        { to: '/dashboard/crm', icon: <Users className="w-5 h-5" />, label: 'CRM' },
         { to: '/dashboard/hrms', icon: <UserRound className="w-5 h-5" />, label: 'Attendance & Leave' },
         { to: '/dashboard/expenses', icon: <Receipt className="w-5 h-5" />, label: 'My Expenses' },
       ],
@@ -127,14 +138,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onMobileClose,
 }) => {
   const { user, organization } = useAuth();
+  const { checkAccess } = useModuleAccess();
   const navConfig = getNavConfig(
     user?.role ?? 'employee',
     organization?.primaryFocus ?? []
   );
-
-  // CRM module visibility per the org permission matrix (defaults grant it to
-  // super_admin/admin/manager/sales; other roles need explicit enablement).
-  const { hasModuleAccess: crmEnabled } = useCrmModuleAccess();
 
   const sidebarContent = (
     <div className="post-login-sidebar flex flex-col h-full bg-[#0b0f17] select-none">
@@ -198,9 +206,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             Modules
           </p>
         )}
-        {navConfig.primary.map((item) =>
-          item.to === '/dashboard/crm' ? (
-            crmEnabled ? (
+        {navConfig.primary.map((item) => {
+          const mod = pathToModuleMap[item.to];
+          if (mod && !checkAccess(mod)) {
+            return null;
+          }
+
+          if (item.to === '/dashboard/crm') {
+            return (
               <SidebarNavGroup
                 key={item.to}
                 to={item.to}
@@ -215,8 +228,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   { to: '/dashboard/crm/deals', icon: <Handshake className="w-3.5 h-3.5" />, label: 'Deals' },
                 ]}
               />
-            ) : null
-          ) : (
+            );
+          }
+
+          return (
             <SidebarNavItem
               key={item.to}
               to={item.to}
@@ -225,8 +240,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               collapsed={collapsed}
               emphasized={item.emphasized}
             />
-          )
-        )}
+          );
+        })}
       </nav>
 
       {/* ── Secondary nav (settings/org) ── */}

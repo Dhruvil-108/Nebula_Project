@@ -50,6 +50,8 @@ export const useUpdatePermissions = () => {
     onSuccess: () => {
       toast.success('Permissions updated successfully.');
       queryClient.invalidateQueries({ queryKey: ['permissions', 'matrix'] });
+      queryClient.invalidateQueries({ queryKey: ['moduleAccess'] });
+      queryClient.invalidateQueries({ queryKey: ['crmModuleAccess'] });
     },
     onError: (err: any) => {
       const serverMessage =

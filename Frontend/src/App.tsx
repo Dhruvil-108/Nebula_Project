@@ -13,7 +13,7 @@ import { LandingPage } from './pages/LandingPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { SignInPage } from './pages/SignInPage';
 import DashboardPage from './pages/DashboardPage';
-import CrmPage from './pages/modules/CrmPage';
+import CrmPage from './pages/CrmPage';
 import { LeadsPage } from './pages/crm/LeadsPage';
 import { PipelinePage } from './pages/crm/PipelinePage';
 import { ContactsPage } from './pages/crm/ContactsPage';
