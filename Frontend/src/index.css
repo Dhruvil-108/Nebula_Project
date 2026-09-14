@@ -223,6 +223,10 @@
   color: var(--post-login-text-muted) !important;
 }
 
+.authenticated-shell .account-creator-page [class*="bg-indigo-"] {
+  background-color: var(--brand-soft) !important;
+}
+
 .authenticated-shell .account-creator-form [class*="border-slate-"] {
   border-color: var(--post-login-border) !important;
 }
@@ -252,10 +256,18 @@
 }
 
 .authenticated-shell .account-creator-form [class*="bg-indigo-"] {
-  background-color: var(--post-login-orange) !important;
+  background-color: var(--brand-soft) !important;
+}
+
+.authenticated-shell .account-creator-page [class*="text-indigo-"] {
+  color: var(--post-login-orange) !important;
 }
 
 .authenticated-shell .account-creator-form [class*="border-indigo-"] {
+  border-color: var(--post-login-orange) !important;
+}
+
+.authenticated-shell .account-creator-page [class*="border-indigo-"] {
   border-color: var(--post-login-orange) !important;
 }
 
@@ -314,7 +326,25 @@
 }
 
 .authenticated-shell .account-creator-roster [class*="bg-indigo-"] {
-  background-color: var(--post-login-orange) !important;
+  background-color: var(--brand-soft) !important;
+}
+
+/* CRM filters and form selects use the same light authenticated palette. */
+.authenticated-shell .crm-submodule-page select {
+  color-scheme: light;
+  background-color: #ffffff !important;
+  border-color: var(--post-login-border) !important;
+  color: var(--post-login-text) !important;
+}
+
+.authenticated-shell .crm-submodule-page select:focus {
+  border-color: var(--post-login-orange) !important;
+  --tw-ring-color: rgba(194, 84, 12, 0.25) !important;
+}
+
+.authenticated-shell .crm-submodule-page select option {
+  background-color: #ffffff;
+  color: var(--post-login-text);
 }
 
 .authenticated-shell .permissions-page .permissions-callout {

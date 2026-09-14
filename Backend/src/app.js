@@ -13,6 +13,7 @@ const leaveRoutes = require('./routes/leaveRoutes');
 const holidayRoutes = require('./routes/holidayRoutes');
 const permissionRoutes = require('./routes/permissionRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const crmRoutes = require('./routes/crmRoutes');
 
 const app = express();
 
@@ -100,6 +101,7 @@ app.use('/api/v1/leaves', leaveRoutes);
 app.use('/api/v1/holidays', holidayRoutes);
 app.use('/api/v1/permissions', permissionRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/crm', crmRoutes);
 
 /**
  * @swagger

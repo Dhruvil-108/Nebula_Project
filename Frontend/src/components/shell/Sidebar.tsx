@@ -15,9 +15,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  UserPlus as LeadIcon,
+  Kanban,
+  BookUser,
+  Handshake,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SidebarNavItem } from './SidebarNavItem';
+import { SidebarNavGroup } from './SidebarNavGroup';
+import { useCrmModuleAccess } from '../../hooks/useCrmModuleAccess';
 import { UserMenu } from './UserMenu';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Role } from '../../types/user';
@@ -126,6 +132,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     organization?.primaryFocus ?? []
   );
 
+  // CRM module visibility per the org permission matrix (defaults grant it to
+  // super_admin/admin/manager/sales; other roles need explicit enablement).
+  const { hasModuleAccess: crmEnabled } = useCrmModuleAccess();
+
   const sidebarContent = (
     <div className="post-login-sidebar flex flex-col h-full bg-[#0b0f17] select-none">
       {/* ── Header / Logo ── */}
@@ -188,16 +198,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
             Modules
           </p>
         )}
-        {navConfig.primary.map((item) => (
-          <SidebarNavItem
-            key={item.to}
-            to={item.to}
-            icon={item.icon}
-            label={item.label}
-            collapsed={collapsed}
-            emphasized={item.emphasized}
-          />
-        ))}
+        {navConfig.primary.map((item) =>
+          item.to === '/dashboard/crm' ? (
+            crmEnabled ? (
+              <SidebarNavGroup
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+                collapsed={collapsed}
+                subItems={[
+                  { to: '/dashboard/crm/leads', icon: <LeadIcon className="w-3.5 h-3.5" />, label: 'Leads' },
+                  { to: '/dashboard/crm/pipeline', icon: <Kanban className="w-3.5 h-3.5" />, label: 'Pipeline' },
+                  { to: '/dashboard/crm/contacts', icon: <BookUser className="w-3.5 h-3.5" />, label: 'Contacts' },
+                  { to: '/dashboard/crm/companies', icon: <Building2 className="w-3.5 h-3.5" />, label: 'Companies' },
+                  { to: '/dashboard/crm/deals', icon: <Handshake className="w-3.5 h-3.5" />, label: 'Deals' },
+                ]}
+              />
+            ) : null
+          ) : (
+            <SidebarNavItem
+              key={item.to}
+              to={item.to}
+              icon={item.icon}
+              label={item.label}
+              collapsed={collapsed}
+              emphasized={item.emphasized}
+            />
+          )
+        )}
       </nav>
 
       {/* ── Secondary nav (settings/org) ── */}

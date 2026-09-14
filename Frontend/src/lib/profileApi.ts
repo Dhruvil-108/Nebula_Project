@@ -47,7 +47,7 @@ export const createProfile = async (payload: Partial<ProfileData>): Promise<Prof
  * Update personal details of the current user's profile.
  * Only mutable fields are sent; the backend should merge changes.
  */
-export const updateProfile = async (payload: Partial<ProfileData>): Promise<ProfileData> => {
+export const updateProfile = async (payload: { user: Partial<UserProfile> }): Promise<ProfileData> => {
   const { data } = await apiClient.patch<ProfileData>('/users/me/profile', payload);
   return data;
 };

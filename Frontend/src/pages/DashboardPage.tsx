@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../lib/apiClient';
+import { useCrmSummary } from '../hooks/useCrm';
 import { KpiCard, KpiCardSkeleton } from '../components/dashboard/KpiCard';
 import { AttendanceCard } from '../components/dashboard/AttendanceCard';
 import { LeaveBalanceCard } from '../components/dashboard/LeaveBalanceCard';
@@ -112,6 +113,9 @@ export const DashboardPage: React.FC = () => {
     },
     refetchInterval: 15000, // Live poll every 15s for attendance synchronization
   });
+
+  // ── CRM summary KPIs (slotted into the existing KPI-card contract) ──
+  const { data: crmSummary, isLoading: isCrmSummaryLoading } = useCrmSummary();
 
   // ── Leave approvals mutations (for Admin, Super Admin, HR, Manager) ──
   const approveLeaveMutation = useMutation({
@@ -274,6 +278,48 @@ export const DashboardPage: React.FC = () => {
       ];
     }
 
+    if (role === 'sales') {
+      const crmKpis: KpiCardData[] = [
+        {
+          id: 'crm-active-leads',
+          title: 'Active Leads',
+          value: crmSummary?.activeLeads ?? 0,
+          trendPercent: null,
+          trendLabel: crmSummary?.activeLeads === 1 ? '1 lead in play' : `${crmSummary?.activeLeads ?? 0} leads in play`,
+          iconName: 'Users',
+          colorClasses: 'bg-emerald-500/10 text-emerald-400',
+        },
+        {
+          id: 'crm-pipeline',
+          title: 'Pipeline Value',
+          value: `$${(crmSummary?.pipelineValue ?? 0).toLocaleString()}`,
+          trendPercent: null,
+          trendLabel: `${crmSummary?.pipelineDeals ?? 0} open deal${(crmSummary?.pipelineDeals ?? 0) === 1 ? '' : 's'}`,
+          iconName: 'Target',
+          colorClasses: 'bg-orange-500/10 text-orange-400',
+        },
+        {
+          id: 'crm-won-month',
+          title: 'Won This Month',
+          value: `$${(crmSummary?.wonThisMonthValue ?? 0).toLocaleString()}`,
+          trendPercent: null,
+          trendLabel: `${crmSummary?.wonThisMonth ?? 0} deal${(crmSummary?.wonThisMonth ?? 0) === 1 ? '' : 's'} closed`,
+          iconName: 'CheckCircle2',
+          colorClasses: 'bg-emerald-500/10 text-emerald-400',
+        },
+        {
+          id: 'crm-conversion',
+          title: 'Lead Conversion',
+          value: crmSummary?.conversionRate !== null && crmSummary?.conversionRate !== undefined ? `${crmSummary.conversionRate}%` : '—',
+          trendPercent: null,
+          trendLabel: 'Won vs closed leads (all time)',
+          iconName: 'TrendingUp',
+          colorClasses: 'bg-sky-500/10 text-sky-400',
+        },
+      ];
+      return crmKpis;
+    }
+
     // Default for Employee & Intern (Personal Work Dashboard)
     return [
       {
@@ -313,7 +359,7 @@ export const DashboardPage: React.FC = () => {
         colorClasses: 'bg-amber-500/10 text-amber-400',
       },
     ];
-  }, [dashboardData, user]);
+  }, [dashboardData, user, crmSummary]);
 
   // Filter roster by search input
   const filteredRoster = (dashboardData?.todayRoster || []).filter((emp) => {
@@ -326,7 +372,11 @@ export const DashboardPage: React.FC = () => {
   });
 
   // ── Loading state ──
-  if (isAuthLoading || (isStatsLoading && !dashboardData)) {
+  if (
+    isAuthLoading ||
+    (isStatsLoading && !dashboardData) ||
+    (user?.role === 'sales' && isCrmSummaryLoading && !crmSummary)
+  ) {
     return (
       <div className="dashboard-page p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
         <div className="h-10 w-64 bg-slate-800 rounded-xl animate-pulse" />

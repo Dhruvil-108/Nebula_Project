@@ -69,10 +69,10 @@ const getDashboardStats = async (req, res) => {
       if (rec) {
         if (rec.checkOutAt) {
           status = 'checked_out';
-          checkedOutCount++;
+          checkedOutTodayCount++;
         } else if (rec.breaks && rec.breaks.some((b) => b.breakOutAt === null)) {
           status = 'on_break';
-          onBreakCount++;
+          onBreakTodayCount++;
         } else if (rec.checkInAt) {
           status = 'checked_in';
           checkedInTodayCount++;

@@ -14,6 +14,11 @@ import { SignUpPage } from './pages/SignUpPage';
 import { SignInPage } from './pages/SignInPage';
 import DashboardPage from './pages/DashboardPage';
 import CrmPage from './pages/modules/CrmPage';
+import { LeadsPage } from './pages/crm/LeadsPage';
+import { PipelinePage } from './pages/crm/PipelinePage';
+import { ContactsPage } from './pages/crm/ContactsPage';
+import { CompaniesPage } from './pages/crm/CompaniesPage';
+import { DealsPage } from './pages/crm/DealsPage';
 import HrmsPage from './pages/modules/HrmsPage';
 import RecruitmentPage from './pages/modules/RecruitmentPage';
 import ExpensesPage from './pages/modules/ExpensesPage';
@@ -154,6 +159,11 @@ export const App: React.FC = () => {
             >
               <Route index element={<DashboardPage />} />
               <Route path="crm" element={<CrmPage />} />
+              <Route path="crm/leads" element={<LeadsPage />} />
+              <Route path="crm/pipeline" element={<PipelinePage />} />
+              <Route path="crm/contacts" element={<ContactsPage />} />
+              <Route path="crm/companies" element={<CompaniesPage />} />
+              <Route path="crm/deals" element={<DealsPage />} />
               <Route path="hrms" element={<HrmsPage />} />
               <Route path="recruitment" element={<RecruitmentPage />} />
               <Route path="expenses" element={<ExpensesPage />} />

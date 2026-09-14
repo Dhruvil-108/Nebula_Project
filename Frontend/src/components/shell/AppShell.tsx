@@ -7,6 +7,11 @@ import { TopBar } from './TopBar';
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/dashboard/crm': 'CRM',
+  '/dashboard/crm/leads': 'CRM · Leads',
+  '/dashboard/crm/pipeline': 'CRM · Pipeline',
+  '/dashboard/crm/contacts': 'CRM · Contacts',
+  '/dashboard/crm/companies': 'CRM · Companies',
+  '/dashboard/crm/deals': 'CRM · Deals',
   '/dashboard/hrms': 'HRMS',
   '/dashboard/recruitment': 'Recruitment',
   '/dashboard/expenses': 'Expenses',
