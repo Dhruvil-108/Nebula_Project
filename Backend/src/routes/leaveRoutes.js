@@ -8,8 +8,7 @@ const {
   rejectLeaveRequest,
 } = require('../controllers/leaveController');
 const { requireAuth } = require('../middleware/auth');
-const { requireRole } = require('../middleware/rbac');
-const { ROLES } = require('../config/roles');
+const { requireModuleAccess } = require('../middleware/moduleAccess');
 
 // All leave routes require auth
 router.use(requireAuth);
@@ -17,16 +16,18 @@ router.use(requireAuth);
 router.get('/balance', getLeaveBalances);
 router.post('/requests', createLeaveRequest);
 
-// Approvals/rejections restricted to managers, HR, admins, super_admins
+// Approvals/rejections gated by the dynamic permission matrix
+// (hrms:approve) — same gate as the /hr module, so revoking the
+// permission actually revokes it everywhere.
 router.patch(
   '/requests/:id/approve',
-  requireRole(ROLES.MANAGER, ROLES.HR, ROLES.ADMIN, ROLES.SUPER_ADMIN),
+  requireModuleAccess('hrms', 'approve'),
   approveLeaveRequest
 );
 
 router.patch(
   '/requests/:id/reject',
-  requireRole(ROLES.MANAGER, ROLES.HR, ROLES.ADMIN, ROLES.SUPER_ADMIN),
+  requireModuleAccess('hrms', 'approve'),
   rejectLeaveRequest
 );
 

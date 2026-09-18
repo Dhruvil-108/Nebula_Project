@@ -64,6 +64,10 @@ export const RequestLeaveModal: React.FC<RequestLeaveModalProps> = ({
       toast.success(data.message || 'Leave request submitted successfully!');
       queryClient.invalidateQueries({ queryKey: ['leaves'] });
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      // Keep HRMS leave/summary views in sync
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'leaves'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'summary'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       onClose();
     },
     onError: (err: any) => {

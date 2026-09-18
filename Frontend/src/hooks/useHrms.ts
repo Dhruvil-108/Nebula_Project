@@ -215,10 +215,12 @@ export const useAttendanceAction = () => {
 
     onSuccess: (data, action) => {
       toast.success(data.message);
-      // Reconcile with the authoritative server state
+      // Reconcile with the authoritative server state — including the
+      // platform /attendance cache used by the Dashboard attendance card
       qc.invalidateQueries({ queryKey: hrmsKeys.attendanceToday });
       qc.invalidateQueries({ queryKey: hrmsKeys.attendanceRoster() });
       qc.invalidateQueries({ queryKey: ['hrms', 'attendance'] });
+      qc.invalidateQueries({ queryKey: ['attendance'] });
       qc.invalidateQueries({ queryKey: hrmsKeys.summary });
       void action;
     },
@@ -274,6 +276,8 @@ export const useCreateLeaveRequest = () => {
     onSuccess: () => {
       toast.success('Leave request submitted.');
       qc.invalidateQueries({ queryKey: ['hrms', 'leaves'] });
+      qc.invalidateQueries({ queryKey: ['leaves'] });
+      qc.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       qc.invalidateQueries({ queryKey: hrmsKeys.summary });
     },
     onError: (err) => toast.error(getErrMessage(err, 'Failed to submit leave request.')),
@@ -302,6 +306,8 @@ export const useReviewLeaveRequest = () => {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['hrms', 'leaves'] });
       qc.invalidateQueries({ queryKey: ['hrms', 'attendance'] });
+      qc.invalidateQueries({ queryKey: ['leaves'] });
+      qc.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       qc.invalidateQueries({ queryKey: hrmsKeys.summary });
     },
 
@@ -410,9 +416,10 @@ export const useDeleteEmployeeDocument = () => {
 // ─────────────────────────────────────────────────────────
 // Summary
 // ─────────────────────────────────────────────────────────
-export const useHrSummary = () =>
+export const useHrSummary = (options: { enabled?: boolean } = {}) =>
   useQuery<Awaited<ReturnType<typeof hrmsApi.getSummary>>, Error>({
     queryKey: hrmsKeys.summary,
     queryFn: () => hrmsApi.getSummary(),
     staleTime: 1000 * 60,
+    enabled: options.enabled ?? true,
   });

@@ -5,7 +5,7 @@ const Contact = require('../models/Contact');
 const Deal = require('../models/Deal');
 const Activity = require('../models/Activity');
 const { scopedFilter } = require('../middleware/tenant');
-const { PIPELINE_STAGES } = require('../models/Lead');
+const { PIPELINE_STAGES, LEAD_SOURCES } = require('../models/Lead');
 
 const OWNER_FIELDS = 'fullName email role';
 
@@ -146,6 +146,13 @@ const updateLead = async (req, res) => {
 
     if (updates.status !== undefined && !PIPELINE_STAGES.includes(updates.status)) {
       return res.status(400).json({ error: 'Invalid lead status.' });
+    }
+    if (updates.source !== undefined && !LEAD_SOURCES.includes(updates.source)) {
+      return res.status(400).json({ error: 'Invalid lead source.' });
+    }
+    // ObjectId fields must be valid before hitting Mongo
+    if (updates.owner && !mongoose.Types.ObjectId.isValid(updates.owner)) {
+      return res.status(400).json({ error: 'Invalid owner id.' });
     }
 
     const lead = await Lead.findOneAndUpdate(

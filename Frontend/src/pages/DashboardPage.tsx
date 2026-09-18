@@ -115,11 +115,14 @@ export const DashboardPage: React.FC = () => {
     refetchInterval: 15000, // Live poll every 15s for attendance synchronization
   });
 
-  // ── CRM summary KPIs (slotted into the existing KPI-card contract) ──
-  const { data: crmSummary, isLoading: isCrmSummaryLoading } = useCrmSummary();
+  // ── CRM/HRMS summary KPIs — only fetched for roles that actually have
+  // module access, so the dashboard never fires doomed 403 requests. ──
+  const canViewCrm = !!user && ['super_admin', 'admin', 'manager', 'sales'].includes(user.role);
+  const canViewHrms = !!user && ['super_admin', 'admin', 'manager', 'hr', 'employee', 'intern'].includes(user.role);
+  const { data: crmSummary, isLoading: isCrmSummaryLoading } = useCrmSummary({ enabled: canViewCrm });
 
   // ── HRMS summary KPIs (same KpiCard contract) ──
-  const { data: hrSummary, isLoading: isHrSummaryLoading } = useHrSummary();
+  const { data: hrSummary, isLoading: isHrSummaryLoading } = useHrSummary({ enabled: canViewHrms });
 
   // ── Leave approvals mutations (for Admin, Super Admin, HR, Manager) ──
   const approveLeaveMutation = useMutation({
@@ -131,6 +134,10 @@ export const DashboardPage: React.FC = () => {
       toast.success('Leave request approved successfully.');
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['leaves'] });
+      // Keep HRMS leave/summary views in sync
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'leaves'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'summary'] });
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.error || 'Failed to approve leave request.');
@@ -146,6 +153,8 @@ export const DashboardPage: React.FC = () => {
       toast.info('Leave request rejected.');
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] });
       queryClient.invalidateQueries({ queryKey: ['leaves'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'leaves'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'summary'] });
     },
     onError: (err: any) => {
       toast.error(err?.response?.data?.error || 'Failed to reject leave request.');

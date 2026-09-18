@@ -4,6 +4,7 @@ const LeaveBalance = require('../models/LeaveBalance');
 const LeaveRequest = require('../models/LeaveRequest');
 const AttendanceRecord = require('../models/AttendanceRecord');
 const Employee = require('../models/Employee');
+const Organization = require('../models/Organization');
 const { scopedFilter } = require('../middleware/tenant');
 const {
   ensureLeaveBalancesForEmployee,
@@ -19,8 +20,9 @@ const canManageTypes = (role) =>
 
 /**
  * Resolve a ?employeeId= (Employee record id or "me") to the attendance/leave
- * subject id. Leave and attendance records are keyed by User id (legacy) or
- * Employee id (new employees) — we check both.
+ * subject id. Records are keyed by the linked User id when one exists
+ * (check-in flows use req.user._id), otherwise the Employee record id —
+ * a single canonical key prevents duplicate balance rows.
  */
 const resolveSubjectIds = async (req, employeeIdParam) => {
   if (!employeeIdParam || employeeIdParam === 'me') {
@@ -36,7 +38,8 @@ const resolveSubjectIds = async (req, employeeIdParam) => {
   if (!emp) {
     return { error: { status: 404, message: 'Employee not found.' } };
   }
-  return { subjectIds: [emp._id, emp.userId].filter(Boolean) };
+  // Canonical key: linked User id when present, else the Employee record id
+  return { subjectIds: [emp.userId || emp._id] };
 };
 
 // ─────────────────────────────────────────────────────────
@@ -297,7 +300,28 @@ const approveLeaveRequest = async (req, res) => {
 
     const year = new Date(request.startDate).getUTCFullYear();
 
-    // 1. Increment LeaveBalance.used
+    // 1. Enforce balance ceiling so used never exceeds allocated
+    const leaveType = await LeaveType.findById(request.leaveTypeId).lean();
+    if (leaveType && leaveType.annualQuota > 0) {
+      const existingBalance = await LeaveBalance.findOne({
+        organizationId: req.organizationId,
+        employeeId: request.employeeId,
+        leaveTypeId: request.leaveTypeId,
+        year,
+      }).lean();
+      const remaining = existingBalance
+        ? Math.max(0, (existingBalance.allocated || 0) - (existingBalance.used || 0))
+        : 0;
+      if (request.totalDays > remaining) {
+        const e = new Error(
+          `Cannot approve — only ${remaining} day(s) remaining for ${leaveType.name}, but this request needs ${request.totalDays}.`
+        );
+        e.status = 400;
+        throw e;
+      }
+    }
+
+    // 2. Increment LeaveBalance.used
     await LeaveBalance.findOneAndUpdate(
       {
         organizationId: req.organizationId,
@@ -309,12 +333,14 @@ const approveLeaveRequest = async (req, res) => {
       { ...opts, upsert: true }
     );
 
-    // 2. Mark covered days' attendance as on_leave
+    // 3. Mark covered days' attendance as on_leave (org timezone)
+    const org = await Organization.findById(req.organizationId).select('timezone').lean();
+    const timezone = org?.timezone || 'Asia/Kolkata';
     const coveredIds = [];
     const curr = new Date(request.startDate);
     const end = new Date(request.endDate);
     while (curr <= end) {
-      const dayMidnight = getDayMidnightUtc(curr);
+      const dayMidnight = getDayMidnightUtc(curr, timezone);
       const rec = await AttendanceRecord.findOneAndUpdate(
         {
           organizationId: req.organizationId,
@@ -337,7 +363,7 @@ const approveLeaveRequest = async (req, res) => {
       curr.setUTCDate(curr.getUTCDate() + 1);
     }
 
-    // 3. Flip the request status
+    // 4. Flip the request status
     request.status = 'approved';
     request.reviewedBy = req.user._id;
     await request.save(opts);
@@ -381,7 +407,6 @@ const approveLeaveRequest = async (req, res) => {
 
     // Standalone fallback with manual cleanup
     console.warn('[hrLeave.approveLeaveRequest] Transactions unsupported — using fallback mode');
-    const balanceFilter = { /* resolved inside approveOps scope */ };
     try {
       const request = await LeaveRequest.findOne({ _id: id, organizationId: req.organizationId });
       if (!request) return res.status(404).json({ error: 'Leave request not found.' });
@@ -403,10 +428,12 @@ const approveLeaveRequest = async (req, res) => {
 
       const coveredIds = [];
       try {
+        const fallbackOrg = await Organization.findById(req.organizationId).select('timezone').lean();
+        const fallbackTimezone = fallbackOrg?.timezone || 'Asia/Kolkata';
         const curr = new Date(request.startDate);
         const end = new Date(request.endDate);
         while (curr <= end) {
-          const dayMidnight = getDayMidnightUtc(curr);
+          const dayMidnight = getDayMidnightUtc(curr, fallbackTimezone);
           const rec = await AttendanceRecord.findOneAndUpdate(
             {
               organizationId: req.organizationId,

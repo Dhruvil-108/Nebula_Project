@@ -84,6 +84,9 @@ export const AttendanceCard: React.FC = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      // Keep the HRMS attendance pages in sync too
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'summary'] });
     },
   });
 
@@ -116,6 +119,8 @@ export const AttendanceCard: React.FC = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'summary'] });
     },
   });
 
@@ -148,6 +153,8 @@ export const AttendanceCard: React.FC = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'summary'] });
     },
   });
 
@@ -179,6 +186,8 @@ export const AttendanceCard: React.FC = () => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['hrms', 'summary'] });
     },
   });
 

@@ -138,7 +138,11 @@ const getDashboardStats = async (req, res) => {
       year: currentYear,
     }).populate('leaveTypeId', 'name').lean();
 
-    const myRemainingLeaves = myBalances.reduce((acc, b) => acc + (b.remainingDays || 0), 0);
+    // LeaveBalance.lean() drops the `remaining` virtual — compute it here
+    const myRemainingLeaves = myBalances.reduce(
+      (acc, b) => acc + Math.max(0, (b.allocated || 0) - (b.used || 0)),
+      0
+    );
 
     const myPendingLeavesCount = pendingLeaves.filter(
       (l) => l.employeeId?._id?.toString() === userId.toString()
@@ -204,7 +208,7 @@ const getDashboardStats = async (req, res) => {
         leaveType: l.leaveTypeId?.name || 'Leave',
         startDate: l.startDate,
         endDate: l.endDate,
-        days: l.days,
+        days: l.totalDays,
         reason: l.reason,
         createdAt: l.createdAt,
       })),

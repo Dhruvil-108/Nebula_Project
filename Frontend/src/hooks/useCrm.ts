@@ -374,9 +374,10 @@ export const useUpdateActivity = () => {
 // ─────────────────────────────────────────────────────────
 // Summary
 // ─────────────────────────────────────────────────────────
-export const useCrmSummary = () =>
+export const useCrmSummary = (options: { enabled?: boolean } = {}) =>
   useQuery<Awaited<ReturnType<typeof crmApi.getSummary>>, Error>({
     queryKey: crmKeys.summary,
     queryFn: () => crmApi.getSummary(),
     staleTime: 1000 * 60,
+    enabled: options.enabled ?? true,
   });

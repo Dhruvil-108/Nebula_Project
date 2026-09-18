@@ -34,7 +34,13 @@ const getCrmSummary = async (req, res) => {
           $match: {
             organizationId: req.organizationId,
             stage: 'won',
-            updatedAt: { $gte: monthStart, $lt: monthEnd },
+            // wonAt is set when the deal enters the 'won' stage — accurate
+            // even if the deal record is edited later. Falls back to
+            // updatedAt for deals created before the wonAt field existed.
+            $or: [
+              { wonAt: { $gte: monthStart, $lt: monthEnd } },
+              { wonAt: null, updatedAt: { $gte: monthStart, $lt: monthEnd } },
+            ],
           },
         },
         { $group: { _id: null, count: { $sum: 1 }, totalValue: { $sum: '$amount' } } },

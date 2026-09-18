@@ -3,10 +3,17 @@ const LeaveType = require('../models/LeaveType');
 const LeaveBalance = require('../models/LeaveBalance');
 const LeaveRequest = require('../models/LeaveRequest');
 const AttendanceRecord = require('../models/AttendanceRecord');
+const Organization = require('../models/Organization');
 const {
   ensureLeaveBalancesForEmployee,
   getDayMidnightUtc,
 } = require('../utils/attendanceUtils');
+
+/** Org timezone for day-boundary math (mirrors hrAttendanceController) */
+const getOrgTimezone = async (organizationId) => {
+  const org = await Organization.findById(organizationId).select('timezone').lean();
+  return org?.timezone || 'Asia/Kolkata';
+};
 
 // ─────────────────────────────────────────────────────────
 // GET /api/v1/leaves/balance
@@ -136,12 +143,34 @@ const approveLeaveRequest = async (req, res) => {
       return res.status(404).json({ error: 'Leave request not found.' });
     }
 
-    if (leaveRequest.status === 'approved') {
-      return res.status(400).json({ error: 'Leave request is already approved.' });
+    // Only pending requests can be approved (a rejected request must be re-submitted)
+    if (leaveRequest.status !== 'pending') {
+      return res.status(400).json({
+        error: `Cannot approve a request that is already ${leaveRequest.status}.`,
+      });
     }
 
-    // 1. Atomically increment LeaveBalance used count
     const year = new Date(leaveRequest.startDate).getUTCFullYear();
+
+    // 1. Enforce balance ceiling so used never exceeds allocated
+    await ensureLeaveBalancesForEmployee(organizationId, leaveRequest.employeeId, year);
+    const leaveType = await LeaveType.findById(leaveRequest.leaveTypeId).lean();
+    if (leaveType && leaveType.annualQuota > 0) {
+      const balance = await LeaveBalance.findOne({
+        organizationId,
+        employeeId: leaveRequest.employeeId,
+        leaveTypeId: leaveRequest.leaveTypeId,
+        year,
+      }).lean();
+      const remaining = balance ? Math.max(0, (balance.allocated || 0) - (balance.used || 0)) : 0;
+      if (leaveRequest.totalDays > remaining) {
+        return res.status(400).json({
+          error: `Cannot approve — the employee only has ${remaining} day(s) remaining for ${leaveType.name}, but this request needs ${leaveRequest.totalDays}.`,
+        });
+      }
+    }
+
+    // 2. Atomically increment LeaveBalance used count
     await LeaveBalance.findOneAndUpdate(
       {
         organizationId,
@@ -153,13 +182,14 @@ const approveLeaveRequest = async (req, res) => {
       { upsert: true }
     );
 
-    // 2. Mark attendance records for days within the approved range as 'on_leave'
+    // 3. Mark attendance records for days within the approved range as 'on_leave'
+    const timezone = await getOrgTimezone(organizationId);
     const start = new Date(leaveRequest.startDate);
     const end = new Date(leaveRequest.endDate);
     const curr = new Date(start);
 
     while (curr <= end) {
-      const dayMidnight = getDayMidnightUtc(curr);
+      const dayMidnight = getDayMidnightUtc(curr, timezone);
       await AttendanceRecord.findOneAndUpdate(
         {
           organizationId,
@@ -169,7 +199,11 @@ const approveLeaveRequest = async (req, res) => {
         {
           $set: {
             status: 'on_leave',
+            checkInAt: null,
+            checkOutAt: null,
+            breaks: [],
             totalWorkedMinutes: 0,
+            isLate: false,
           },
         },
         { upsert: true, new: true }

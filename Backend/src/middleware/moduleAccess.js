@@ -66,11 +66,22 @@ const requireModuleAccess = (moduleName, action) => {
           enabled = moduleName === 'recruitment';
           actions = enabled ? ['view', 'create', 'edit'] : [];
         } else if (role === ROLES.SALES) {
-          enabled = moduleName === 'crm';
-          actions = enabled ? ['view', 'create', 'edit'] : [];
+          // Kept in sync with permissionController.getDefaultActions
+          enabled = moduleName === 'crm' || moduleName === 'analytics';
+          actions =
+            moduleName === 'crm'
+              ? ['view', 'create', 'edit']
+              : moduleName === 'analytics'
+                ? ['view']
+                : [];
         } else if (role === ROLES.FINANCE) {
-          enabled = moduleName === 'expenses';
-          actions = enabled ? ['view', 'create', 'edit', 'delete', 'approve'] : [];
+          enabled = moduleName === 'expenses' || moduleName === 'analytics';
+          actions =
+            moduleName === 'expenses'
+              ? ['view', 'create', 'edit', 'delete', 'approve']
+              : moduleName === 'analytics'
+                ? ['view']
+                : [];
         } else if (role === ROLES.INVENTORY_MANAGER) {
           enabled = moduleName === 'inventory';
           actions = enabled ? ['view', 'create', 'edit', 'approve'] : [];

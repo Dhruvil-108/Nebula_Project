@@ -137,8 +137,11 @@ const createEmployee = async (req, res) => {
       userId: userId || null,
     });
 
-    // Seed leave balances so the new employee starts with quotas
-    await ensureLeaveBalancesForEmployee(req.organizationId, employee._id, new Date().getUTCFullYear());
+    // Seed leave balances so the new employee starts with quotas.
+    // Attendance/leave records are keyed by the linked User id when one
+    // exists (check-in flows use req.user._id), so seed under the same key.
+    const balanceKey = employee.userId || employee._id;
+    await ensureLeaveBalancesForEmployee(req.organizationId, balanceKey, new Date().getUTCFullYear());
 
     const populated = await Employee.findById(employee._id)
       .populate('departmentId', 'name')
@@ -272,6 +275,30 @@ const updateEmployee = async (req, res) => {
       return res.status(400).json({ error: 'Invalid employee status.' });
     }
 
+    // Validate referenced ids (mirrors createEmployee checks)
+    if (updates.departmentId) {
+      const dept = await Department.findOne(scopedFilter(req, { _id: updates.departmentId })).lean();
+      if (!dept) return res.status(404).json({ error: 'Department not found.' });
+    }
+    if (updates.managerId) {
+      if (updates.managerId === id) {
+        return res.status(400).json({ error: 'An employee cannot be their own manager.' });
+      }
+      const mgr = await Employee.findOne(scopedFilter(req, { _id: updates.managerId })).lean();
+      if (!mgr) return res.status(404).json({ error: 'Manager not found.' });
+    }
+    if (updates.userId) {
+      if (!mongoose.Types.ObjectId.isValid(updates.userId)) {
+        return res.status(400).json({ error: 'Invalid linked account id.' });
+      }
+      const linked = await User.findOne({ _id: updates.userId, organizationId: req.organizationId }).lean();
+      if (!linked) return res.status(404).json({ error: 'Linked account not found.' });
+      const alreadyLinked = await Employee.findOne(scopedFilter(req, { userId: updates.userId, _id: { $ne: id } })).lean();
+      if (alreadyLinked) {
+        return res.status(409).json({ error: 'That account is already linked to another employee record.' });
+      }
+    }
+
     const employee = await Employee.findOneAndUpdate(
       scopedFilter(req, { _id: id }),
       { $set: updates },
@@ -308,10 +335,27 @@ const deleteEmployee = async (req, res) => {
       return res.status(404).json({ error: 'Employee not found.' });
     }
 
-    // Cascade-delete dependent records
+    // Cascade-delete dependent records and clear dangling references.
+    // Leave/attendance records may be keyed by the Employee id OR the linked
+    // User id (legacy duality) — clean up both.
+    const linkedUserId = employee.userId;
+    const leaveSubjectIds = linkedUserId ? [employee._id, linkedUserId] : [employee._id];
+
     await Promise.all([
       EmployeeDocument.deleteMany(scopedFilter(req, { employeeId: id })),
       Activity.deleteMany(scopedFilter(req, { relatedToType: 'employee', relatedToId: id })),
+      AttendanceRecord.deleteMany({
+        organizationId: req.organizationId,
+        employeeId: { $in: leaveSubjectIds },
+      }),
+      LeaveRequest.deleteMany({
+        organizationId: req.organizationId,
+        employeeId: { $in: leaveSubjectIds },
+      }),
+      LeaveBalance.deleteMany({
+        organizationId: req.organizationId,
+        employeeId: { $in: leaveSubjectIds },
+      }),
       Employee.updateMany(scopedFilter(req, { managerId: id }), { $set: { managerId: null } }),
       Department.updateMany(scopedFilter(req, { headId: id }), { $set: { headId: null } }),
     ]);

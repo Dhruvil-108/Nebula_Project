@@ -355,7 +355,9 @@ const getSummary = async (req, res) => {
       let workedMin = 0;
       let isLate = false;
 
-      if (attRecord && attRecord.checkInAt) {
+      if (attRecord && attRecord.checkInAt && attRecord.status !== 'on_leave') {
+        // Actually worked (or half-day). on_leave records are handled below so
+        // they count as leave days, never as present days.
         status = attRecord.status || 'present';
         workedMin = attRecord.checkOutAt
           ? attRecord.totalWorkedMinutes || 0
@@ -365,6 +367,9 @@ const getSummary = async (req, res) => {
           totalPresentDays++;
           totalWorkedMinutes += workedMin;
         }
+      } else if (attRecord && attRecord.status === 'on_leave') {
+        status = 'on_leave';
+        totalLeaveDays++;
       } else if (onLeave) {
         status = 'on_leave';
         totalLeaveDays++;

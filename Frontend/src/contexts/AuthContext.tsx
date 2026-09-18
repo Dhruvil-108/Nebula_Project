@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useRef,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { apiClient, setAuthToken, setRefreshFailureCallback } from '../lib/apiClient';
 import type { User } from '../types/user';
@@ -39,11 +40,21 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Query cache lives at the provider level so login/logout can flush it —
+  // guarantees every signed-in account only ever sees its own data.
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [isLoading, setIsLoading] = useState(true); // starts true — we try to restore session
 
   const logoutRef = useRef<() => void>(() => {});
+
+  // Wipe every cached query + mutation when the identity changes so no
+  // data from a previous session/account can ever be rendered.
+  const flushQueryCache = useCallback(() => {
+    queryClient.cancelQueries().catch(() => undefined);
+    queryClient.clear();
+  }, [queryClient]);
 
   // ── login: called after successful /auth/signup or /auth/login ──
   const login = useCallback(
@@ -53,12 +64,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       userData: User,
       orgData: Organization
     ) => {
+      // Drop any cached data belonging to a previously signed-in account
+      flushQueryCache();
       setAuthToken(accessToken);
       localStorage.setItem('nebula_refresh_token', refreshToken);
       setUser(userData);
       setOrganization(orgData);
     },
-    []
+    [flushQueryCache]
   );
 
   // ── logout: clears all session state ──
@@ -72,14 +85,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('nebula_refresh_token');
     setUser(null);
     setOrganization(null);
+    flushQueryCache();
     toast.info('You have been signed out.', { toastId: 'logout' });
-  }, []);
+  }, [flushQueryCache]);
 
   // Keep the ref in sync so the refresh failure callback always has the latest logout
   logoutRef.current = logout;
 
   // ── Silent session restore on page load ──
   useEffect(() => {
+    let cancelled = false;
+
     const restoreSession = async () => {
       const storedRefreshToken = localStorage.getItem('nebula_refresh_token');
 
@@ -93,15 +109,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           refreshToken: storedRefreshToken,
         });
 
+        if (cancelled) return;
+
         setAuthToken(data.accessToken);
         localStorage.setItem('nebula_refresh_token', data.refreshToken);
+        // Cache was flushed on logout/login; restore is a fresh session start
         setUser(data.user);
         setOrganization(data.organization);
       } catch {
         // Refresh token is invalid or expired — clear storage silently
         localStorage.removeItem('nebula_refresh_token');
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
@@ -114,6 +133,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     restoreSession();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const value: AuthContextValue = {

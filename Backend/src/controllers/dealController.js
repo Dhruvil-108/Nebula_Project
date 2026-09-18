@@ -170,6 +170,17 @@ const updateDeal = async (req, res) => {
     if (updates.stage !== undefined && !DEAL_STAGES.includes(updates.stage)) {
       return res.status(400).json({ error: 'Invalid deal stage.' });
     }
+    // Track when the deal was won for accurate monthly reporting
+    if (updates.stage === 'won') {
+      updates.wonAt = new Date();
+    }
+    // ObjectId fields must be valid before hitting Mongo
+    for (const refField of ['companyId', 'contactId', 'salesperson']) {
+      const value = req.body[refField];
+      if (value && value !== null && !mongoose.Types.ObjectId.isValid(value)) {
+        return res.status(400).json({ error: `Invalid ${refField}.` });
+      }
+    }
     if (updates.amount !== undefined && (Number.isNaN(Number(updates.amount)) || Number(updates.amount) < 0)) {
       return res.status(400).json({ error: 'Deal amount must be a non-negative number.' });
     }

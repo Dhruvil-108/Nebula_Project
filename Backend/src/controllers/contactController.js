@@ -143,6 +143,13 @@ const updateContact = async (req, res) => {
     }
     // Explicit null clears the company link
     if (req.body.companyId === null) updates.companyId = null;
+    // ObjectId fields must be valid before hitting Mongo
+    for (const refField of ['companyId', 'owner']) {
+      const value = req.body[refField];
+      if (value && value !== null && !mongoose.Types.ObjectId.isValid(value)) {
+        return res.status(400).json({ error: `Invalid ${refField}.` });
+      }
+    }
 
     const contact = await Contact.findOneAndUpdate(
       scopedFilter(req, { _id: id }),

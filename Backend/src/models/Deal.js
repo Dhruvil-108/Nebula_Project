@@ -50,6 +50,11 @@ const dealSchema = new mongoose.Schema(
       default: 'new',
       index: true,
     },
+    // Set when the deal enters 'won'; used for accurate "won this month" stats
+    wonAt: {
+      type: Date,
+      default: null,
+    },
     salesperson: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
