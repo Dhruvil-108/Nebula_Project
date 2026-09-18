@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ACTIVITY_TYPES = ['note', 'call', 'email', 'meeting', 'task'];
-const ACTIVITY_RELATED_TYPES = ['lead', 'contact', 'company', 'deal'];
+const ACTIVITY_RELATED_TYPES = ['lead', 'contact', 'company', 'deal', 'employee'];
 
 const activitySchema = new mongoose.Schema(
   {

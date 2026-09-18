@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -31,6 +31,7 @@ import { apiClient } from '../lib/apiClient';
 import { ROLE_LABELS, ROLE_COLORS, type Role } from '../types/user';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import { ProfileAvatar } from '../components/profile/ProfileAvatar';
 import { getMyProfile, updateProfile, deleteProfile } from '../lib/profileApi';
 
 // ─────────────────────────────────────────────────────────
@@ -271,8 +272,6 @@ const ProfileSkeleton: React.FC = () => (
 // ─────────────────────────────────────────────────────────
 
 export const ProfilePage: React.FC = () => {
-  const { user: authUser } = useAuth();
-
   const { data: profile, isLoading, isError } = useQuery<ProfileData>({
     queryKey: ['profile', 'me'],
     queryFn: async () => {
@@ -281,16 +280,6 @@ export const ProfilePage: React.FC = () => {
     },
     staleTime: 1000 * 60 * 2,
   });
-
-  const initials = useMemo(() => {
-    const name = profile?.user.fullName || authUser?.fullName || '';
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }, [profile, authUser]);
 
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
@@ -370,16 +359,14 @@ export const ProfilePage: React.FC = () => {
         />
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6 p-7 md:p-8">
-          {/* Avatar */}
-          <div
-            className="w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center text-white text-2xl md:text-3xl font-black shadow-2xl flex-shrink-0"
-            style={{
-              background: `linear-gradient(135deg, ${hero.accentColor}cc, ${hero.accentColor}66)`,
-              boxShadow: `0 8px 32px ${hero.accentColor}44`,
-            }}
-          >
-            {initials}
-          </div>
+          {/* Avatar — hover to upload/remove your photo */}
+          <ProfileAvatar
+            fullName={profile.user.fullName}
+            sizeClass="w-20 h-20 md:w-24 md:h-24"
+            textClass="text-2xl md:text-3xl"
+            accentColor={hero.accentColor}
+            editable
+          />
 
           {/* Identity */}
           <div className="flex-1 min-w-0">

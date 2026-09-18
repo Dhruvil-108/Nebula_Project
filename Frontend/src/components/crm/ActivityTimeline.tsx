@@ -25,7 +25,7 @@ const TYPE_CONFIG: Record<ActivityType, { icon: React.ReactNode; label: string; 
 const ACTIVITY_TYPES: ActivityType[] = ['note', 'call', 'email', 'meeting', 'task'];
 
 interface ActivityTimelineProps {
-  relatedToType: 'lead' | 'contact' | 'company' | 'deal';
+  relatedToType: 'lead' | 'contact' | 'company' | 'deal' | 'employee';
   relatedToId: string;
   activities: Activity[] | undefined;
   isLoading?: boolean;

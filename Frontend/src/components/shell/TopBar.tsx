@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Bell, Search, Menu, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useAuth } from '../../contexts/AuthContext';
+import { ProfileAvatar } from '../profile/ProfileAvatar';
 
 interface TopBarProps {
   mobileOpen: boolean;
@@ -17,7 +19,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   pageTitle = 'Dashboard',
   breadcrumbs = [],
 }) => {
-  const { organization } = useAuth();
+  const { organization, user } = useAuth();
+  const navigate = useNavigate();
   const [notifOpen, setNotifOpen] = useState(false);
 
   // Notification count (0 for clean slate)
@@ -73,6 +76,25 @@ export const TopBar: React.FC<TopBarProps> = ({
           ⌘K
         </kbd>
       </div>
+
+      {/* ── Profile photo — click to open Profile page ── */}
+      {user && (
+        <button
+          type="button"
+          onClick={() => navigate('/dashboard/profile')}
+          className="flex-shrink-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c2540c] focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-transform hover:scale-105 active:scale-95"
+          title={`${user.fullName} — open profile`}
+          aria-label="Open profile"
+        >
+          <ProfileAvatar
+            fullName={user.fullName}
+            sizeClass="w-9 h-9"
+            textClass="text-xs"
+            accentColor="#c2540c"
+            editable={false}
+          />
+        </button>
+      )}
 
       {/* ── Notifications ── */}
       <div className="relative">

@@ -1,5 +1,6 @@
 const Organization = require('../models/Organization');
 const User = require('../models/User');
+const ProfilePhoto = require('../models/ProfilePhoto');
 const AttendanceRecord = require('../models/AttendanceRecord');
 const LeaveRequest = require('../models/LeaveRequest');
 const LeaveBalance = require('../models/LeaveBalance');
@@ -147,6 +148,7 @@ const getMyProfile = async (req, res) => {
         status: req.user.status,
         joinedAt: req.user.createdAt,
         lastLoginAt: req.user.lastLoginAt,
+        photoUrl: (await ProfilePhoto.findOne({ userId: req.user._id }).select('dataUrl').lean())?.dataUrl || null,
       },
       organization: {
         id: orgId.toString(),

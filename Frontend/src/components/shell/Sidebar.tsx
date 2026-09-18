@@ -19,6 +19,11 @@ import {
   Kanban,
   BookUser,
   Handshake,
+  Clock,
+  CalendarOff,
+  Network,
+  CalendarClock as CalendarEvent,
+  FileText,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SidebarNavItem } from './SidebarNavItem';
@@ -226,6 +231,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   { to: '/dashboard/crm/contacts', icon: <BookUser className="w-3.5 h-3.5" />, label: 'Contacts' },
                   { to: '/dashboard/crm/companies', icon: <Building2 className="w-3.5 h-3.5" />, label: 'Companies' },
                   { to: '/dashboard/crm/deals', icon: <Handshake className="w-3.5 h-3.5" />, label: 'Deals' },
+                ]}
+              />
+            );
+          }
+
+          if (item.to === '/dashboard/hrms') {
+            return (
+              <SidebarNavGroup
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+                collapsed={collapsed}
+                subItems={[
+                  { to: '/dashboard/hrms/employees', icon: <Users className="w-3.5 h-3.5" />, label: 'Employees' },
+                  { to: '/dashboard/hrms/attendance', icon: <Clock className="w-3.5 h-3.5" />, label: 'Attendance' },
+                  { to: '/dashboard/hrms/leave', icon: <CalendarOff className="w-3.5 h-3.5" />, label: 'Leave' },
+                  { to: '/dashboard/hrms/departments', icon: <Network className="w-3.5 h-3.5" />, label: 'Departments' },
+                  { to: '/dashboard/hrms/holidays', icon: <CalendarEvent className="w-3.5 h-3.5" />, label: 'Holidays' },
+                  { to: '/dashboard/hrms/documents', icon: <FileText className="w-3.5 h-3.5" />, label: 'Documents' },
                 ]}
               />
             );

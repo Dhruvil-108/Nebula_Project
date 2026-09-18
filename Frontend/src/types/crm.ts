@@ -179,7 +179,7 @@ export interface Activity {
   _id: string;
   organizationId: string;
   type: ActivityType;
-  relatedToType: 'lead' | 'contact' | 'company' | 'deal';
+  relatedToType: 'lead' | 'contact' | 'company' | 'deal' | 'employee';
   relatedToId: string;
   content: string;
   dueDate: string | null;

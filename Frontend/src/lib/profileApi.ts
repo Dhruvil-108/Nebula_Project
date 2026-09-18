@@ -59,3 +59,33 @@ export const updateProfile = async (payload: { user: Partial<UserProfile> }): Pr
 export const deleteProfile = async (): Promise<void> => {
   await apiClient.delete('/users/me/profile');
 };
+
+// ─────────────────────────────────────────────────────────
+// Profile photo (one per user, unique on the backend)
+// ─────────────────────────────────────────────────────────
+
+/**
+ * Fetch the current user's profile photo.
+ * Returns null when no photo has been uploaded.
+ */
+export const getMyPhoto = async (): Promise<string | null> => {
+  const { data } = await apiClient.get<{ photoUrl: string | null }>('/users/me/photo');
+  return data.photoUrl;
+};
+
+/**
+ * Upload (or replace) the current user's profile photo.
+ * `image` is a base64 data URL of the selected file.
+ */
+export const uploadMyPhoto = async (image: string): Promise<string> => {
+  const { data } = await apiClient.post<{ photoUrl: string }>('/users/me/photo', { image });
+  return data.photoUrl;
+};
+
+/**
+ * Remove the current user's profile photo.
+ * The UI falls back to the initials avatar everywhere.
+ */
+export const removeMyPhoto = async (): Promise<void> => {
+  await apiClient.delete('/users/me/photo');
+};

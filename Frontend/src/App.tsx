@@ -20,6 +20,12 @@ import { ContactsPage } from './pages/crm/ContactsPage';
 import { CompaniesPage } from './pages/crm/CompaniesPage';
 import { DealsPage } from './pages/crm/DealsPage';
 import HrmsPage from './pages/modules/HrmsPage';
+import { EmployeesPage } from './pages/hrms/EmployeesPage';
+import AttendancePage from './pages/hrms/AttendancePage';
+import LeavePage from './pages/hrms/LeavePage';
+import DepartmentsPage from './pages/hrms/DepartmentsPage';
+import HolidaysPage from './pages/hrms/HolidaysPage';
+import DocumentsPage from './pages/hrms/DocumentsPage';
 import RecruitmentPage from './pages/modules/RecruitmentPage';
 import ExpensesPage from './pages/modules/ExpensesPage';
 import InventoryPage from './pages/modules/InventoryPage';
@@ -165,6 +171,12 @@ export const App: React.FC = () => {
               <Route path="crm/companies" element={<CompaniesPage />} />
               <Route path="crm/deals" element={<DealsPage />} />
               <Route path="hrms" element={<HrmsPage />} />
+              <Route path="hrms/employees" element={<EmployeesPage />} />
+              <Route path="hrms/attendance" element={<AttendancePage />} />
+              <Route path="hrms/leave" element={<LeavePage />} />
+              <Route path="hrms/departments" element={<DepartmentsPage />} />
+              <Route path="hrms/holidays" element={<HolidaysPage />} />
+              <Route path="hrms/documents" element={<DocumentsPage />} />
               <Route path="recruitment" element={<RecruitmentPage />} />
               <Route path="expenses" element={<ExpensesPage />} />
               <Route path="inventory" element={<InventoryPage />} />

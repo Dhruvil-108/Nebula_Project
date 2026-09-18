@@ -25,6 +25,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../lib/apiClient';
 import { useCrmSummary } from '../hooks/useCrm';
+import { useHrSummary } from '../hooks/useHrms';
 import { KpiCard, KpiCardSkeleton } from '../components/dashboard/KpiCard';
 import { AttendanceCard } from '../components/dashboard/AttendanceCard';
 import { LeaveBalanceCard } from '../components/dashboard/LeaveBalanceCard';
@@ -117,6 +118,9 @@ export const DashboardPage: React.FC = () => {
   // ── CRM summary KPIs (slotted into the existing KPI-card contract) ──
   const { data: crmSummary, isLoading: isCrmSummaryLoading } = useCrmSummary();
 
+  // ── HRMS summary KPIs (same KpiCard contract) ──
+  const { data: hrSummary, isLoading: isHrSummaryLoading } = useHrSummary();
+
   // ── Leave approvals mutations (for Admin, Super Admin, HR, Manager) ──
   const approveLeaveMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -197,44 +201,54 @@ export const DashboardPage: React.FC = () => {
     }
 
     if (role === 'hr') {
-      return [
+      const hrKpis: KpiCardData[] = [
         {
-          id: 'managed-staff',
-          title: 'Managed Team Staff',
-          value: stats.managedStaffCount,
+          id: 'hr-headcount',
+          title: 'Active Headcount',
+          value: hrSummary?.headcount ?? stats.managedStaffCount,
           trendPercent: null,
-          trendLabel: 'Employees, interns & recruiters',
+          trendLabel: hrSummary
+            ? `${hrSummary.totalAccounts} accounts in workspace`
+            : 'Employees, interns & recruiters',
           iconName: 'Users',
           colorClasses: 'bg-rose-500/10 text-rose-400',
         },
         {
-          id: 'attendance-rate',
-          title: "Today's Attendance",
-          value: `${stats.todayAttendanceRate}%`,
-          trendPercent: null,
-          trendLabel: `${stats.checkedInTodayCount} of ${stats.totalAccounts} checked in today`,
+          id: 'hr-present-today',
+          title: 'Present Today',
+          value: hrSummary
+            ? `${hrSummary.presentToday + hrSummary.onBreakToday} / ${hrSummary.totalAccounts}`
+            : `${stats.todayAttendanceRate}%`,
+          trendPercent: stats.todayAttendanceRate > 0 ? stats.todayAttendanceRate : null,
+          trendLabel: hrSummary
+            ? `${hrSummary.onBreakToday} on break · ${hrSummary.checkedOutToday} checked out`
+            : `${stats.checkedInTodayCount} of ${stats.totalAccounts} checked in today`,
           iconName: 'CheckCircle2',
           colorClasses: 'bg-emerald-500/10 text-emerald-400',
         },
         {
           id: 'hr-pending-leaves',
           title: 'Pending Leave Approvals',
-          value: stats.pendingLeavesCount,
+          value: hrSummary?.pendingLeaveRequests ?? stats.pendingLeavesCount,
           trendPercent: null,
-          trendLabel: stats.pendingLeavesCount > 0 ? 'Requires HR action' : 'All caught up',
+          trendLabel:
+            (hrSummary?.pendingLeaveRequests ?? stats.pendingLeavesCount) > 0
+              ? 'Requires HR action'
+              : 'All caught up',
           iconName: 'CalendarClock',
           colorClasses: 'bg-amber-500/10 text-amber-400',
         },
         {
-          id: 'upcoming-holidays',
+          id: 'hr-upcoming-holidays',
           title: 'Upcoming Holidays',
-          value: stats.upcomingHolidaysCount,
+          value: hrSummary?.upcomingHolidays ?? stats.upcomingHolidaysCount,
           trendPercent: null,
-          trendLabel: 'Scheduled in organization',
+          trendLabel: 'Scheduled in next 30 days',
           iconName: 'Calendar',
           colorClasses: 'bg-sky-500/10 text-sky-400',
         },
       ];
+      return hrKpis;
     }
 
     if (role === 'manager') {
@@ -359,7 +373,7 @@ export const DashboardPage: React.FC = () => {
         colorClasses: 'bg-amber-500/10 text-amber-400',
       },
     ];
-  }, [dashboardData, user, crmSummary]);
+  }, [dashboardData, user, crmSummary, hrSummary]);
 
   // Filter roster by search input
   const filteredRoster = (dashboardData?.todayRoster || []).filter((emp) => {
@@ -375,7 +389,8 @@ export const DashboardPage: React.FC = () => {
   if (
     isAuthLoading ||
     (isStatsLoading && !dashboardData) ||
-    (user?.role === 'sales' && isCrmSummaryLoading && !crmSummary)
+    (user?.role === 'sales' && isCrmSummaryLoading && !crmSummary) ||
+    (user?.role === 'hr' && isHrSummaryLoading && !hrSummary)
   ) {
     return (
       <div className="dashboard-page p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
