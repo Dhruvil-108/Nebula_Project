@@ -15,6 +15,8 @@ const permissionRoutes = require('./routes/permissionRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const crmRoutes = require('./routes/crmRoutes');
 const hrRoutes = require('./routes/hrRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const masterRoutes = require('./routes/masterRoutes');
 
 const app = express();
 
@@ -104,6 +106,14 @@ app.use('/api/v1/permissions', permissionRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/crm', crmRoutes);
 app.use('/api/v1/hr', hrRoutes);
+app.use('/api/v1/admin', adminRoutes);
+
+// ── Master Panel (platform owner, IP-gated) ──
+// TRUST_PROXY_HOPS = exact number of trusted proxy hops. Never set to true.
+if (process.env.TRUST_PROXY_HOPS) {
+  app.set('trust proxy', parseInt(process.env.TRUST_PROXY_HOPS, 10) || 0);
+}
+app.use('/api/v1/master', masterRoutes);
 
 /**
  * @swagger

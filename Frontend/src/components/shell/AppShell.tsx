@@ -19,6 +19,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/dashboard/hrms/departments': 'HRMS · Departments',
   '/dashboard/hrms/holidays': 'HRMS · Holidays',
   '/dashboard/hrms/documents': 'HRMS · Documents',
+  '/dashboard/admin-panel': 'Admin Panel',
   '/dashboard/recruitment': 'Recruitment',
   '/dashboard/expenses': 'Expenses',
   '/dashboard/inventory': 'Inventory',

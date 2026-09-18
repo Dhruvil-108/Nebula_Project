@@ -24,6 +24,7 @@ import {
   Network,
   CalendarClock as CalendarEvent,
   FileText,
+  Gauge,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SidebarNavItem } from './SidebarNavItem';
@@ -104,6 +105,7 @@ const getNavConfig = (
   const secondary: NavItem[] =
     role === 'super_admin'
       ? [
+        { to: '/dashboard/admin-panel', icon: <Gauge className="w-5 h-5" />, label: 'Admin Panel' },
         { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
         { to: '/dashboard/org', icon: <Building2 className="w-5 h-5" />, label: 'Organization' },
         { to: '/dashboard/permissions', icon: <ShieldCheck className="w-5 h-5" />, label: 'Permissions' },
@@ -111,6 +113,7 @@ const getNavConfig = (
       ]
       : role === 'admin'
         ? [
+          { to: '/dashboard/admin-panel', icon: <Gauge className="w-5 h-5" />, label: 'Admin Panel' },
           { to: '/dashboard/accounts', icon: <UserPlus className="w-5 h-5" />, label: 'Create Account' },
           { to: '/dashboard/org', icon: <Building2 className="w-5 h-5" />, label: 'Organization' },
           { to: '/dashboard/settings', icon: <Settings className="w-5 h-5" />, label: 'Settings' },

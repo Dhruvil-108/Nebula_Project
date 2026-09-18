@@ -181,8 +181,10 @@ const getLeaveRequests = async (req, res) => {
         return res.status(resolved.error.status).json({ error: resolved.error.message });
       }
       extra.employeeId = { $in: resolved.subjectIds };
-    } else if (!canApprove(req.user.role)) {
-      // Employees see their own requests only
+    } else if (employeeId === 'me' || !canApprove(req.user.role)) {
+      // Explicit "me" (or a non-approver without a filter) scopes STRICTLY to
+      // the signed-in account. Approvers who omit employeeId get the whole
+      // org's requests — that wider view is for the Approvals screen only.
       extra.employeeId = req.user._id;
     }
 

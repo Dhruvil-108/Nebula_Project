@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LoaderCircle } from 'lucide-react';
 import { ToastContainer } from 'react-toastify';
@@ -32,6 +32,7 @@ import InventoryPage from './pages/modules/InventoryPage';
 import AnalyticsPage from './pages/modules/AnalyticsPage';
 import { ManagePermissionsPage } from './pages/ManagePermissionsPage';
 import { AccountCreatorPage } from './pages/AccountCreatorPage';
+import AdminPanelPage from './pages/admin/AdminPanelPage';
 import ProfilePage from './pages/ProfilePage';
 
 // ── TanStack Query client ──
@@ -100,6 +101,16 @@ const AccountCreatorRoute: React.FC<{ children: React.ReactNode }> = ({ children
   return isAllowed ? <>{children}</> : <Navigate to="/dashboard" replace />;
 };
 
+// ── Admin Panel route: exclusively super_admin and admin ──
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) return null;
+
+  const isAllowed = user?.role === 'super_admin' || user?.role === 'admin';
+  return isAllowed ? <>{children}</> : <Navigate to="/dashboard" replace />;
+};
+
 // ── Placeholder pages for stub routes ──
 const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
   <div className="flex items-center justify-center min-h-[60vh]">
@@ -111,7 +122,7 @@ export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
+        <>
           <ScrollToTop />
 
           {/* Toastify container — styled to match the orange and white theme */}
@@ -184,6 +195,14 @@ export const App: React.FC = () => {
               <Route path="settings" element={<PlaceholderPage title="Settings" />} />
               <Route path="org" element={<PlaceholderPage title="Organization" />} />
               <Route
+                path="admin-panel"
+                element={
+                  <AdminRoute>
+                    <AdminPanelPage />
+                  </AdminRoute>
+                }
+              />
+              <Route
                 path="accounts"
                 element={
                   <AccountCreatorRoute>
@@ -213,7 +232,7 @@ export const App: React.FC = () => {
             {/* ── Wildcard ── */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </BrowserRouter>
+        </>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -48,6 +48,32 @@ const organizationSchema = new mongoose.Schema(
       ref: 'User',
       default: null, // Set after user creation within the transaction
     },
+    // ── Platform-management fields (Master Panel only; never exposed to tenants) ──
+    isSuspended: {
+      type: Boolean,
+      default: false,
+    },
+    suspendedAt: {
+      type: Date,
+      default: null,
+    },
+    suspendedReason: {
+      type: String,
+      default: null,
+    },
+    plan: {
+      type: String,
+      enum: {
+        values: ['trial', 'starter', 'professional', 'enterprise'],
+        message: '{VALUE} is not a valid plan',
+      },
+      default: 'trial',
+    },
+    // Internal platform-owner notes — must never be returned by tenant endpoints
+    notes: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

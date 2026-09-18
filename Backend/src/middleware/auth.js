@@ -1,5 +1,6 @@
 const { verifyAccessToken } = require('../utils/jwt');
 const User = require('../models/User');
+const Organization = require('../models/Organization');
 
 /**
  * requireAuth middleware
@@ -43,6 +44,16 @@ const requireAuth = async (req, res, next) => {
     //    (guards against stale tokens after org transfers, which shouldn't happen but are defended anyway)
     if (decoded.orgId !== user.organizationId.toString()) {
       return res.status(401).json({ error: 'Token organization mismatch.' });
+    }
+
+    // 4b. Platform-level suspension check — a suspended org's users are
+    //     blocked immediately, with a clear (non-generic) error.
+    const org = await Organization.findById(user.organizationId).select('isSuspended').lean();
+    if (org?.isSuspended) {
+      return res.status(403).json({
+        error: 'Your organization has been suspended by the platform administrator. Contact support.',
+        code: 'ORG_SUSPENDED',
+      });
     }
 
     // 5. Attach to request for downstream middleware and controllers

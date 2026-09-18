@@ -30,7 +30,12 @@ const fmtDate = (d: string) => new Date(d).toLocaleDateString();
 const MyLeave: React.FC = () => {
   const { data: leaveTypes } = useLeaveTypes();
   const { data: balances, isLoading: balancesLoading } = useLeaveBalances();
-  const { data: myRequests, isLoading: requestsLoading } = useLeaveRequests({});
+  // employeeId=me scopes this list to the signed-in account ONLY.
+  // Without it, the backend returns the whole org's requests for
+  // manager/HR/admin viewers (that wider list belongs to the Approvals tab).
+  const { data: myRequests, isLoading: requestsLoading } = useLeaveRequests({
+    employeeId: 'me',
+  });
   const createMutation = useCreateLeaveRequest();
 
   const [showRequest, setShowRequest] = useState(false);

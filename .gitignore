@@ -38,3 +38,22 @@ Thumbs.db
 # Vite / Temporary files
 .vite/
 .eslintcache
+
+# ──────────────────────────────────────────────
+# Master Panel (platform-owner console) — never commit
+# Includes: backend models/controllers/routes/middleware/utils,
+# CLI seed script, and all frontend master pages/contexts/api
+# ──────────────────────────────────────────────
+Backend/src/models/MasterUser.js
+Backend/src/models/MasterAuditLog.js
+Backend/src/controllers/masterAuthController.js
+Backend/src/controllers/masterController.js
+Backend/src/routes/masterRoutes.js
+Backend/src/middleware/masterIpGuard.js
+Backend/src/middleware/requireMasterAuth.js
+Backend/src/utils/masterJwt.js
+Backend/src/utils/masterAudit.js
+Backend/scripts/createMasterUser.js
+Frontend/src/pages/master/
+Frontend/src/contexts/MasterAuthContext.tsx
+Frontend/src/lib/masterApi.ts
