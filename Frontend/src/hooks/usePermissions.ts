@@ -4,6 +4,7 @@ import { apiClient } from '../lib/apiClient';
 import type {
   PermissionCatalog,
   PermissionMatrixResponse,
+  PermissionRole,
   PermissionRow,
   PermissionUpdate,
 } from '../types/permissions';
@@ -11,6 +12,7 @@ import type {
 export interface PermissionMatrixData {
   catalog: PermissionCatalog;
   matrix: PermissionRow[];
+  activeRoles: PermissionRole[];
 }
 
 /**
@@ -29,6 +31,7 @@ export const usePermissionMatrix = () => {
       return {
         catalog: catalogRes.data,
         matrix: matrixRes.data.matrix,
+        activeRoles: catalogRes.data.activeRoles || matrixRes.data.activeRoles || [],
       };
     },
     staleTime: 1000 * 60 * 5, // 5 minutes

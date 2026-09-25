@@ -1,25 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle, XCircle, Plane, Calendar, HelpCircle } from 'lucide-react';
+import { Calendar, CheckCircle2, XCircle, Plane } from 'lucide-react';
 import clsx from 'clsx';
 import { apiClient } from '../../lib/apiClient';
 import type { AttendanceSummary, AttendanceStatus } from '../../types/attendance';
 
 export const PresentAbsentCardSkeleton: React.FC = () => (
-  <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/60 space-y-4 animate-pulse">
+  <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-4 animate-pulse shadow-sm">
     <div className="flex items-center justify-between">
-      <div className="w-32 h-4 rounded bg-slate-800" />
-      <div className="w-16 h-6 rounded-full bg-slate-800" />
+      <div className="w-36 h-5 rounded bg-slate-100" />
+      <div className="w-48 h-6 rounded-full bg-slate-100" />
     </div>
-    <div className="grid grid-cols-3 gap-3">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="h-20 rounded-xl bg-slate-800/60" />
-      ))}
-    </div>
-    <div className="h-16 rounded-xl bg-slate-800/40" />
+    <div className="h-44 rounded-xl bg-slate-50 border border-slate-100" />
   </div>
 );
+
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export const PresentAbsentCard: React.FC = () => {
   const currentMonth = new Date().getMonth() + 1;
@@ -41,30 +38,13 @@ export const PresentAbsentCard: React.FC = () => {
     return <PresentAbsentCardSkeleton />;
   }
 
-  const getCellColor = (status: AttendanceStatus) => {
-    switch (status) {
-      case 'present':
-      case 'half_day':
-        return 'bg-[#c2540c] hover:bg-[#d06b28] text-white font-bold';
-      case 'absent':
-        return 'bg-[#c2540c] hover:bg-[#d06b28] text-white';
-      case 'on_leave':
-        return 'bg-[#c2540c] hover:bg-[#d06b28] text-white font-bold';
-      case 'holiday':
-        return 'bg-[#c2540c] hover:bg-[#d06b28] text-white';
-      case 'weekend':
-        return 'bg-[#f6e8dc] text-[#7a2f05]';
-      case 'pending':
-      default:
-        return 'bg-[#fbf0e7] text-[#7a2f05] border border-[#de7a3d]';
-    }
-  };
-
   const getStatusLabel = (status: AttendanceStatus, holidayName?: string | null) => {
     if (holidayName) return `Holiday: ${holidayName}`;
     switch (status) {
       case 'present':
         return 'Present';
+      case 'half_day':
+        return 'Half Day';
       case 'absent':
         return 'Absent';
       case 'on_leave':
@@ -80,120 +60,153 @@ export const PresentAbsentCard: React.FC = () => {
     }
   };
 
+  const getCellStyles = (status: AttendanceStatus) => {
+    switch (status) {
+      case 'present':
+      case 'half_day':
+        return 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100 font-semibold';
+      case 'absent':
+        return 'bg-rose-50 text-rose-800 border-rose-200 hover:bg-rose-100 font-semibold';
+      case 'on_leave':
+        return 'bg-sky-50 text-sky-800 border-sky-200 hover:bg-sky-100 font-semibold';
+      case 'holiday':
+        return 'bg-[#fff7ed] text-[#ea580c] border-[#fed7aa] hover:bg-[#ffedd5] font-bold';
+      case 'weekend':
+        return 'bg-slate-50 text-slate-400 border-slate-100';
+      case 'pending':
+      default:
+        return 'bg-white text-slate-300 border-dashed border-slate-200';
+    }
+  };
+
+  // Calculate day-of-week offset for Monday-first 7-column calendar
+  const breakdown = summary?.dailyBreakdown || [];
+  let leadingBlanks = 0;
+  if (breakdown.length > 0 && breakdown[0]?.date) {
+    const d = new Date(breakdown[0].date);
+    const day = d.getDay(); // 0 is Sunday, 1 is Monday ...
+    leadingBlanks = day === 0 ? 6 : day - 1;
+  }
+
+  const monthName = new Date(currentYear, currentMonth - 1, 1).toLocaleDateString('en-US', {
+    month: 'short',
+    year: 'numeric',
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/60 flex flex-col justify-between shadow-lg hover:border-slate-800 transition-colors"
+      className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-colors"
     >
       <div>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+        {/* Header with Title and Concise Metric Pills */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#fff7ed] border border-[#fed7aa] flex items-center justify-center text-[#ea580c] shadow-2xs">
               <Calendar className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">Monthly Attendance</h3>
-              <p className="text-[11px] text-slate-400">
-                {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-              </p>
+              <h3 className="text-sm font-bold text-slate-900 leading-tight">Monthly Attendance</h3>
+              <p className="text-[11px] font-medium text-slate-500">{monthName}</p>
             </div>
           </div>
 
-          <span className="text-[11px] font-mono text-slate-400 px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700/60">
-            {summary?.expectedWorkingDays || 0} Total Work Days
-          </span>
-        </div>
+          {/* Concise Stats Row */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Present:</span>
+              <span className="font-bold font-mono">{summary?.totalPresentDays || 0}d</span>
+            </div>
 
-        {/* 3 Stat blocks side by side */}
-        <div className="grid grid-cols-3 gap-2.5 mb-5">
-          {/* Present */}
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col justify-between">
-            <div className="flex items-center justify-between text-emerald-400">
-              <span className="text-[11px] font-semibold">Present</span>
-              <CheckCircle className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+              <XCircle className="w-3.5 h-3.5 text-rose-600" />
+              <span>Absent:</span>
+              <span className="font-bold font-mono">{summary?.totalAbsentDays || 0}d</span>
             </div>
-            <div className="mt-2">
-              <span className="text-xl sm:text-2xl font-bold font-mono text-emerald-300">
-                {summary?.totalPresentDays || 0}
-              </span>
-              <span className="text-[10px] text-emerald-400/80 ml-1">days</span>
-            </div>
-          </div>
 
-          {/* Absent */}
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 flex flex-col justify-between">
-            <div className="flex items-center justify-between text-rose-400">
-              <span className="text-[11px] font-semibold">Absent</span>
-              <XCircle className="w-3.5 h-3.5" />
-            </div>
-            <div className="mt-2">
-              <span className="text-xl sm:text-2xl font-bold font-mono text-rose-300">
-                {summary?.totalAbsentDays || 0}
-              </span>
-              <span className="text-[10px] text-rose-400/80 ml-1">days</span>
-            </div>
-          </div>
-
-          {/* Leave */}
-          <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/20 flex flex-col justify-between">
-            <div className="flex items-center justify-between text-sky-400">
-              <span className="text-[11px] font-semibold">Leave</span>
-              <Plane className="w-3.5 h-3.5" />
-            </div>
-            <div className="mt-2">
-              <span className="text-xl sm:text-2xl font-bold font-mono text-sky-300">
-                {summary?.totalLeaveDays || 0}
-              </span>
-              <span className="text-[10px] text-sky-400/80 ml-1">days</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-200 text-sky-800 text-xs font-semibold">
+              <Plane className="w-3.5 h-3.5 text-sky-600" />
+              <span>Leave:</span>
+              <span className="font-bold font-mono">{summary?.totalLeaveDays || 0}d</span>
             </div>
           </div>
         </div>
 
-        {/* Heatmap Matrix Grid */}
-        <div>
-          <p className="text-[11px] font-medium text-slate-400 mb-2">Monthly Calendar Grid</p>
-          <div className="grid grid-cols-7 sm:grid-cols-10 md:grid-cols-11 gap-1.5">
-            {(summary?.dailyBreakdown || []).map((day) => (
-              <div
-                key={day.date}
-                title={`${day.date}: ${getStatusLabel(day.status, day.holidayName)} (${day.workedHours}h)`}
-                className={clsx(
-                  'aspect-square rounded-lg flex items-center justify-center text-[10px] cursor-pointer transition-all duration-150',
-                  getCellColor(day.status)
-                )}
-              >
-                {day.dayOfMonth}
+        {/* 7-Column Real Calendar Grid */}
+        <div className="bg-slate-50/50 rounded-xl p-2.5 border border-slate-100">
+          {/* Weekday column headers */}
+          <div className="grid grid-cols-7 gap-1 mb-1 text-center">
+            {WEEKDAYS.map((wd) => (
+              <div key={wd} className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider py-0.5">
+                {wd}
               </div>
             ))}
+          </div>
+
+          {/* Days Grid */}
+          <div className="grid grid-cols-7 gap-1">
+            {/* Blank offset pads before 1st of month */}
+            {[...Array(leadingBlanks)].map((_, i) => (
+              <div
+                key={`pad-${i}`}
+                className="h-7 sm:h-8 rounded-lg bg-slate-100/30 border border-transparent"
+              />
+            ))}
+
+            {/* Actual Month Days */}
+            {breakdown.map((day) => {
+              const style = getCellStyles(day.status);
+              const label = getStatusLabel(day.status, day.holidayName);
+              const tooltip = `${day.date}: ${label}${day.workedHours > 0 ? ` (${day.workedHours}h)` : ''}`;
+
+              return (
+                <div
+                  key={day.date}
+                  title={tooltip}
+                  className={clsx(
+                    'h-7 sm:h-8 rounded-lg border flex items-center justify-center text-xs cursor-pointer transition-all duration-150',
+                    style
+                  )}
+                >
+                  <span>{day.dayOfMonth}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Heatmap Legend */}
-      <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-400">
-        <div className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded bg-emerald-500" />
-          <span>Present</span>
+      {/* Concise Heatmap Legend & Work Days Summary */}
+      <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500 font-medium">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>Present</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            <span>Absent</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-sky-500" />
+            <span>Leave</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#f97316]" />
+            <span>Holiday</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-slate-300" />
+            <span>Weekend</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded bg-rose-500" />
-          <span>Absent</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded bg-sky-500" />
-          <span>Leave</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded bg-purple-500" />
-          <span>Holiday</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-2 h-2 rounded bg-slate-800" />
-          <span>Weekend</span>
-        </div>
+
+        <span className="font-mono text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+          {summary?.expectedWorkingDays || 0} Work Days
+        </span>
       </div>
     </motion.div>
   );

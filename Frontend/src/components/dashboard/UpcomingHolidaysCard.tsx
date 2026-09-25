@@ -7,16 +7,16 @@ import { apiClient } from '../../lib/apiClient';
 import type { Holiday } from '../../types/attendance';
 
 export const UpcomingHolidaysCardSkeleton: React.FC = () => (
-  <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/60 space-y-4 animate-pulse">
+  <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-4 animate-pulse shadow-sm">
     <div className="flex items-center justify-between">
-      <div className="w-32 h-4 rounded bg-slate-800" />
-      <div className="w-16 h-5 rounded-full bg-slate-800" />
+      <div className="w-32 h-4 rounded bg-slate-100" />
+      <div className="w-16 h-5 rounded-full bg-slate-100" />
     </div>
     <div className="space-y-3">
       {[1, 2, 3, 4].map((i) => (
         <div key={i} className="flex items-center justify-between">
-          <div className="w-36 h-3 rounded bg-slate-800" />
-          <div className="w-16 h-3 rounded bg-slate-800" />
+          <div className="w-36 h-3 rounded bg-slate-100" />
+          <div className="w-16 h-3 rounded bg-slate-100" />
         </div>
       ))}
     </div>
@@ -60,22 +60,22 @@ export const UpcomingHolidaysCard: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15 }}
-      className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/60 flex flex-col justify-between shadow-lg hover:border-slate-800 transition-colors"
+      className="p-6 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-colors"
     >
       <div>
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600 shadow-2xs">
               <PartyPopper className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">Upcoming Holidays</h3>
-              <p className="text-[11px] text-slate-400">Official company calendar</p>
+              <h3 className="text-sm font-bold text-slate-900">Upcoming Holidays</h3>
+              <p className="text-[11px] font-medium text-slate-500">Official company calendar</p>
             </div>
           </div>
 
-          <span className="text-[11px] font-medium text-slate-400 px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700/60">
+          <span className="text-[11px] font-mono text-slate-600 px-3 py-1 rounded-full bg-slate-100 border border-slate-200">
             {holidays.length} Next
           </span>
         </div>
@@ -83,7 +83,7 @@ export const UpcomingHolidaysCard: React.FC = () => {
         {/* Holiday list */}
         <div className="space-y-2.5">
           {holidays.length === 0 ? (
-            <p className="text-xs text-slate-500 italic py-4 text-center">
+            <p className="text-xs text-slate-500 italic py-6 text-center">
               No upcoming holidays scheduled.
             </p>
           ) : (
@@ -93,24 +93,24 @@ export const UpcomingHolidaysCard: React.FC = () => {
                 <div
                   key={h.id}
                   className={clsx(
-                    'p-2.5 rounded-xl border transition-all flex items-center justify-between text-xs',
+                    'p-3 rounded-xl border transition-all flex items-center justify-between text-xs',
                     isNear
-                      ? 'bg-purple-500/10 border-purple-500/30 text-purple-200 shadow-sm'
-                      : 'bg-slate-950/40 border-slate-800/80 text-slate-300 hover:border-slate-700'
+                      ? 'bg-purple-50/70 border-purple-200 text-purple-900 shadow-2xs'
+                      : 'bg-slate-50/80 border-slate-200/80 text-slate-800 hover:border-slate-300'
                   )}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 pr-2">
                     <Calendar
                       className={clsx(
                         'w-4 h-4 flex-shrink-0',
-                        isNear ? 'text-purple-400' : 'text-slate-500'
+                        isNear ? 'text-purple-600' : 'text-slate-400'
                       )}
                     />
                     <div className="truncate">
-                      <p className="font-semibold text-slate-100 truncate text-xs">
+                      <p className="font-semibold text-slate-900 truncate text-xs">
                         {h.name}
                       </p>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-slate-500 font-medium">
                         {formatHolidayDate(h.date)}
                       </p>
                     </div>
@@ -118,12 +118,12 @@ export const UpcomingHolidaysCard: React.FC = () => {
 
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {isNear && (
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200 flex items-center gap-1">
                         <Sparkles className="w-3 h-3" /> Soon
                       </span>
                     )}
                     {h.isOptional && (
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-400 border border-slate-700">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
                         Optional
                       </span>
                     )}
@@ -136,9 +136,9 @@ export const UpcomingHolidaysCard: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-500 flex items-center justify-between">
+      <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500 flex items-center justify-between">
         <span>Paid holidays per org policy</span>
-        <span className="text-purple-400 font-medium">All Branches</span>
+        <span className="text-purple-600 font-semibold">All Branches</span>
       </div>
     </motion.div>
   );

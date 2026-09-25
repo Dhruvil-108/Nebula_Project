@@ -403,13 +403,13 @@ export const DashboardPage: React.FC = () => {
   ) {
     return (
       <div className="dashboard-page p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
-        <div className="h-10 w-64 bg-slate-800 rounded-xl animate-pulse" />
+        <div className="h-10 w-64 bg-slate-200 rounded-xl animate-pulse" />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <KpiCardSkeleton key={i} index={i} />
           ))}
         </div>
-        <div className="h-64 bg-slate-900/60 rounded-2xl animate-pulse border border-slate-800" />
+        <div className="h-64 bg-white rounded-2xl animate-pulse border border-slate-200" />
       </div>
     );
   }
@@ -425,12 +425,12 @@ export const DashboardPage: React.FC = () => {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-800/60"
+        className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-200"
       >
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${ROLE_COLORS[user.role] || 'text-slate-300 bg-slate-800 border-slate-700'
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${ROLE_COLORS[user.role] || 'text-slate-600 bg-slate-100 border-slate-200'
                 }`}
             >
               <Sparkles className="w-3 h-3 mr-1" />
@@ -439,11 +439,11 @@ export const DashboardPage: React.FC = () => {
             <span className="text-xs text-slate-500 font-mono">/ {organization.name}</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'},{' '}
             <span className="text-gradient-accent">{user.fullName.split(' ')[0]}</span> 👋
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-600 mt-1">
             {isManagementRole
               ? `Real-time operations, attendance, and team overview for ${organization.name}.`
               : `Your personalized daily shift attendance, time tracking, and leave balances.`}
@@ -456,7 +456,7 @@ export const DashboardPage: React.FC = () => {
           {(user.role === 'super_admin' || user.role === 'admin' || user.role === 'hr') && (
             <Link
               to="/dashboard/accounts"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-all shadow-md shadow-indigo-600/20"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-[#f97316] hover:bg-[#ea580c] transition-all shadow-sm shadow-[#f97316]/20"
             >
               <UserPlus className="w-3.5 h-3.5" />
               Create Account
@@ -467,9 +467,9 @@ export const DashboardPage: React.FC = () => {
           {user.role === 'super_admin' && (
             <Link
               to="/dashboard/permissions"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-sm"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#f0512f]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#f97316]" />
               Permissions
             </Link>
           )}
@@ -479,15 +479,15 @@ export const DashboardPage: React.FC = () => {
             type="button"
             onClick={() => refetch()}
             disabled={isRefetching}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-200 bg-slate-900 border border-slate-800 hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-xl text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm"
             title="Refresh dashboard data"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin text-indigo-400' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin text-[#f97316]' : ''}`} />
           </button>
 
           {/* Live time indicator */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono text-slate-400 flex-shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-600 flex-shrink-0 shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Live · {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
           </div>
         </div>
@@ -496,7 +496,7 @@ export const DashboardPage: React.FC = () => {
       {/* ── Real Role-Specific Performance KPIs (Zero Dummy Data) ── */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
             {isManagementRole ? 'Real-Time Organization Metrics' : 'My Personal Activity Overview'}
           </h3>
         </div>
@@ -514,62 +514,62 @@ export const DashboardPage: React.FC = () => {
           {/* ── Live Attendance Roster & Summary Row ── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Live Today Attendance Breakdown (5 cols) */}
-            <div className="lg:col-span-4 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800/60">
+            <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <h4 className="text-sm font-semibold text-white">Today's Team Presence</h4>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <h4 className="text-sm font-bold text-slate-900">Today's Team Presence</h4>
                 </div>
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold">
                   {dashboardData.stats.todayAttendanceRate}% Rate
                 </span>
               </div>
 
               {/* Status Breakdown Counters */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                   <div>
-                    <p className="text-[11px] text-slate-400">Present</p>
-                    <p className="text-base font-bold text-white">{dashboardData.stats.checkedInTodayCount}</p>
+                    <p className="text-[11px] font-medium text-slate-500">Present</p>
+                    <p className="text-base font-bold text-slate-900 font-mono">{dashboardData.stats.checkedInTodayCount}</p>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
                   <div>
-                    <p className="text-[11px] text-slate-400">On Break</p>
-                    <p className="text-base font-bold text-white">{dashboardData.stats.onBreakTodayCount}</p>
+                    <p className="text-[11px] font-medium text-slate-500">On Break</p>
+                    <p className="text-base font-bold text-slate-900 font-mono">{dashboardData.stats.onBreakTodayCount}</p>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-sky-400" />
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-sky-500" />
                   <div>
-                    <p className="text-[11px] text-slate-400">Checked Out</p>
-                    <p className="text-base font-bold text-white">{dashboardData.stats.checkedOutTodayCount}</p>
+                    <p className="text-[11px] font-medium text-slate-500">Checked Out</p>
+                    <p className="text-base font-bold text-slate-900 font-mono">{dashboardData.stats.checkedOutTodayCount}</p>
                   </div>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-slate-600" />
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
                   <div>
-                    <p className="text-[11px] text-slate-400">Not Clocked In</p>
-                    <p className="text-base font-bold text-slate-300">{dashboardData.stats.notCheckedInTodayCount}</p>
+                    <p className="text-[11px] font-medium text-slate-500">Not Clocked In</p>
+                    <p className="text-base font-bold text-slate-600 font-mono">{dashboardData.stats.notCheckedInTodayCount}</p>
                   </div>
                 </div>
               </div>
 
               {/* Active Roles Summary */}
-              <div className="pt-2 border-t border-slate-800/60">
-                <p className="text-[11px] font-semibold text-slate-400 mb-2 uppercase tracking-wider">
+              <div className="pt-2 border-t border-slate-100">
+                <p className="text-[11px] font-semibold text-slate-500 mb-2 uppercase tracking-wider">
                   Configured Roles in Org ({dashboardData.stats.activeRolesList.length})
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {dashboardData.stats.activeRolesList.map((r) => (
                     <span
                       key={r}
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border ${ROLE_COLORS[r as Role] || 'text-slate-400 bg-slate-800 border-slate-700'
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border ${ROLE_COLORS[r as Role] || 'text-slate-600 bg-slate-100 border-slate-200'
                         }`}
                     >
                       {ROLE_LABELS[r as Role] || r}: {dashboardData.stats.roleDistribution[r] || 0}
@@ -580,49 +580,49 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Live Today Team Attendance Roster Table (8 cols) */}
-            <div className="lg:col-span-8 bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 shadow-xl space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800/60">
+            <div className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-indigo-400" />
-                  <h4 className="text-sm font-semibold text-white">Today's Team Attendance Roster</h4>
+                  <Users className="w-4 h-4 text-[#f97316]" />
+                  <h4 className="text-sm font-bold text-slate-900">Today's Team Attendance Roster</h4>
                   <span className="text-xs text-slate-500 font-mono">({filteredRoster.length} members)</span>
                 </div>
 
                 {/* Filter search */}
                 <div className="relative w-full sm:w-56">
-                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder="Filter roster..."
                     value={rosterSearch}
                     onChange={(e) => setRosterSearch(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#f97316] focus:border-[#f97316]"
                   />
                 </div>
               </div>
 
               {filteredRoster.length === 0 ? (
-                <div className="py-10 text-center text-slate-500 text-xs">
+                <div className="py-10 text-center text-slate-400 text-xs">
                   No accounts match your roster search.
                 </div>
               ) : (
-                <div className="overflow-x-auto max-h-[260px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-800">
+                <div className="overflow-x-auto max-h-[260px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-800 text-slate-400 text-[11px]">
-                        <th className="pb-2 font-medium">Team Member</th>
-                        <th className="pb-2 font-medium">Role</th>
-                        <th className="pb-2 font-medium">Today's Status</th>
-                        <th className="pb-2 font-medium">Clock-In Time</th>
+                      <tr className="border-b border-slate-200 text-slate-500 text-[11px]">
+                        <th className="pb-2 font-semibold">Team Member</th>
+                        <th className="pb-2 font-semibold">Role</th>
+                        <th className="pb-2 font-semibold">Today's Status</th>
+                        <th className="pb-2 font-semibold">Clock-In Time</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/40">
+                    <tbody className="divide-y divide-slate-100">
                       {filteredRoster.map((emp) => {
-                        const roleColor = ROLE_COLORS[emp.role] || 'text-slate-400 bg-slate-800 border-slate-700';
+                        const roleColor = ROLE_COLORS[emp.role] || 'text-slate-600 bg-slate-100 border-slate-200';
                         return (
-                          <tr key={emp.userId} className="hover:bg-slate-900/30 transition-colors">
+                          <tr key={emp.userId} className="hover:bg-slate-50/80 transition-colors">
                             <td className="py-2.5 pr-2">
-                              <div className="font-medium text-white">{emp.fullName}</div>
+                              <div className="font-semibold text-slate-900">{emp.fullName}</div>
                               <div className="text-[10px] text-slate-500 truncate max-w-[160px]">{emp.email}</div>
                             </td>
                             <td className="py-2.5 pr-2">
@@ -632,28 +632,28 @@ export const DashboardPage: React.FC = () => {
                             </td>
                             <td className="py-2.5 pr-2">
                               {emp.status === 'checked_in' && (
-                                <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                <span className="inline-flex items-center gap-1 text-emerald-700 font-semibold">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                   Present
                                 </span>
                               )}
                               {emp.status === 'on_break' && (
-                                <span className="inline-flex items-center gap-1 text-amber-400 font-medium">
-                                  <Coffee className="w-3 h-3" />
+                                <span className="inline-flex items-center gap-1 text-amber-700 font-semibold">
+                                  <Coffee className="w-3 h-3 text-amber-600" />
                                   On Break
                                 </span>
                               )}
                               {emp.status === 'checked_out' && (
-                                <span className="inline-flex items-center gap-1 text-sky-400 font-medium">
-                                  <LogOut className="w-3 h-3" />
+                                <span className="inline-flex items-center gap-1 text-sky-700 font-semibold">
+                                  <LogOut className="w-3 h-3 text-sky-600" />
                                   Checked Out
                                 </span>
                               )}
                               {emp.status === 'not_checked_in' && (
-                                <span className="text-slate-500 font-normal">Not Clocked In</span>
+                                <span className="text-slate-400 font-normal">Not Clocked In</span>
                               )}
                             </td>
-                            <td className="py-2.5 text-slate-400 font-mono text-[11px]">
+                            <td className="py-2.5 text-slate-600 font-mono text-[11px]">
                               {emp.checkInAt ? new Date(emp.checkInAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
                             </td>
                           </tr>
@@ -671,30 +671,30 @@ export const DashboardPage: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 shadow-lg space-y-3"
+              className="bg-amber-50/70 border border-amber-200 rounded-2xl p-5 shadow-sm space-y-3"
             >
-              <div className="flex items-center justify-between pb-2 border-b border-amber-500/15">
+              <div className="flex items-center justify-between pb-2 border-b border-amber-200/60">
                 <div className="flex items-center gap-2">
-                  <CalendarClock className="w-4 h-4 text-amber-400" />
-                  <h4 className="text-sm font-semibold text-white">
+                  <CalendarClock className="w-4 h-4 text-amber-600" />
+                  <h4 className="text-sm font-bold text-amber-950">
                     Pending Leave Approvals ({dashboardData.pendingLeaves.length})
                   </h4>
                 </div>
-                <span className="text-xs text-amber-400 font-medium">Action Required</span>
+                <span className="text-xs text-amber-800 font-semibold bg-amber-100/70 px-2.5 py-0.5 rounded-full border border-amber-200">Action Required</span>
               </div>
 
-              <div className="divide-y divide-slate-800/80">
+              <div className="divide-y divide-amber-200/50">
                 {dashboardData.pendingLeaves.map((leave) => (
                   <div key={leave.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-white">{leave.employeeName}</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-mono">
+                        <span className="text-xs font-semibold text-slate-900">{leave.employeeName}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-white text-slate-700 font-mono border border-slate-200">
                           {leave.employeeRole}
                         </span>
-                        <span className="text-xs text-amber-300 font-medium">· {leave.leaveType}</span>
+                        <span className="text-xs text-amber-800 font-semibold">· {leave.leaveType}</span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs text-slate-600 mt-0.5">
                         {new Date(leave.startDate).toLocaleDateString()} to {new Date(leave.endDate).toLocaleDateString()} ({leave.days} {leave.days === 1 ? 'day' : 'days'})
                         {leave.reason ? ` — "${leave.reason}"` : ''}
                       </p>
@@ -714,7 +714,7 @@ export const DashboardPage: React.FC = () => {
                         type="button"
                         onClick={() => rejectLeaveMutation.mutate(leave.id)}
                         disabled={rejectLeaveMutation.isPending}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-rose-600 transition-colors"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-rose-700 bg-white border border-slate-200 hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm"
                       >
                         <X className="w-3.5 h-3.5" />
                         Reject
@@ -731,7 +731,7 @@ export const DashboardPage: React.FC = () => {
       {/* ── Daily Time & Attendance Section (Real per-user check-in and records) ── */}
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
             {isManagementRole ? 'My Personal Shift & Attendance' : 'Daily Time & Shift Tracking'}
           </h3>
         </div>

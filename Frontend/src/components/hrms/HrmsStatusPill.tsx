@@ -16,21 +16,21 @@ import {
 // HRMS status → color mapping (extends the design-system
 // semantic tokens from CRM's StagePill — no new colors):
 //   success → #16A34A · warning → #B45309 · danger → #DC2626
-//   info → #3B82F6 · brand/subtle → #C2540C on #FBEAE0
-//   neutral → #FBEAE0 bg + #6B6B6B text
+//   info → #3B82F6 · brand/subtle → #f97316 on #fff7ed
+//   neutral → #fff7ed bg + #6B6B6B text
 // ─────────────────────────────────────────────────────────
 
-const PILL_SUCCESS = 'bg-[#16A34A]/10 text-[#16A34A] border-[#16A34A]/25';
-const PILL_WARNING = 'bg-[#B45309]/10 text-[#B45309] border-[#B45309]/25';
-const PILL_DANGER = 'bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/25';
-const PILL_BRAND = 'bg-[#FBEAE0] text-[#C2540C] border-[#F0D3BC]';
-const PILL_NEUTRAL = 'bg-[#FBF0E7] text-[#6B6B6B] border-[#ECE0D6]';
+const PILL_SUCCESS = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+const PILL_WARNING = 'bg-amber-50 text-amber-700 border-amber-200';
+const PILL_DANGER = 'bg-rose-50 text-rose-700 border-rose-200';
+const PILL_BRAND = 'bg-[#fff7ed] text-[#ea580c] border-[#fed7aa]';
+const PILL_NEUTRAL = 'bg-slate-100 text-slate-700 border-slate-200';
 
-const DOT_SUCCESS = 'bg-[#16A34A]';
-const DOT_WARNING = 'bg-[#B45309]';
-const DOT_DANGER = 'bg-[#DC2626]';
-const DOT_BRAND = 'bg-[#C2540C]';
-const DOT_NEUTRAL = 'bg-[#6B6B6B]';
+const DOT_SUCCESS = 'bg-emerald-500';
+const DOT_WARNING = 'bg-amber-500';
+const DOT_DANGER = 'bg-rose-500';
+const DOT_BRAND = 'bg-[#f97316]';
+const DOT_NEUTRAL = 'bg-slate-400';
 
 // ── Attendance status ──
 const ATTENDANCE_STYLES: Record<AttendanceStatus | 'pending', { pill: string; dot: string; label: string }> = {

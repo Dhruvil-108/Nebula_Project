@@ -31,7 +31,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       {/* ── Hamburger (mobile only) ── */}
       <button
         onClick={onMobileToggle}
-        className="md:hidden flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-[#6b6b6b] hover:text-[#1a1a1a] hover:bg-[#fbf0e7] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c2540c]"
+        className="md:hidden flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-[#6b6b6b] hover:text-[#1a1a1a] hover:bg-[#fff7ed] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
         aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
       >
         {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -60,7 +60,7 @@ export const TopBar: React.FC<TopBarProps> = ({
           <div className="flex items-center gap-3">
             <h1 className="text-base font-semibold text-[#1a1a1a] truncate">{pageTitle}</h1>
             {organization && (
-              <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-[#fbeae0] border border-[#de7a3d] text-[10px] font-mono text-[#7a2f05] uppercase tracking-wider">
+              <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-[#fff7ed] border border-[#fed7aa] text-[10px] font-mono text-[#ea580c] uppercase tracking-wider">
                 {organization.name}
               </span>
             )}
@@ -69,10 +69,10 @@ export const TopBar: React.FC<TopBarProps> = ({
       </div>
 
       {/* ── Global search (visual stub) ── */}
-      <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-[#ece0d6] hover:border-[#d06b28] transition-colors w-52 cursor-text focus-within:border-[#c2540c]">
+      <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-slate-200 hover:border-[#f97316] transition-colors w-52 cursor-text focus-within:border-[#f97316]">
         <Search className="w-3.5 h-3.5 text-[#9b9b9b] flex-shrink-0" />
         <span className="text-sm text-[#9b9b9b] select-none">Search...</span>
-        <kbd className="ml-auto text-[10px] text-[#6b6b6b] font-mono bg-[#fbf0e7] px-1.5 py-0.5 rounded border border-[#ece0d6]">
+        <kbd className="ml-auto text-[10px] text-slate-500 font-mono bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
           ⌘K
         </kbd>
       </div>
@@ -82,7 +82,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         <button
           type="button"
           onClick={() => navigate('/dashboard/profile')}
-          className="flex-shrink-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c2540c] focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-transform hover:scale-105 active:scale-95"
+          className="flex-shrink-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316] focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-transform hover:scale-105 active:scale-95"
           title={`${user.fullName} — open profile`}
           aria-label="Open profile"
         >
@@ -90,7 +90,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             fullName={user.fullName}
             sizeClass="w-9 h-9"
             textClass="text-xs"
-            accentColor="#c2540c"
+            accentColor="#f97316"
             editable={false}
           />
         </button>
@@ -100,7 +100,7 @@ export const TopBar: React.FC<TopBarProps> = ({
       <div className="relative">
         <button
           onClick={() => setNotifOpen((o) => !o)}
-          className="relative w-9 h-9 rounded-lg flex items-center justify-center text-[#6b6b6b] hover:text-[#1a1a1a] hover:bg-[#fbf0e7] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c2540c]"
+          className="relative w-9 h-9 rounded-lg flex items-center justify-center text-[#6b6b6b] hover:text-[#1a1a1a] hover:bg-[#fff7ed] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]"
           aria-label={`Notifications${notifCount > 0 ? ` (${notifCount} unread)` : ''}`}
         >
           <Bell className="w-4.5 h-4.5" />
@@ -108,7 +108,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             <motion.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#c2540c] border-2 border-white"
+              className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#f97316] border-2 border-white"
             />
           )}
         </button>

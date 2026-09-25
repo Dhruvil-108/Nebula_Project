@@ -130,39 +130,56 @@ export const RoleValueSection: React.FC = () => {
   const activePersona = personas.find((p) => p.id === activeRoleId) || personas[0];
 
   return (
-    <section id="roles" className="py-24 relative bg-slate-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="roles" className="py-24 relative bg-slate-50/80 border-t border-slate-200/80 scroll-mt-20">
+      <div className="w-full max-w-[1650px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center max-w-3xl mx-auto mb-14"
+        >
           <Badge variant="brand" size="md" className="mb-4">
             Built For The Entire Organization
           </Badge>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-950 tracking-tight leading-tight mb-4">
             Tailored dashboards for every leadership role.
           </h2>
-          <p className="text-slate-400 text-base sm:text-lg">
+          <p className="text-slate-600 text-base sm:text-lg">
             Nebula dynamically adapts to each team member’s role while maintaining a single unified underlying source of truth.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Persona Tabs */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
+        {/* Persona Tabs (Smooth Motion Pill Switcher) */}
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-10">
           {personas.map((persona) => {
             const isActive = persona.id === activeRoleId;
             return (
-              <button
+              <motion.button
                 key={persona.id}
                 onClick={() => setActiveRoleId(persona.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                whileHover={{ y: -2, transition: { duration: 0.15 } }}
+                whileTap={{ scale: 0.98 }}
+                className={`relative flex items-center gap-2.5 px-5 py-2.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer ${
                   isActive 
-                    ? 'bg-[#f0512f] text-white shadow-lg shadow-[#f0512f]/25 border border-[#f0512f]' 
-                    : 'bg-slate-900/80 text-slate-300 border border-slate-800 hover:border-slate-700 hover:text-white'
+                    ? 'text-white' 
+                    : 'text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
-                {persona.icon}
-                <span>{persona.role}</span>
-              </button>
+                {isActive && (
+                  <motion.div
+                    layoutId="roleActivePill"
+                    className="absolute inset-0 bg-[#f0512f] rounded-full shadow-md shadow-[#f0512f]/25"
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-2">
+                  <span className={isActive ? 'text-white' : 'text-[#f0512f]'}>{persona.icon}</span>
+                  <span>{persona.role}</span>
+                </span>
+              </motion.button>
             );
           })}
         </div>
@@ -171,11 +188,11 @@ export const RoleValueSection: React.FC = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={activePersona.id}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.25 }}
-            className="p-6 sm:p-10 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl"
+            initial={{ opacity: 0, scale: 0.98, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="p-6 sm:p-10 lg:p-12 rounded-3xl bg-white border border-slate-200/90 shadow-2xl shadow-slate-900/5"
           >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
@@ -183,10 +200,10 @@ export const RoleValueSection: React.FC = () => {
               <div className="lg:col-span-7 space-y-6">
                 <div className="space-y-2">
                   <Badge variant="brand" size="sm">{activePersona.badge}</Badge>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-white">
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-950">
                     {activePersona.title}
                   </h3>
-                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
                     {activePersona.description}
                   </p>
                 </div>
@@ -194,19 +211,19 @@ export const RoleValueSection: React.FC = () => {
                 <div className="space-y-2.5 pt-2">
                   {activePersona.keyBenefits.map((benefit, idx) => (
                     <div key={idx} className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      <span className="text-xs sm:text-sm text-slate-200">{benefit}</span>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                      <span className="text-xs sm:text-sm text-slate-800 font-medium">{benefit}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Quote */}
-                <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs italic text-slate-300">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs italic text-slate-700">
                   <p className="mb-2">"{activePersona.quote.text}"</p>
-                  <div className="not-italic font-semibold text-slate-100 flex items-center gap-2">
-                    <span className="text-[#ff7a59]">{activePersona.quote.author}</span>
-                    <span className="text-slate-600">·</span>
-                    <span className="text-slate-400 font-normal">{activePersona.quote.org}</span>
+                  <div className="not-italic font-semibold text-slate-900 flex items-center gap-2">
+                    <span className="text-[#ea580c]">{activePersona.quote.author}</span>
+                    <span className="text-slate-300">·</span>
+                    <span className="text-slate-500 font-normal">{activePersona.quote.org}</span>
                   </div>
                 </div>
 
@@ -214,23 +231,23 @@ export const RoleValueSection: React.FC = () => {
 
               {/* Right Column (5 cols): Metrics preview */}
               <div className="lg:col-span-5 space-y-3">
-                <span className="text-xs font-mono uppercase tracking-wider text-slate-400 block mb-1">
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-500 block mb-1">
                   Dedicated {activePersona.role} Live KPIs
                 </span>
 
                 {activePersona.dashboardMetrics.map((m, idx) => (
-                  <div key={idx} className="p-4 bg-slate-950/80 rounded-xl border border-slate-800 flex items-center justify-between">
+                  <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
                     <div>
-                      <div className="text-xs text-slate-400">{m.label}</div>
-                      <div className="text-xl font-bold text-white font-mono mt-0.5">{m.value}</div>
+                      <div className="text-xs text-slate-500">{m.label}</div>
+                      <div className="text-xl font-bold text-slate-900 font-mono mt-0.5">{m.value}</div>
                     </div>
                     <Badge variant="emerald" size="sm">{m.trend}</Badge>
                   </div>
                 ))}
 
-                <div className="p-3 rounded-lg bg-[#f0512f]/10 border border-[#f0512f]/20 text-[11px] text-[#ff8c70] flex items-center justify-between">
+                <div className="p-3 rounded-lg bg-orange-50 border border-orange-200 text-[11px] text-[#ea580c] flex items-center justify-between">
                   <span>Custom RBAC views enabled</span>
-                  <span className="font-semibold text-white">Full Privacy Isolation</span>
+                  <span className="font-semibold text-slate-900">Full Privacy Isolation</span>
                 </div>
 
               </div>

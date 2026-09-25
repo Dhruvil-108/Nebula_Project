@@ -164,52 +164,52 @@ const ROLE_HERO: Record<Role, { headline: string; sub: string; accentColor: stri
   super_admin: {
     headline: 'Super Administrator',
     sub: 'Full system access — managing the entire workspace, accounts, and permissions.',
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
   admin: {
     headline: 'Administrator',
     sub: 'Oversees daily operations, account provisioning, and organizational governance.',
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
   manager: {
     headline: 'Team Manager',
     sub: 'Leads the team, tracks performance, and coordinates daily workflow execution.',
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
   hr: {
     headline: 'Human Resources',
     sub: 'Manages employee lifecycle, leaves, onboarding, and team welfare programs.',
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
   recruiter: {
     headline: 'Talent Recruiter',
     sub: 'Sources, screens, and onboards talent to build high-performing teams.',
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
   sales: {
     headline: 'Sales Executive',
     sub: 'Drives revenue growth by managing customer relationships and deal pipelines.',
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
   finance: {
     headline: 'Finance Specialist',
     sub: 'Manages budgets, expense approvals, payroll, and financial reporting.',
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
   inventory_manager: {
     headline: 'Inventory Manager',
     sub: 'Tracks stock levels, manages supply chains, and ensures operational continuity.',
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
   employee: {
     headline: 'Team Member',
     sub: "Contributing to the organization's success through skilled daily work.",
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
   intern: {
     headline: 'Intern',
     sub: 'Gaining valuable real-world experience and growing within the organization.',
-    accentColor: '#c2540c',
+    accentColor: '#f97316',
   },
 };
 

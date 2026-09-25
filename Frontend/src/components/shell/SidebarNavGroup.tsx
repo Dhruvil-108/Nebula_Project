@@ -33,8 +33,8 @@ const SubNavLink: React.FC<SubNavItem> = ({ to, icon, label }) => {
         clsx(
           'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium transition-all duration-150',
           isActive
-            ? 'post-login-nav-active bg-[#f0512f]/15 text-white'
-            : 'post-login-nav-inactive text-slate-400 hover:text-slate-200'
+            ? 'post-login-nav-active bg-[#fff7ed] text-[#ea580c] font-semibold border border-[#fed7aa]'
+            : 'post-login-nav-inactive text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed]'
         )
       }
     >
@@ -43,12 +43,14 @@ const SubNavLink: React.FC<SubNavItem> = ({ to, icon, label }) => {
           <span
             className={clsx(
               'flex-shrink-0 w-3.5 h-3.5 flex items-center justify-center',
-              isActive ? 'text-[#f0512f]' : 'text-slate-500'
+              isActive ? 'text-[#f97316]' : 'text-slate-400 group-hover:text-[#f97316]'
             )}
           >
             {icon}
           </span>
-          {label}
+          <span className={isActive ? 'text-[#ea580c] font-semibold' : 'text-slate-600 group-hover:text-[#1a1a1a]'}>
+            {label}
+          </span>
         </>
       )}
     </NavLink>
@@ -81,8 +83,8 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
               itemBase,
               'justify-center px-3 py-2.5',
               isActive
-                ? 'post-login-nav-active bg-[#f0512f]/15 text-white font-medium'
-                : 'post-login-nav-inactive text-slate-400 hover:text-slate-200 font-medium'
+                ? 'post-login-nav-active bg-[#fff7ed] border border-[#fed7aa] text-[#ea580c] font-semibold shadow-sm'
+                : 'post-login-nav-inactive text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed] font-medium'
             )
           }
         >
@@ -91,7 +93,7 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
               <span
                 className={clsx(
                   'flex-shrink-0 w-5 h-5 flex items-center justify-center',
-                  isActive ? 'text-[#f0512f]' : 'text-slate-400 group-hover:text-slate-200'
+                  isActive ? 'text-[#f97316]' : 'text-slate-500 group-hover:text-[#f97316]'
                 )}
               >
                 {icon}
@@ -99,15 +101,15 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
 
               {/* Flyout popover with sub-items */}
               <div className="absolute left-full ml-3 top-0 z-50 hidden group-hover:block">
-                <div className="px-2.5 py-2 rounded-xl bg-slate-900 border border-slate-700/80 shadow-xl min-w-[180px]">
-                  <p className="px-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest">
+                <div className="px-2.5 py-2 rounded-xl bg-white border border-[#ece0d6] shadow-xl min-w-[180px]">
+                  <p className="px-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-400 uppercase tracking-widest">
                     {label}
                   </p>
                   {subItems.map((sub) => (
                     <FlyoutLink key={sub.to} sub={sub} />
                   ))}
                   {/* Arrow */}
-                  <div className="absolute right-full top-4 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-slate-700/80" />
+                  <div className="absolute right-full top-4 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-[#ece0d6]" />
                 </div>
               </div>
             </>
@@ -131,8 +133,8 @@ const FlyoutLink: React.FC<{ sub: SubNavItem }> = ({ sub }) => (
       clsx(
         'flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors',
         isActive
-          ? 'bg-[#f0512f]/20 text-white'
-          : 'text-slate-300 hover:text-white hover:bg-slate-800'
+          ? 'bg-[#fff7ed] text-[#ea580c] font-semibold border border-[#fed7aa]'
+          : 'text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed]'
       )
     }
   >
@@ -170,15 +172,15 @@ const ExpandedGroup: React.FC<{
           itemBase,
           'w-full px-3 py-2.5 text-left text-[13.5px] font-medium',
           hasActive
-            ? 'post-login-nav-active bg-[#f0512f]/15 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
-            : 'post-login-nav-inactive text-slate-400 hover:text-slate-200'
+            ? 'post-login-nav-active bg-[#fff7ed] border border-[#fed7aa] text-[#ea580c] font-semibold shadow-sm'
+            : 'post-login-nav-inactive text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed]'
         )}
         aria-expanded={expanded}
       >
         <span
           className={clsx(
             'flex-shrink-0 w-5 h-5 flex items-center justify-center',
-            hasActive ? 'text-[#f0512f]' : 'text-slate-400 group-hover:text-slate-200'
+            hasActive ? 'text-[#f97316]' : 'text-slate-500 group-hover:text-[#f97316]'
           )}
         >
           {icon}
@@ -186,7 +188,7 @@ const ExpandedGroup: React.FC<{
         <span
           className={clsx(
             'flex-1 truncate tracking-tight text-[13.5px]',
-            hasActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
+            hasActive ? 'text-[#ea580c] font-semibold' : 'text-slate-700 group-hover:text-[#1a1a1a]'
           )}
         >
           {label}
@@ -195,7 +197,7 @@ const ExpandedGroup: React.FC<{
           className={clsx(
             'w-4 h-4 flex-shrink-0 transition-transform duration-200',
             expanded && 'rotate-180',
-            hasActive ? 'text-[#f0512f]' : 'text-slate-500'
+            hasActive ? 'text-[#f97316]' : 'text-slate-400 group-hover:text-slate-600'
           )}
         />
       </button>
@@ -210,7 +212,7 @@ const ExpandedGroup: React.FC<{
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="pl-4 ml-4 border-l border-slate-800/80 space-y-0.5 py-1">
+            <div className="pl-4 ml-4 border-l border-[#ece0d6] space-y-0.5 py-1">
               {subItems.map((sub) => (
                 <SubNavLink key={sub.to} to={sub.to} icon={sub.icon} label={sub.label} />
               ))}

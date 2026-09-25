@@ -28,10 +28,10 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
         clsx(
           'post-login-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0512f]',
           isActive
-            ? 'post-login-nav-active bg-[#f0512f]/15 text-white font-medium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
+            ? 'post-login-nav-active bg-[#fff7ed] border border-[#fed7aa] text-[#ea580c] font-semibold shadow-sm'
             : emphasized
-              ? 'post-login-nav-emphasized text-slate-300 hover:text-white font-medium'
-              : 'post-login-nav-inactive text-slate-400 hover:text-slate-200 font-medium'
+              ? 'post-login-nav-emphasized text-slate-700 hover:text-[#1a1a1a] hover:bg-[#fff7ed] font-medium'
+              : 'post-login-nav-inactive text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed] font-medium'
         )
       }
     >
@@ -42,10 +42,10 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
             className={clsx(
               'flex-shrink-0 w-5 h-5 transition-colors flex items-center justify-center',
               isActive
-                ? 'text-[#f0512f]'
+                ? 'text-[#f97316]'
                 : emphasized
-                  ? 'text-slate-300 group-hover:text-white'
-                  : 'text-slate-400 group-hover:text-slate-200'
+                  ? 'text-slate-600 group-hover:text-[#f97316]'
+                  : 'text-slate-500 group-hover:text-[#f97316]'
             )}
           >
             {icon}
@@ -56,7 +56,7 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
             <span
               className={clsx(
                 'flex-1 truncate tracking-tight text-[13.5px]',
-                isActive ? 'text-white font-medium' : 'text-slate-400 group-hover:text-slate-200'
+                isActive ? 'text-[#ea580c] font-semibold' : 'text-slate-700 group-hover:text-[#1a1a1a]'
               )}
             >
               {label}
@@ -65,7 +65,7 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
 
           {/* Badge */}
           {!collapsed && badge !== undefined && badge > 0 && (
-            <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-[#f0512f] text-white text-[10px] font-bold flex items-center justify-center shadow-sm shadow-[#f0512f]/30">
+            <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-[#f97316] text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
               {badge > 99 ? '99+' : badge}
             </span>
           )}

@@ -56,10 +56,12 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 // ── Global rate limiter (generous, auth routes have their own tighter limits)
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: isDev ? 10000 : 500,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please slow down.' },

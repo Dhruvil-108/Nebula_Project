@@ -72,23 +72,23 @@ export const WizardStepFocus: React.FC<WizardStepFocusProps> = ({
               onClick={() => toggleFocus(mod.id)}
               className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
                 isSelected
-                  ? 'bg-[#f0512f]/10 border-[#f0512f] shadow-md shadow-[#f0512f]/10 ring-1 ring-[#f0512f]/40'
-                  : 'bg-slate-900/60 border-slate-800 hover:border-slate-750 hover:bg-slate-900'
+                  ? 'bg-orange-50/80 border-2 border-[#f0512f] shadow-md shadow-orange-500/10 ring-1 ring-[#f0512f]/30'
+                  : 'bg-white border-slate-200 hover:border-orange-300 hover:bg-orange-50/20 shadow-xs'
               }`}
             >
-              <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 shrink-0 mt-0.5">
+              <div className="p-2 rounded-lg bg-slate-50 border border-slate-200 shrink-0 mt-0.5">
                 {mod.icon}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-xs text-white">{mod.name}</span>
+                  <span className="font-bold text-xs text-slate-900">{mod.name}</span>
                   {isSelected && (
                     <div className="w-4 h-4 rounded-full bg-[#f0512f] text-white flex items-center justify-center">
                       <Check className="w-2.5 h-2.5" />
                     </div>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">{mod.desc}</p>
+                <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">{mod.desc}</p>
               </div>
             </div>
           );

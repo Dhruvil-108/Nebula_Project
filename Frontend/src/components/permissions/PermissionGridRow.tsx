@@ -35,7 +35,7 @@ export const PermissionGridRow: React.FC<PermissionGridRowProps> = ({
   onBatchRow,
 }) => {
   const roleLabel = ROLE_LABELS[role] || role;
-  const roleColorClass = ROLE_COLORS[role] || 'text-[#7a2f05] bg-[#fbeae0] border-[#de7a3d]';
+  const roleColorClass = ROLE_COLORS[role] || 'text-[#ea580c] bg-[#fff7ed] border-[#fed7aa]';
 
   const enabledCount = modules.filter((m) => rowValues[m]?.enabled).length;
 
@@ -52,7 +52,7 @@ export const PermissionGridRow: React.FC<PermissionGridRowProps> = ({
                   roleColorClass
                 )}
               >
-                <Shield className="w-3 h-3 mr-1 text-[#c2540c]" />
+                <Shield className="w-3 h-3 mr-1 text-[#f97316]" />
                 {roleLabel}
               </span>
             </div>

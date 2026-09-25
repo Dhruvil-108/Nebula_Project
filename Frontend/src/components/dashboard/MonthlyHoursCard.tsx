@@ -14,13 +14,13 @@ import { apiClient } from '../../lib/apiClient';
 import type { AttendanceSummary } from '../../types/attendance';
 
 export const MonthlyHoursCardSkeleton: React.FC = () => (
-  <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/60 space-y-4 animate-pulse">
+  <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-4 animate-pulse shadow-sm">
     <div className="flex items-center justify-between">
-      <div className="w-32 h-4 rounded bg-slate-800" />
-      <div className="w-16 h-6 rounded-full bg-slate-800" />
+      <div className="w-32 h-4 rounded bg-slate-100" />
+      <div className="w-16 h-6 rounded-full bg-slate-100" />
     </div>
-    <div className="w-40 h-8 rounded bg-slate-800" />
-    <div className="w-full h-24 rounded-xl bg-slate-800/60" />
+    <div className="w-40 h-8 rounded bg-slate-100" />
+    <div className="w-full h-24 rounded-xl bg-slate-50" />
   </div>
 );
 
@@ -34,9 +34,9 @@ const CustomHoursTooltip = ({
   if (!active || !payload?.length) return null;
   const data = payload[0].payload;
   return (
-    <div className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 shadow-xl text-xs space-y-1">
-      <p className="text-slate-400 font-mono">{data.date}</p>
-      <p className="text-slate-100 font-semibold">
+    <div className="px-3 py-2 rounded-lg bg-white border border-slate-200 shadow-lg text-xs space-y-1">
+      <p className="text-slate-500 font-mono text-[10px]">{data.date}</p>
+      <p className="text-slate-900 font-bold">
         {data.workedHours > 0 ? `${data.workedHours} hrs worked` : `Status: ${data.holidayName || data.status}`}
       </p>
     </div>
@@ -84,22 +84,22 @@ export const MonthlyHoursCard: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
-      className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/60 flex flex-col justify-between shadow-lg hover:border-slate-800 transition-colors"
+      className="p-6 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between shadow-sm hover:border-slate-300 transition-colors"
     >
       <div>
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#f0512f]/10 border border-[#f0512f]/20 flex items-center justify-center text-[#ff7a59]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#fff7ed] border border-[#fed7aa] flex items-center justify-center text-[#ea580c] shadow-2xs">
               <Clock className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">Monthly Hours</h3>
-              <p className="text-[11px] text-slate-400">{monthName} {currentYear}</p>
+              <h3 className="text-sm font-bold text-slate-900">Monthly Hours</h3>
+              <p className="text-[11px] font-medium text-slate-500">{monthName} {currentYear}</p>
             </div>
           </div>
 
-          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#f0512f]/10 text-[#ff7a59] border border-[#f0512f]/20">
+          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#fff7ed] text-[#ea580c] border border-[#fed7aa]">
             <TrendingUp className="w-3 h-3" />
             {completionPercent}%
           </span>
@@ -108,17 +108,17 @@ export const MonthlyHoursCard: React.FC = () => {
         {/* Big stat & progress bar */}
         <div className="mb-4">
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-bold font-mono text-white tracking-tight">
+            <span className="text-2xl sm:text-3xl font-extrabold font-mono text-slate-900 tracking-tight">
               {workedHours}
             </span>
-            <span className="text-slate-400 text-xs font-mono">
+            <span className="text-slate-500 text-xs font-mono font-medium">
               / {expectedHours} hrs expected
             </span>
           </div>
 
-          <div className="w-full h-2 rounded-full bg-slate-800 mt-2 overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-slate-100 mt-2 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#f0512f] to-[#ff7a59] transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-[#f97316] to-[#fb923c] transition-all duration-500"
               style={{ width: `${completionPercent}%` }}
             />
           </div>
@@ -141,7 +141,7 @@ export const MonthlyHoursCard: React.FC = () => {
                   <Cell
                     key={`cell-${index}`}
                     fill={
-                      entry.workedHours > 0 ? '#c2540c' : '#f6e8dc'
+                      entry.workedHours > 0 ? '#f97316' : '#e2e8f0'
                     }
                   />
                 ))}
@@ -152,7 +152,7 @@ export const MonthlyHoursCard: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
         <span className="flex items-center gap-1.5">
           <CalendarDays className="w-3.5 h-3.5 text-slate-500" />
           {summary?.expectedWorkingDays || 0} Working Days this month

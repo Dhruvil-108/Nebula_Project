@@ -70,7 +70,7 @@ export const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
   fullName,
   sizeClass = 'w-20 h-20 md:w-24 md:h-24',
   textClass = 'text-2xl md:text-3xl',
-  accentColor = '#c2540c',
+  accentColor = '#f97316',
   editable = true,
   className = '',
 }) => {

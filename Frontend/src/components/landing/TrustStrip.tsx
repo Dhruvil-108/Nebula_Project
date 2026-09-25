@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 export const TrustStrip: React.FC = () => {
   const companies = [
@@ -11,66 +12,98 @@ export const TrustStrip: React.FC = () => {
   ];
 
   return (
-    <section className="py-14 border-y border-slate-800/80 bg-slate-950/70 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-16 border-y border-slate-200/80 bg-slate-50/60 relative overflow-hidden">
+      <div className="w-full max-w-[1650px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         
         <p className="text-center text-xs font-semibold uppercase tracking-widest text-slate-500 mb-8">
           Trusted by operations leaders and fast-growing organizations worldwide
         </p>
 
-        {/* Company Wordmarks Strip */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 items-center justify-items-center opacity-70 mb-12">
-          {companies.map((company) => (
-            <div 
+        {/* Company Wordmarks Strip with Hover Bounce */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 items-center justify-items-center mb-14">
+          {companies.map((company, idx) => (
+            <motion.div 
               key={company.name}
-              className="flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors font-mono font-semibold tracking-wider text-xs"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: idx * 0.08 }}
+              whileHover={{ y: -3, scale: 1.05 }}
+              className="flex items-center gap-2.5 text-slate-600 hover:text-slate-900 transition-colors font-mono font-semibold tracking-wider text-xs cursor-default"
             >
-              <div className="w-6 h-6 rounded bg-slate-850 flex items-center justify-center text-[10px] text-[#ff7a59] font-bold border border-slate-750">
+              <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center text-[11px] text-[#ea580c] font-bold border border-slate-200 shadow-xs">
                 {company.symbol}
               </div>
-              <span>{company.name}</span>
-            </div>
+              <span className="text-slate-700">{company.name}</span>
+            </motion.div>
           ))}
         </div>
 
-        {/* Key Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-slate-800/60 text-center">
+        {/* Key Metrics Grid with Animated Stagger */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t border-slate-200 text-center">
           
-          <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-white font-mono tracking-tight text-gradient">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -4 }}
+            className="p-4 rounded-xl transition-transform"
+          >
+            <div className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-mono tracking-tight text-gradient">
               6-in-1
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1.5">
               Modules Unified in One Single Data Fabric
             </p>
-          </div>
+          </motion.div>
 
-          <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-[#f0512f] font-mono tracking-tight">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ y: -4 }}
+            className="p-4 rounded-xl transition-transform"
+          >
+            <div className="text-3xl sm:text-5xl font-extrabold text-[#ea580c] font-mono tracking-tight">
               40%
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1.5">
               Average Reduction in Admin & Manual Data Overhead
             </p>
-          </div>
+          </motion.div>
 
-          <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-[#ff9b80] font-mono tracking-tight">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            whileHover={{ y: -4 }}
+            className="p-4 rounded-xl transition-transform"
+          >
+            <div className="text-3xl sm:text-5xl font-extrabold text-[#f0512f] font-mono tracking-tight">
               100%
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1.5">
               Organization-Level Multi-Tenant Data Isolation
             </p>
-          </div>
+          </motion.div>
 
-          <div>
-            <div className="text-3xl sm:text-4xl font-extrabold text-emerald-400 font-mono tracking-tight">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            whileHover={{ y: -4 }}
+            className="p-4 rounded-xl transition-transform"
+          >
+            <div className="text-3xl sm:text-5xl font-extrabold text-emerald-600 font-mono tracking-tight">
               99.99%
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1.5">
               High Availability Enterprise SLA Guarantee
             </p>
-          </div>
+          </motion.div>
 
         </div>
 

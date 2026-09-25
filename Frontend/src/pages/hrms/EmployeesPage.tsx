@@ -120,7 +120,7 @@ export const EmployeesPage: React.FC = () => {
   };
 
   const inputCls =
-    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#C2540C]/25 focus:border-[#C2540C] transition-all';
+    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all';
 
   const fmtDate = (d: string | null | undefined) =>
     d ? new Date(d).toLocaleDateString() : '—';
@@ -148,7 +148,7 @@ export const EmployeesPage: React.FC = () => {
           <button
             type="button"
             onClick={() => refetch()}
-            className="p-2 rounded-xl text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#FBEAE0] border border-[#ECE0D6] transition-colors"
+            className="p-2 rounded-xl text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#fff7ed] border border-[#ECE0D6] transition-colors"
             title="Refresh employees"
           >
             <RefreshCw className="w-4 h-4" />
@@ -157,7 +157,7 @@ export const EmployeesPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowCreate(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white shadow-md shadow-[#C2540C]/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white shadow-md shadow-[#f97316]/20 transition-colors"
             >
               <Users className="w-4 h-4" />
               Add Employee
@@ -225,7 +225,7 @@ export const EmployeesPage: React.FC = () => {
                 [...Array(5)].map((_, i) => (
                   <tr key={i}>
                     <td colSpan={8} className="px-5 py-4">
-                      <div className="h-5 rounded bg-[#FBEAE0] animate-pulse" />
+                      <div className="h-5 rounded bg-[#fff7ed] animate-pulse" />
                     </td>
                   </tr>
                 ))
@@ -237,7 +237,7 @@ export const EmployeesPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => refetch()}
-                      className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-[#C2540C] border border-[#ECE0D6] hover:bg-[#FBEAE0]"
+                      className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-[#f97316] border border-[#ECE0D6] hover:bg-[#fff7ed]"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                       Retry
@@ -266,7 +266,7 @@ export const EmployeesPage: React.FC = () => {
                     className="hover:bg-[#FBF8F4] cursor-pointer transition-colors"
                     onClick={() => setSelectedEmployeeId(emp._id)}
                   >
-                    <td className="px-5 py-3.5 text-xs font-mono font-semibold text-[#C2540C]">{emp.employeeCode}</td>
+                    <td className="px-5 py-3.5 text-xs font-mono font-semibold text-[#f97316]">{emp.employeeCode}</td>
                     <td className="px-5 py-3.5">
                       <div className="font-medium text-[#1A1A1A]">{emp.fullName}</div>
                       {emp.email && <div className="text-xs text-[#6B6B6B]">{emp.email}</div>}
@@ -313,7 +313,7 @@ export const EmployeesPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#FBEAE0] transition-colors"
+                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -444,14 +444,14 @@ export const EmployeesPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowCreate(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#FBEAE0] transition-colors"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending || !form.employeeCode.trim() || !form.fullName.trim()}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
                 >
                   {createMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Create Employee
@@ -478,8 +478,8 @@ export const EmployeesPage: React.FC = () => {
       >
         {detailLoading || !employeeDetail ? (
           <div className="space-y-3 animate-pulse">
-            <div className="h-20 rounded-xl bg-[#FBEAE0]" />
-            <div className="h-32 rounded-xl bg-[#FBEAE0]" />
+            <div className="h-20 rounded-xl bg-[#fff7ed]" />
+            <div className="h-32 rounded-xl bg-[#fff7ed]" />
           </div>
         ) : (
           <div className="space-y-6">
@@ -586,14 +586,14 @@ export const EmployeesPage: React.FC = () => {
                       href={doc.fileUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center justify-between gap-2 rounded-xl border border-[#ECE0D6] px-3 py-2 hover:border-[#DE7A3D] transition-colors"
+                      className="flex items-center justify-between gap-2 rounded-xl border border-[#ECE0D6] px-3 py-2 hover:border-[#fed7aa] transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="min-w-0">
                         <p className="text-xs font-medium text-[#1A1A1A] truncate">{doc.fileName}</p>
                         <p className="text-[10px] text-[#6B6B6B]">{doc.docType}</p>
                       </div>
-                      <FileText className="w-3.5 h-3.5 text-[#C2540C] flex-shrink-0" />
+                      <FileText className="w-3.5 h-3.5 text-[#f97316] flex-shrink-0" />
                     </a>
                   ))}
                 </div>

@@ -15,6 +15,13 @@ export interface Organization {
   id: string;
   name: string;
   primaryFocus: FocusArea[];
+  companySize?: string;
+  industry?: string;
+  subIndustry?: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+  website?: string;
+  brandColor?: string;
 }
 
 /** Human-readable labels for each focus area */

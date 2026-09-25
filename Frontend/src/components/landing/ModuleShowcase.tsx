@@ -196,51 +196,71 @@ export const ModuleShowcase: React.FC = () => {
   const activeModule = modules.find((m) => m.id === activeModuleId) || modules[0];
 
   return (
-    <section id="modules" className="py-24 relative overflow-hidden bg-slate-950/90 border-t border-slate-800/80">
+    <section id="modules" className="py-24 relative overflow-hidden bg-white border-t border-slate-200/80 scroll-mt-20">
       {/* Glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#f0512f]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#f0512f]/5 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[1650px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center max-w-3xl mx-auto mb-14"
+        >
           <Badge variant="brand" size="md" className="mb-4">
             The 6 Core Modules
           </Badge>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-950 tracking-tight leading-tight mb-4">
             Six enterprise-grade modules. <br />
             <span className="text-gradient-accent">One cohesive operating system.</span>
           </h2>
-          <p className="text-slate-400 text-base sm:text-lg">
+          <p className="text-slate-600 text-base sm:text-lg">
             Each module is fully featured to stand alone, yet designed from the ground up to share a single unified data fabric.
           </p>
-        </div>
+        </motion.div>
 
         {/* Module Selector Navigation Tabs */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mb-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
           {modules.map((mod) => {
             const isActive = mod.id === activeModuleId;
             return (
-              <button
+              <motion.button
                 key={mod.id}
                 onClick={() => setActiveModuleId(mod.id)}
-                className={`p-3.5 rounded-xl border text-left transition-all duration-200 flex flex-col justify-between cursor-pointer ${
+                whileHover={{ y: -3, transition: { duration: 0.15 } }}
+                whileTap={{ scale: 0.98 }}
+                className={`p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between cursor-pointer relative overflow-hidden ${
                   isActive 
-                    ? 'bg-slate-900 border-[#f0512f] shadow-lg shadow-[#f0512f]/15 ring-1 ring-[#f0512f]/50' 
-                    : 'bg-slate-900/40 border-slate-800 hover:border-slate-700 hover:bg-slate-900/70'
+                    ? 'bg-orange-50/90 border-2 border-[#f0512f] shadow-lg shadow-orange-500/10' 
+                    : 'bg-slate-50 border-slate-200 hover:border-slate-300 hover:bg-white'
                 }`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-2 rounded-lg bg-slate-950/80 border border-slate-800/80">
+                {isActive && (
+                  <motion.div 
+                    layoutId="activeTabGlow"
+                    className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-transparent pointer-events-none"
+                  />
+                )}
+                <div className="flex items-center justify-between mb-3 relative z-10">
+                  <div className={`p-2.5 rounded-xl border transition-colors ${
+                    isActive ? 'bg-white border-orange-200 shadow-sm' : 'bg-white border-slate-200 shadow-2xs'
+                  }`}>
                     {mod.icon}
                   </div>
-                  <span className={`text-[10px] font-mono font-semibold ${isActive ? 'text-[#ff7a59]' : 'text-slate-500'}`}>
+                  <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-[#ea580c]' : 'text-slate-400'}`}>
                     {mod.badgeText}
                   </span>
                 </div>
-                <div className="font-semibold text-sm text-slate-200">{mod.name.split('&')[0].trim()}</div>
-                <div className="text-[11px] text-slate-400 truncate mt-0.5">{mod.tagline.slice(0, 24)}...</div>
-              </button>
+                <div className="relative z-10">
+                  <div className={`font-bold text-sm ${isActive ? 'text-slate-900' : 'text-slate-800'}`}>
+                    {mod.name.split('&')[0].trim()}
+                  </div>
+                  <div className="text-[11px] text-slate-500 truncate mt-0.5">{mod.tagline.slice(0, 26)}...</div>
+                </div>
+              </motion.button>
             );
           })}
         </div>
@@ -253,7 +273,7 @@ export const ModuleShowcase: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.3 }}
-            className="rounded-2xl bg-slate-900/70 border border-slate-800 p-6 sm:p-8 lg:p-10 backdrop-blur-xl shadow-2xl"
+            className="rounded-3xl bg-white border border-slate-200/90 p-6 sm:p-10 lg:p-12 shadow-2xl shadow-slate-900/5"
           >
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
@@ -263,39 +283,39 @@ export const ModuleShowcase: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <Badge variant="brand" size="sm">{activeModule.badgeText}</Badge>
-                    <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">
+                    <span className="text-xs font-mono text-slate-500 uppercase tracking-wider">
                       Module Deep Dive
                     </span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-950">
                     {activeModule.name}
                   </h3>
-                  <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
                     {activeModule.description}
                   </p>
                 </div>
 
                 {/* Key Features Bullet List */}
                 <div className="space-y-2.5 pt-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 block mb-2">
                     Core Functionality
                   </span>
                   {activeModule.features.map((feat, i) => (
                     <div key={i} className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-[#f0512f]/20 text-[#ff8c70] flex items-center justify-center shrink-0 mt-0.5 border border-[#f0512f]/30">
+                      <div className="w-5 h-5 rounded-full bg-orange-100 text-[#ea580c] flex items-center justify-center shrink-0 mt-0.5 border border-orange-200">
                         <Check className="w-3 h-3" />
                       </div>
-                      <span className="text-xs sm:text-sm text-slate-200">{feat}</span>
+                      <span className="text-xs sm:text-sm text-slate-800 font-medium">{feat}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* Module Architecture Highlights Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-slate-800/80">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-slate-200">
                   {activeModule.capabilities.map((cap, idx) => (
-                    <div key={idx} className="p-3 bg-slate-950/50 rounded-xl border border-slate-800/80">
-                      <div className="text-xs font-semibold text-[#ff8c70] mb-1">{cap.title}</div>
-                      <div className="text-[11px] text-slate-400 leading-snug">{cap.detail}</div>
+                    <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                      <div className="text-xs font-semibold text-[#ea580c] mb-1">{cap.title}</div>
+                      <div className="text-[11px] text-slate-600 leading-snug">{cap.detail}</div>
                     </div>
                   ))}
                 </div>
@@ -305,7 +325,7 @@ export const ModuleShowcase: React.FC = () => {
               {/* Right Column: Live Mockup Widget Preview (5 cols) */}
               <div className="lg:col-span-5">
                 <div className="relative">
-                  <div className="absolute -inset-2 bg-[#f0512f]/10 rounded-2xl blur-xl pointer-events-none" />
+                  <div className="absolute -inset-2 bg-[#f0512f]/5 rounded-2xl blur-xl pointer-events-none" />
                   <div className="relative">
                     {activeModule.mockup}
                   </div>

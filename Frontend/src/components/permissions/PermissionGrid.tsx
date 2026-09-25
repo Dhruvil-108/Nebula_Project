@@ -70,7 +70,7 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
             {/* Pinned Sticky Header for Role Column */}
             <th className="sticky left-0 z-30 bg-[#fbf5f0] px-4 py-4 text-xs font-semibold tracking-wider uppercase min-w-[240px] max-w-[260px] border-r border-[#ece0d6] shadow-[3px_0_10px_rgba(0,0,0,0.03)]">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#c2540c]" />
+                <ShieldCheck className="w-4 h-4 text-[#f97316]" />
                 <span className="text-[#1a1a1a] font-bold">Role / Module Matrix</span>
               </div>
               <p className="text-[10px] text-[#6b6b6b] font-normal lowercase tracking-normal mt-0.5 font-mono">
@@ -88,9 +88,9 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
                       <span
                         className={clsx(
                           'inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold border shadow-2xs',
-                          meta?.badgeBg || 'bg-[#fbeae0]',
-                          meta?.color || 'text-[#7a2f05]',
-                          meta?.badgeBorder || 'border-[#de7a3d]'
+                          meta?.badgeBg || 'bg-[#fff7ed]',
+                          meta?.color || 'text-[#ea580c]',
+                          meta?.badgeBorder || 'border-[#fed7aa]'
                         )}
                       >
                         {meta?.label || mod.toUpperCase()}
@@ -135,8 +135,8 @@ export const PermissionGrid: React.FC<PermissionGridProps> = ({
                 className="px-6 py-16 text-center text-[#6b6b6b] bg-[#faf8f6]/50"
               >
                 <div className="flex flex-col items-center justify-center gap-3 max-w-md mx-auto">
-                  <div className="w-12 h-12 rounded-2xl bg-[#fbf0e7] border border-[#ece0d6] flex items-center justify-center text-[#c2540c]">
-                    <Users className="w-6 h-6 text-[#c2540c]" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#fbf0e7] border border-[#ece0d6] flex items-center justify-center text-[#f97316]">
+                    <Users className="w-6 h-6 text-[#f97316]" />
                   </div>
                   <h4 className="text-base font-semibold text-[#1a1a1a]">
                     {searchQuery ? 'No matching roles found' : 'No Role Accounts Available'}

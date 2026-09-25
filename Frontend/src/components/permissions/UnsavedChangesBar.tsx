@@ -25,10 +25,10 @@ export const UnsavedChangesBar: React.FC<UnsavedChangesBarProps> = ({
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="fixed bottom-6 inset-x-0 z-50 flex justify-center px-4 pointer-events-none"
         >
-          <div className="pointer-events-auto flex items-center justify-between gap-4 sm:gap-6 px-5 py-3 rounded-2xl bg-white/95 backdrop-blur-md border border-[#de7a3d]/60 shadow-xl shadow-[#7a2f05]/15 ring-1 ring-[#f0512f]/20 max-w-2xl w-full">
+          <div className="pointer-events-auto flex items-center justify-between gap-4 sm:gap-6 px-5 py-3 rounded-2xl bg-white/95 backdrop-blur-md border border-[#fed7aa]/60 shadow-xl shadow-[#ea580c]/15 ring-1 ring-[#f0512f]/20 max-w-2xl w-full">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-9 h-9 rounded-xl bg-[#fbeae0] border border-[#de7a3d]/40 flex items-center justify-center text-[#c2540c] flex-shrink-0 shadow-2xs">
-                <AlertCircle className="w-4 h-4 animate-pulse text-[#c2540c]" />
+              <div className="w-9 h-9 rounded-xl bg-[#fff7ed] border border-[#fed7aa]/40 flex items-center justify-center text-[#f97316] flex-shrink-0 shadow-2xs">
+                <AlertCircle className="w-4 h-4 animate-pulse text-[#f97316]" />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-[#1a1a1a] truncate leading-tight">
@@ -55,7 +55,7 @@ export const UnsavedChangesBar: React.FC<UnsavedChangesBarProps> = ({
                 type="button"
                 onClick={onSave}
                 disabled={isSaving}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-[#d06b28] to-[#f0512f] hover:from-[#c2540c] hover:to-[#d63f1e] active:scale-95 shadow-md shadow-[#d06b28]/30 border border-[#de7a3d] transition-all duration-150 disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-[#ea580c] to-[#f0512f] hover:from-[#f97316] hover:to-[#d63f1e] active:scale-95 shadow-md shadow-[#ea580c]/30 border border-[#fed7aa] transition-all duration-150 disabled:opacity-50 cursor-pointer"
               >
                 {isSaving ? (
                   <>

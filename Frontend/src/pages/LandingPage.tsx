@@ -13,7 +13,7 @@ import { Footer } from '../components/landing/Footer';
 
 export const LandingPage: React.FC = () => {
   return (
-    <div className="public-theme landing-page min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-[#c2540c] selection:text-white">
+    <div className="landing-page min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-[#f0512f] selection:text-white">
       {/* Sticky frosted Navbar */}
       <Navbar />
 

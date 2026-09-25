@@ -153,33 +153,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 
   const sidebarContent = (
-    <div className="post-login-sidebar flex flex-col h-full bg-[#0b0f17] select-none">
+    <div className="post-login-sidebar flex flex-col h-full bg-white select-none">
       {/* ── Header / Logo ── */}
       <div
         className={clsx(
-          'flex items-center border-b border-slate-800/80 py-4 transition-all duration-200',
+          'flex items-center border-b border-[#ece0d6] py-4 transition-all duration-200',
           collapsed ? 'justify-center px-2' : 'justify-between px-4'
         )}
       >
         {collapsed ? (
           <button
             onClick={onToggle}
-            className="group relative flex items-center justify-center p-1 rounded-xl hover:bg-slate-800/60 transition-colors focus-visible:outline-none"
+            className="group relative flex items-center justify-center p-1 rounded-xl hover:bg-[#fbf0e7] transition-colors focus-visible:outline-none"
             aria-label="Expand sidebar"
             title="Expand sidebar"
           >
-            <NebulaLogo compact showWordmark={false} inverted className="group-hover:scale-105 transition-transform" />
+            <NebulaLogo compact showWordmark={false} className="group-hover:scale-105 transition-transform" />
           </button>
         ) : (
           <>
             <div className="flex min-w-0 flex-1 items-center">
-              <NebulaLogo inverted className="max-w-full" />
+              <NebulaLogo className="max-w-full" />
             </div>
 
             {/* Collapse toggle — hidden on mobile */}
             <button
               onClick={onToggle}
-              className="ml-auto hidden md:flex flex-shrink-0 w-6 h-6 rounded-md hover:bg-slate-800/80 text-slate-500 hover:text-slate-300 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f0512f]"
+              className="ml-auto hidden md:flex flex-shrink-0 w-6 h-6 rounded-md hover:bg-[#fff7ed] text-slate-400 hover:text-slate-700 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f97316]"
               aria-label="Collapse sidebar"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -191,15 +191,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* ── Workspace Card ── */}
       {!collapsed && organization && (
         <div className="px-3 pt-3 pb-1">
-          <div className="px-3 py-2.5 rounded-lg bg-slate-900/80 border border-slate-800/80 flex items-center gap-2.5">
-            <div className="sidebar-workspace-mark w-6 h-6 rounded bg-[#f0512f]/15 border border-[#f0512f]/30 flex items-center justify-center text-[10px] font-bold text-[#ff8c70] flex-shrink-0">
-              {organization.name.charAt(0).toUpperCase()}
+          <div className="px-3 py-2.5 rounded-lg bg-[#fff7ed] border border-[#fed7aa] flex items-center gap-2.5 shadow-2xs">
+            <div className="sidebar-workspace-mark w-7 h-7 rounded-lg bg-white border border-[#fed7aa] flex items-center justify-center text-xs font-bold text-[#f97316] flex-shrink-0 overflow-hidden shadow-xs">
+              {organization.logoUrl ? (
+                <img
+                  src={organization.logoUrl}
+                  alt={organization.name}
+                  className="w-full h-full object-contain p-0.5"
+                />
+              ) : (
+                organization.name.charAt(0).toUpperCase()
+              )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[9px] font-mono font-medium text-slate-500 uppercase tracking-wider leading-none mb-0.5">
-                Workspace
+              <p className="text-[9px] font-mono font-medium text-slate-500 uppercase tracking-wider leading-none mb-0.5 truncate">
+                {organization.industry ? `${organization.industry}` : 'Workspace'}
               </p>
-              <p className="text-xs font-semibold text-slate-200 truncate leading-tight">
+              <p className="text-xs font-semibold text-slate-800 truncate leading-tight">
                 {organization.name}
               </p>
             </div>
@@ -210,7 +218,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* ── Primary nav ── */}
       <nav aria-label="Primary navigation" className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 space-y-1">
         {!collapsed && (
-          <p className="px-3 pt-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest">
+          <p className="px-3 pt-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-400 uppercase tracking-widest">
             Modules
           </p>
         )}
@@ -270,30 +278,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           );
         })}
+        {/* ── Organization nav (directly after modules) ── */}
+        {navConfig.secondary.length > 0 && (
+          <div className="pt-3 mt-3 border-t border-slate-100 space-y-1">
+            {!collapsed && (
+              <p className="px-3 pt-1 pb-1.5 text-[10px] font-mono font-semibold text-slate-400 uppercase tracking-widest">
+                Organization
+              </p>
+            )}
+            {navConfig.secondary.map((item) => (
+              <SidebarNavItem
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+                collapsed={collapsed}
+              />
+            ))}
+          </div>
+        )}
       </nav>
 
-      {/* ── Secondary nav (settings/org) ── */}
-      {navConfig.secondary.length > 0 && (
-        <div className="px-3 py-2 border-t border-slate-800/80 space-y-1">
-          {!collapsed && (
-            <p className="px-3 pt-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest">
-              Organization
-            </p>
-          )}
-          {navConfig.secondary.map((item) => (
-            <SidebarNavItem
-              key={item.to}
-              to={item.to}
-              icon={item.icon}
-              label={item.label}
-              collapsed={collapsed}
-            />
-          ))}
-        </div>
-      )}
-
       {/* ── User menu ── */}
-      <div className="px-3 pb-3 pt-2 border-t border-slate-800/80">
+      <div className="px-3 pb-3 pt-2 border-t border-slate-100">
         <UserMenu collapsed={collapsed} />
       </div>
     </div>
@@ -323,7 +330,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            className="post-login-sidebar fixed inset-y-0 left-0 z-50 w-72 bg-slate-950 border-r border-slate-800/60 md:hidden"
+            className="post-login-sidebar fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-[#ece0d6] md:hidden"
             aria-label="Mobile navigation"
           >
             {sidebarContent}
@@ -335,7 +342,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <motion.aside
         animate={{ width: collapsed ? 72 : 256 }}
         transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-        className="post-login-sidebar hidden md:flex flex-col flex-shrink-0 bg-slate-950 border-r border-slate-800/60 overflow-hidden"
+        className="post-login-sidebar hidden md:flex flex-col flex-shrink-0 bg-white border-r border-[#ece0d6] overflow-hidden"
         aria-label="Primary navigation"
       >
         {sidebarContent}

@@ -15,8 +15,8 @@ import { useLogActivity, useUpdateActivity } from '../../hooks/useCrm';
 import type { Activity, ActivityType } from '../../types/crm';
 
 const TYPE_CONFIG: Record<ActivityType, { icon: React.ReactNode; label: string; styles: string }> = {
-  note: { icon: <StickyNote className="w-3.5 h-3.5" />, label: 'Note', styles: 'text-[#6B6B6B] bg-[#FBEAE0] border-[#ECE0D6]' },
-  call: { icon: <Phone className="w-3.5 h-3.5" />, label: 'Call', styles: 'text-[#C2540C] bg-[#FBEAE0] border-[#F0D3BC]' },
+  note: { icon: <StickyNote className="w-3.5 h-3.5" />, label: 'Note', styles: 'text-[#6B6B6B] bg-[#fff7ed] border-[#ECE0D6]' },
+  call: { icon: <Phone className="w-3.5 h-3.5" />, label: 'Call', styles: 'text-[#f97316] bg-[#fff7ed] border-[#fed7aa]' },
   email: { icon: <Mail className="w-3.5 h-3.5" />, label: 'Email', styles: 'text-[#3B82F6] bg-[#3B82F6]/10 border-[#3B82F6]/25' },
   meeting: { icon: <CalendarClock className="w-3.5 h-3.5" />, label: 'Meeting', styles: 'text-[#B45309] bg-[#B45309]/10 border-[#B45309]/25' },
   task: { icon: <CheckSquare className="w-3.5 h-3.5" />, label: 'Task', styles: 'text-[#16A34A] bg-[#16A34A]/10 border-[#16A34A]/25' },
@@ -86,7 +86,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
                 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors',
                 type === t
                   ? TYPE_CONFIG[t].styles
-                  : 'text-[#6B6B6B] bg-white border-[#ECE0D6] hover:border-[#DE7A3D]'
+                  : 'text-[#6B6B6B] bg-white border-[#ECE0D6] hover:border-[#fed7aa]'
               )}
             >
               {TYPE_CONFIG[t].icon}
@@ -106,7 +106,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
                 : 'Log details...'
           }
           rows={2}
-          className="w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#C2540C]/25 focus:border-[#C2540C] transition-all resize-none"
+          className="w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all resize-none"
         />
 
         {type === 'task' && (
@@ -114,14 +114,14 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
             type="date"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
-            className="w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C2540C]/25 focus:border-[#C2540C] transition-all"
+            className="w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all"
           />
         )}
 
         <button
           type="submit"
           disabled={!content.trim() || logMutation.isPending}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {logMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <StickyNote className="w-3.5 h-3.5" />}
           Log {TYPE_CONFIG[type].label}
@@ -137,7 +137,7 @@ export const ActivityTimeline: React.FC<ActivityTimelineProps> = ({
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-10 rounded-lg bg-[#FBEAE0] animate-pulse" />
+              <div key={i} className="h-10 rounded-lg bg-[#fff7ed] animate-pulse" />
             ))}
           </div>
         ) : !activities || activities.length === 0 ? (

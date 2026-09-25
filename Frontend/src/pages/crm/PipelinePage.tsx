@@ -29,9 +29,9 @@ export const PipelinePage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-[#ECE0D6]">
-          <Kanban className="w-4 h-4 text-[#C2540C]" />
+          <Kanban className="w-4 h-4 text-[#f97316]" />
           <span className="text-xs text-[#6B6B6B]">Open pipeline value</span>
-          <span className="text-sm font-bold text-[#C2540C] font-mono">${totalValue.toLocaleString()}</span>
+          <span className="text-sm font-bold text-[#f97316] font-mono">${totalValue.toLocaleString()}</span>
         </div>
       </motion.div>
 

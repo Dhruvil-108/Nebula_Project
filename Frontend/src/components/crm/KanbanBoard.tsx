@@ -28,7 +28,7 @@ const DealCard: React.FC<DealCardProps> = ({ deal, dragging = false }) => (
   <div
     className={clsx(
       'rounded-xl border bg-white p-3 space-y-2 transition-shadow',
-      dragging ? 'shadow-2xl border-[#C2540C] rotate-1' : 'border-[#ECE0D6] hover:border-[#DE7A3D] shadow-sm'
+      dragging ? 'shadow-2xl border-[#f97316] rotate-1' : 'border-[#ECE0D6] hover:border-[#fed7aa] shadow-sm'
     )}
   >
     <div className="flex items-start gap-1.5">
@@ -39,10 +39,10 @@ const DealCard: React.FC<DealCardProps> = ({ deal, dragging = false }) => (
       <p className="text-[10px] text-[#6B6B6B] pl-5 truncate">{deal.companyId.name}</p>
     )}
     <div className="flex items-center justify-between pl-5">
-      <span className="text-sm font-bold text-[#C2540C] font-mono">
+      <span className="text-sm font-bold text-[#f97316] font-mono">
         ${deal.amount.toLocaleString()}
       </span>
-      <span className="text-[10px] font-medium text-[#6B6B6B] bg-[#FBEAE0] px-1.5 py-0.5 rounded">
+      <span className="text-[10px] font-medium text-[#6B6B6B] bg-[#fff7ed] px-1.5 py-0.5 rounded">
         {deal.probability}%
       </span>
     </div>
@@ -95,7 +95,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ stage, deals, canEdit }) =>
         ref={setNodeRef}
         className={clsx(
           'flex-1 space-y-2 p-2.5 min-h-[120px] rounded-b-2xl transition-colors',
-          canEdit && isOver && 'bg-[#FBEAE0] ring-2 ring-[#C2540C]/30 ring-inset'
+          canEdit && isOver && 'bg-[#fff7ed] ring-2 ring-[#f97316]/30 ring-inset'
         )}
       >
         {deals.map((deal) =>
@@ -166,9 +166,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({ pipeline, isLoading, o
       <div className="flex gap-4 overflow-hidden">
         {stages.map((stage) => (
           <div key={stage} className="w-64 flex-shrink-0 rounded-2xl border border-[#ECE0D6] p-3 space-y-2.5 animate-pulse">
-            <div className="h-6 w-20 rounded-full bg-[#FBEAE0]" />
-            <div className="h-4 w-24 rounded bg-[#FBEAE0]" />
-            <div className="h-20 rounded-xl bg-[#FBEAE0]" />
+            <div className="h-6 w-20 rounded-full bg-[#fff7ed]" />
+            <div className="h-4 w-24 rounded bg-[#fff7ed]" />
+            <div className="h-20 rounded-xl bg-[#fff7ed]" />
           </div>
         ))}
       </div>

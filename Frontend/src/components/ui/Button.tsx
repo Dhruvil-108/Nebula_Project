@@ -30,12 +30,12 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantStyles = {
-    primary: 'bg-[#f0512f] hover:bg-[#d63f1e] text-white shadow-md shadow-[#f0512f]/25 border border-[#f0512f]/60 hover:shadow-[#f0512f]/35 focus:ring-[#f0512f] active:scale-[0.98]',
-    brand: 'bg-[#f0512f] hover:bg-[#d63f1e] text-white shadow-md shadow-[#f0512f]/25 border border-[#f0512f]/60 hover:shadow-[#f0512f]/35 focus:ring-[#f0512f] active:scale-[0.98]',
-    secondary: 'bg-[#fbf0e7] hover:bg-[#f6e8dc] text-[#7a2f05] border border-[#de7a3d] hover:border-[#c2540c] shadow-sm focus:ring-[#c2540c] active:scale-[0.98]',
-    outline: 'bg-transparent hover:bg-[#fbf0e7] text-[#7a2f05] border border-[#de7a3d] hover:border-[#c2540c] focus:ring-[#c2540c]',
-    ghost: 'bg-transparent hover:bg-[#fbf0e7] text-[#6b6b6b] hover:text-[#1a1a1a] focus:ring-[#c2540c]',
-    danger: 'bg-[#c2540c] hover:bg-[#a6470a] text-white border border-[#c2540c] shadow-[#c2540c]/20 focus:ring-[#c2540c]',
+    primary: 'bg-[#f0512f] hover:bg-[#d63f1e] text-white shadow-md shadow-[#f0512f]/20 border border-[#f0512f] focus:ring-[#f0512f] active:scale-[0.98]',
+    brand: 'bg-[#f0512f] hover:bg-[#d63f1e] text-white shadow-md shadow-[#f0512f]/20 border border-[#f0512f] focus:ring-[#f0512f] active:scale-[0.98]',
+    secondary: 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 hover:border-slate-300 shadow-sm focus:ring-[#f0512f] active:scale-[0.98]',
+    outline: 'bg-transparent hover:bg-orange-50/60 text-slate-700 hover:text-[#f0512f] border border-slate-200 hover:border-[#f0512f]/40 focus:ring-[#f0512f]',
+    ghost: 'bg-transparent hover:bg-slate-100 text-slate-700 hover:text-slate-900 focus:ring-[#f0512f]',
+    danger: 'bg-rose-600 hover:bg-rose-700 text-white border border-rose-600 shadow-rose-600/20 focus:ring-rose-500',
   };
 
   return (

@@ -5,10 +5,12 @@ const router = express.Router();
 const { signup, login, refresh, logout } = require('../controllers/authController');
 const { requireAuth } = require('../middleware/auth');
 
-// Tight rate limiting for auth routes — 10 requests per 15 minutes per IP
+const isDev = process.env.NODE_ENV !== 'production';
+
+// Rate limiting for auth routes — relaxed in development
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: isDev ? 1000 : 20,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests. Please try again after 15 minutes.' },
@@ -16,7 +18,7 @@ const authLimiter = rateLimit({
 
 const strictAuthLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: isDev ? 1000 : 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many authentication attempts. Please try again after 15 minutes.' },

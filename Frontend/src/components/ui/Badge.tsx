@@ -23,24 +23,24 @@ export const Badge: React.FC<BadgeProps> = ({
   };
 
   const variantStyles = {
-    default: 'bg-slate-800 text-slate-300 border border-slate-700/60',
-    indigo: 'bg-[#fbeae0] text-[#7a2f05] border border-[#de7a3d]',
-    brand: 'bg-[#fbeae0] text-[#7a2f05] border border-[#de7a3d]',
-    emerald: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30',
-    cyan: 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30',
-    amber: 'bg-amber-500/10 text-amber-300 border border-amber-500/30',
-    rose: 'bg-rose-500/10 text-rose-300 border border-rose-500/30',
-    outline: 'bg-white/[0.03] text-slate-300 border border-white/10 backdrop-blur-sm',
+    default: 'bg-slate-100 text-slate-700 border border-slate-200',
+    indigo: 'bg-orange-50 text-[#ea580c] border border-orange-200',
+    brand: 'bg-orange-50 text-[#ea580c] border border-orange-200',
+    emerald: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    cyan: 'bg-cyan-50 text-cyan-700 border border-cyan-200',
+    amber: 'bg-amber-50 text-amber-700 border border-amber-200',
+    rose: 'bg-rose-50 text-rose-700 border border-rose-200',
+    outline: 'bg-white text-slate-700 border border-slate-200 shadow-sm',
   };
 
   const dotColors = {
     default: 'bg-slate-400',
     indigo: 'bg-[#f0512f] animate-pulse',
     brand: 'bg-[#f0512f] animate-pulse',
-    emerald: 'bg-emerald-400 animate-pulse',
-    cyan: 'bg-cyan-400 animate-pulse',
-    amber: 'bg-amber-400 animate-pulse',
-    rose: 'bg-rose-400 animate-pulse',
+    emerald: 'bg-emerald-500 animate-pulse',
+    cyan: 'bg-cyan-500 animate-pulse',
+    amber: 'bg-amber-500 animate-pulse',
+    rose: 'bg-rose-500 animate-pulse',
     outline: 'bg-[#f0512f]',
   };
 

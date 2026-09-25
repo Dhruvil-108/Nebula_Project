@@ -61,14 +61,14 @@ const MyLeave: React.FC = () => {
   };
 
   const inputCls =
-    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#C2540C]/25 focus:border-[#C2540C] transition-all';
+    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all';
 
   return (
     <div className="space-y-6">
       {/* ── Balance cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {balancesLoading
-          ? [...Array(4)].map((_, i) => <div key={i} className="h-32 rounded-2xl bg-[#FBEAE0] animate-pulse" />)
+          ? [...Array(4)].map((_, i) => <div key={i} className="h-32 rounded-2xl bg-[#fff7ed] animate-pulse" />)
           : (balances || []).map((b) => {
               const pct = b.allocated > 0 ? Math.min(100, Math.round((b.used / b.allocated) * 100)) : 0;
               return (
@@ -80,7 +80,7 @@ const MyLeave: React.FC = () => {
                   </p>
                   <div className="h-2 rounded-full bg-[#FBF0E7] overflow-hidden mb-1.5">
                     <div
-                      className="h-full rounded-full bg-[#C2540C] transition-all"
+                      className="h-full rounded-full bg-[#f97316] transition-all"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -94,13 +94,13 @@ const MyLeave: React.FC = () => {
       <div className="rounded-2xl border border-[#ECE0D6] bg-white shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#ECE0D6]">
           <div className="flex items-center gap-2">
-            <CalendarOff className="w-4 h-4 text-[#C2540C]" />
+            <CalendarOff className="w-4 h-4 text-[#f97316]" />
             <h4 className="text-sm font-semibold text-[#1A1A1A]">My Leave Requests</h4>
           </div>
           <button
             type="button"
             onClick={() => setShowRequest(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white shadow-md shadow-[#C2540C]/20 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white shadow-md shadow-[#f97316]/20 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Request Leave
@@ -122,7 +122,7 @@ const MyLeave: React.FC = () => {
                 [...Array(3)].map((_, i) => (
                   <tr key={i}>
                     <td colSpan={5} className="px-5 py-4">
-                      <div className="h-5 rounded bg-[#FBEAE0] animate-pulse" />
+                      <div className="h-5 rounded bg-[#fff7ed] animate-pulse" />
                     </td>
                   </tr>
                 ))
@@ -178,7 +178,7 @@ const MyLeave: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowRequest(false)}
-                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#FBEAE0] transition-colors"
+                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -243,14 +243,14 @@ const MyLeave: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowRequest(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#FBEAE0] transition-colors"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending || !form.leaveTypeId || !form.startDate || !form.endDate}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
                 >
                   {createMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Submit Request
@@ -283,7 +283,7 @@ const Approvals: React.FC = () => {
     (req.employeeId as { fullName?: string })?.fullName || 'Unknown';
 
   const inputCls =
-    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#C2540C]/25 focus:border-[#C2540C] transition-all';
+    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all';
 
   return (
     <div className="space-y-4">
@@ -312,7 +312,7 @@ const Approvals: React.FC = () => {
           <button
             type="button"
             onClick={() => refetch()}
-            className="p-2 rounded-xl text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#FBEAE0] border border-[#ECE0D6] transition-colors"
+            className="p-2 rounded-xl text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#fff7ed] border border-[#ECE0D6] transition-colors"
             title="Refresh"
           >
             <RefreshCw className="w-4 h-4" />
@@ -340,7 +340,7 @@ const Approvals: React.FC = () => {
                 [...Array(4)].map((_, i) => (
                   <tr key={i}>
                     <td colSpan={7} className="px-5 py-4">
-                      <div className="h-5 rounded bg-[#FBEAE0] animate-pulse" />
+                      <div className="h-5 rounded bg-[#fff7ed] animate-pulse" />
                     </td>
                   </tr>
                 ))
@@ -351,7 +351,7 @@ const Approvals: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => refetch()}
-                      className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-[#C2540C] border border-[#ECE0D6] hover:bg-[#FBEAE0]"
+                      className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-[#f97316] border border-[#ECE0D6] hover:bg-[#fff7ed]"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                       Retry
@@ -465,7 +465,7 @@ export const LeavePage: React.FC = () => {
               type="button"
               onClick={() => setTab('mine')}
               className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                tab === 'mine' ? 'bg-[#C2540C] text-white shadow-sm' : 'text-[#6B6B6B] hover:text-[#1A1A1A]'
+                tab === 'mine' ? 'bg-[#f97316] text-white shadow-sm' : 'text-[#6B6B6B] hover:text-[#1A1A1A]'
               }`}
             >
               <CalendarOff className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
@@ -475,7 +475,7 @@ export const LeavePage: React.FC = () => {
               type="button"
               onClick={() => setTab('approvals')}
               className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                tab === 'approvals' ? 'bg-[#C2540C] text-white shadow-sm' : 'text-[#6B6B6B] hover:text-[#1A1A1A]'
+                tab === 'approvals' ? 'bg-[#f97316] text-white shadow-sm' : 'text-[#6B6B6B] hover:text-[#1A1A1A]'
               }`}
             >
               <Check className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />

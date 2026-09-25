@@ -87,7 +87,7 @@ export const HolidaysPage: React.FC = () => {
   };
 
   const inputCls =
-    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#C2540C]/25 focus:border-[#C2540C] transition-all';
+    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all';
 
   const years = [year - 1, year, year + 1];
 
@@ -110,7 +110,7 @@ export const HolidaysPage: React.FC = () => {
           <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C2540C]/25 focus:border-[#C2540C] transition-all"
+            className="rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all"
           >
             {years.map((y) => (
               <option key={y} value={y}>
@@ -121,7 +121,7 @@ export const HolidaysPage: React.FC = () => {
           <button
             type="button"
             onClick={() => refetch()}
-            className="p-2 rounded-xl text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#FBEAE0] border border-[#ECE0D6] transition-colors"
+            className="p-2 rounded-xl text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#fff7ed] border border-[#ECE0D6] transition-colors"
             title="Refresh holidays"
           >
             <RefreshCw className="w-4 h-4" />
@@ -134,7 +134,7 @@ export const HolidaysPage: React.FC = () => {
                 setForm({ name: '', date: '', isOptional: false });
                 setShowForm(true);
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white shadow-md shadow-[#C2540C]/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white shadow-md shadow-[#f97316]/20 transition-colors"
             >
               <CalendarDays className="w-4 h-4" />
               Add Holiday
@@ -161,7 +161,7 @@ export const HolidaysPage: React.FC = () => {
                 [...Array(4)].map((_, i) => (
                   <tr key={i}>
                     <td colSpan={5} className="px-5 py-4">
-                      <div className="h-5 rounded bg-[#FBEAE0] animate-pulse" />
+                      <div className="h-5 rounded bg-[#fff7ed] animate-pulse" />
                     </td>
                   </tr>
                 ))
@@ -172,7 +172,7 @@ export const HolidaysPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => refetch()}
-                      className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-[#C2540C] border border-[#ECE0D6] hover:bg-[#FBEAE0]"
+                      className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-[#f97316] border border-[#ECE0D6] hover:bg-[#fff7ed]"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                       Retry
@@ -197,7 +197,7 @@ export const HolidaysPage: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: Math.min(idx * 0.02, 0.3), duration: 0.25 }}
                     className={`transition-colors ${
-                      isUpcoming(h) ? 'bg-[#FBEAE0]/60 hover:bg-[#FBEAE0]' : 'hover:bg-[#FBF8F4]'
+                      isUpcoming(h) ? 'bg-[#fff7ed]/60 hover:bg-[#fff7ed]' : 'hover:bg-[#FBF8F4]'
                     }`}
                   >
                     <td className="px-5 py-3.5 text-xs font-mono text-[#6B6B6B]">
@@ -211,7 +211,7 @@ export const HolidaysPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-[#1A1A1A]">{h.name}</span>
                         {isUpcoming(h) && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#C2540C] text-white">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#f97316] text-white">
                             <Sparkles className="w-2.5 h-2.5" />
                             Upcoming
                           </span>
@@ -238,7 +238,7 @@ export const HolidaysPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => openEdit(h)}
-                              className="p-1.5 rounded-lg text-[#6B6B6B] hover:text-[#C2540C] hover:bg-[#FBEAE0] transition-colors"
+                              className="p-1.5 rounded-lg text-[#6B6B6B] hover:text-[#f97316] hover:bg-[#fff7ed] transition-colors"
                               title="Edit holiday"
                             >
                               <Pencil className="w-4 h-4" />
@@ -282,7 +282,7 @@ export const HolidaysPage: React.FC = () => {
               <button
                 type="button"
                 onClick={closeModal}
-                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#FBEAE0] transition-colors"
+                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -317,7 +317,7 @@ export const HolidaysPage: React.FC = () => {
                   type="checkbox"
                   checked={form.isOptional}
                   onChange={(e) => setForm({ ...form, isOptional: e.target.checked })}
-                  className="w-4 h-4 rounded border-[#ECE0D6] accent-[#C2540C]"
+                  className="w-4 h-4 rounded border-[#ECE0D6] accent-[#f97316]"
                 />
                 Optional holiday (counts as a working day)
               </label>
@@ -325,14 +325,14 @@ export const HolidaysPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#FBEAE0] transition-colors"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending || updateMutation.isPending || !form.name.trim() || !form.date}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
                 >
                   {(createMutation.isPending || updateMutation.isPending) && (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />

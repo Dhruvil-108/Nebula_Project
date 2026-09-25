@@ -85,13 +85,18 @@ const getCatalog = async (req, res) => {
       status: { $ne: 'disabled' },
     });
 
-    // Only return valid configurable roles that have available accounts in the organization
-    const availableRoles = VALID_ROLES.filter((role) => userRoles.includes(role));
+    // Roles that currently have active user accounts in the organization
+    const activeRoles = VALID_ROLES.filter((role) => userRoles.includes(role));
+
+    // Return all configurable roles so Super Admin can pre-configure any role anytime
+    const includeAll = req.query.all !== 'false';
+    const roles = includeAll ? VALID_ROLES : (activeRoles.length > 0 ? activeRoles : VALID_ROLES);
 
     return res.json({
       modules: VALID_MODULES,
       actions: VALID_ACTIONS,
-      roles: availableRoles,
+      roles,
+      activeRoles,
     });
   } catch (err) {
     console.error('[getCatalog Error]', err);
@@ -107,16 +112,18 @@ const getPermissions = async (req, res) => {
   try {
     const orgId = req.organizationId;
 
-    // Only include roles that have accounts in the organization (excluding disabled accounts)
     const userRoles = await User.distinct('role', {
       organizationId: orgId,
       status: { $ne: 'disabled' },
     });
-    const availableRoles = VALID_ROLES.filter((role) => userRoles.includes(role));
+    const activeRoles = VALID_ROLES.filter((role) => userRoles.includes(role));
+
+    const includeAll = req.query.all !== 'false';
+    const targetRoles = includeAll ? VALID_ROLES : (activeRoles.length > 0 ? activeRoles : VALID_ROLES);
 
     const existing = await Permission.find({
       organizationId: orgId,
-      role: { $in: availableRoles },
+      role: { $in: targetRoles },
     }).lean();
 
     const existingMap = new Map();
@@ -126,7 +133,7 @@ const getPermissions = async (req, res) => {
 
     const matrix = [];
 
-    for (const role of availableRoles) {
+    for (const role of targetRoles) {
       for (const module of VALID_MODULES) {
         const key = `${role}:${module}`;
         if (existingMap.has(key)) {
@@ -149,7 +156,7 @@ const getPermissions = async (req, res) => {
       }
     }
 
-    return res.json({ matrix });
+    return res.json({ matrix, activeRoles });
   } catch (err) {
     console.error('[getPermissions Error]', err);
     return res.status(500).json({ error: 'Failed to retrieve permissions matrix.' });

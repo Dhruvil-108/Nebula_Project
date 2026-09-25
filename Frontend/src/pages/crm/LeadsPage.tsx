@@ -128,7 +128,7 @@ export const LeadsPage: React.FC = () => {
   };
 
   const inputCls =
-    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#C2540C]/25 focus:border-[#C2540C] transition-all';
+    'w-full rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all';
 
   return (
     <div className="crm-submodule-page p-6 md:p-8 space-y-6 max-w-[1600px] mx-auto">
@@ -153,7 +153,7 @@ export const LeadsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => refetch()}
-            className="p-2 rounded-xl text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#FBEAE0] border border-[#ECE0D6] transition-colors"
+            className="p-2 rounded-xl text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#fff7ed] border border-[#ECE0D6] transition-colors"
             title="Refresh leads"
           >
             <RefreshCw className="w-4 h-4" />
@@ -162,7 +162,7 @@ export const LeadsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowCreate(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white shadow-md shadow-[#C2540C]/20 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white shadow-md shadow-[#f97316]/20 transition-colors"
             >
               <UserPlus className="w-4 h-4" />
               Add Lead
@@ -221,7 +221,7 @@ export const LeadsPage: React.FC = () => {
                 [...Array(5)].map((_, i) => (
                   <tr key={i}>
                     <td colSpan={7} className="px-5 py-4">
-                      <div className="h-5 rounded bg-[#FBEAE0] animate-pulse" />
+                      <div className="h-5 rounded bg-[#fff7ed] animate-pulse" />
                     </td>
                   </tr>
                 ))
@@ -233,7 +233,7 @@ export const LeadsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => refetch()}
-                      className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-[#C2540C] border border-[#ECE0D6] hover:bg-[#FBEAE0]"
+                      className="mt-4 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-[#f97316] border border-[#ECE0D6] hover:bg-[#fff7ed]"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                       Retry
@@ -282,7 +282,7 @@ export const LeadsPage: React.FC = () => {
                             type="button"
                             onClick={() => handleConvert(lead)}
                             disabled={convertMutation.isPending}
-                            className="p-1.5 rounded-lg text-[#C2540C] hover:bg-[#FBEAE0] transition-colors disabled:opacity-50"
+                            className="p-1.5 rounded-lg text-[#f97316] hover:bg-[#fff7ed] transition-colors disabled:opacity-50"
                             title="Convert to Deal"
                           >
                             <ArrowRightLeft className="w-4 h-4" />
@@ -323,7 +323,7 @@ export const LeadsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowCreate(false)}
-                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#FBEAE0] transition-colors"
+                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -423,14 +423,14 @@ export const LeadsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowCreate(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#FBEAE0] transition-colors"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending || !form.leadName.trim()}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
                 >
                   {createMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Create Lead
@@ -450,8 +450,8 @@ export const LeadsPage: React.FC = () => {
       >
         {detailLoading || !leadDetail ? (
           <div className="space-y-3 animate-pulse">
-            <div className="h-20 rounded-xl bg-[#FBEAE0]" />
-            <div className="h-32 rounded-xl bg-[#FBEAE0]" />
+            <div className="h-20 rounded-xl bg-[#fff7ed]" />
+            <div className="h-32 rounded-xl bg-[#fff7ed]" />
           </div>
         ) : (
           <div className="space-y-6">
@@ -469,8 +469,8 @@ export const LeadsPage: React.FC = () => {
             </div>
 
             {leadDetail.notes && (
-              <div className="rounded-xl bg-[#FBEAE0] border border-[#F0D3BC] p-3">
-                <p className="text-xs font-semibold text-[#7A2F05] mb-1">Notes</p>
+              <div className="rounded-xl bg-[#fff7ed] border border-[#fed7aa] p-3">
+                <p className="text-xs font-semibold text-[#ea580c] mb-1">Notes</p>
                 <p className="text-xs text-[#1A1A1A] whitespace-pre-wrap">{leadDetail.notes}</p>
               </div>
             )}
@@ -481,7 +481,7 @@ export const LeadsPage: React.FC = () => {
                 type="button"
                 onClick={() => handleConvert(leadDetail)}
                 disabled={convertMutation.isPending}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-[#C2540C] hover:bg-[#D06B28] text-white transition-colors disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
               >
                 {convertMutation.isPending ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

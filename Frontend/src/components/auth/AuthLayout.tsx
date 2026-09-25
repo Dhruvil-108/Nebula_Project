@@ -42,11 +42,11 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
   }
 }) => {
   return (
-    <div className="public-theme min-h-screen w-full bg-slate-950 flex flex-col justify-between relative overflow-hidden">
+    <div className="min-h-screen w-full bg-white text-slate-900 flex flex-col justify-between relative overflow-hidden selection:bg-[#f0512f] selection:text-white">
 
       {/* Background ambient lighting */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-radial-gradient opacity-80 pointer-events-none" />
-      <div className="absolute inset-0 bg-dot-pattern opacity-30 pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-orange-50/50 via-white to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-dot-pattern opacity-10 pointer-events-none" />
 
       {/* Main Split Container */}
       <div className="flex-1 flex flex-col lg:flex-row relative z-10">
@@ -85,10 +85,10 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
               transition={{ delay: 0.25, duration: 0.45 }}
               className="mb-6 text-left"
             >
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight mb-2">
                 {title}
               </h1>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-600">
                 {subtitle}
               </p>
             </motion.div>
@@ -105,14 +105,14 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           </div>
 
           {/* Micro Footer */}
-          <div className="pt-8 text-xs text-slate-400 flex items-center justify-between border-t border-slate-800/80 mt-10 max-w-md">
+          <div className="pt-8 text-xs text-slate-500 flex items-center justify-between border-t border-slate-200 mt-10 max-w-md">
             <span>© {new Date().getFullYear()} Nebula Hub</span>
             <div className="flex items-center gap-3">
-              <Link to="/" className="hover:text-slate-300 transition-colors">Home</Link>
+              <Link to="/" className="hover:text-slate-800 transition-colors">Home</Link>
               <span>·</span>
-              <a href="#" className="hover:text-slate-300 transition-colors">Privacy</a>
+              <a href="#" className="hover:text-slate-800 transition-colors">Privacy</a>
               <span>·</span>
-              <a href="#" className="hover:text-slate-300 transition-colors">Security Architecture</a>
+              <a href="#" className="hover:text-slate-800 transition-colors">Security Architecture</a>
             </div>
           </div>
 
@@ -123,18 +123,17 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           initial={{ opacity: 0, x: 18 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-950 border-l border-slate-800/80 p-12 lg:p-14 flex-col justify-between relative overflow-hidden"
+          className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-50/70 via-slate-50 to-orange-100/40 border-l border-slate-200 p-12 lg:p-14 flex-col justify-between relative overflow-hidden"
         >
 
           <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#f0512f]/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-10 right-10 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none" />
 
           {/* Top Status Badge */}
           <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-mono text-slate-300">Multi-Tenant Tenant Isolation Active</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-mono text-slate-700 font-medium">Multi-Tenant Tenant Isolation Active</span>
             </div>
             <Badge variant="brand" size="sm">
               {currentStep ? `Step ${currentStep}: Provisioning` : 'Enterprise Hub'}
@@ -143,85 +142,85 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 
           {/* Centerpiece Visual: Module Connectivity Architecture */}
           <div className="my-auto py-6 relative z-10">
-            <div className="p-6 rounded-2xl bg-slate-950/70 border border-slate-800/90 backdrop-blur-xl shadow-2xl space-y-4">
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xl shadow-slate-900/5 space-y-4">
 
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-[#f0512f]/20 text-[#ff7a59]">
+                  <div className="p-2 rounded-lg bg-orange-100 text-[#ea580c]">
                     <Building2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-white">Your Organization Workspace</div>
-                    <div className="text-[10px] text-slate-400">Automatic tenant partitioning & encryption</div>
+                    <div className="text-xs font-bold text-slate-900">Your Organization Workspace</div>
+                    <div className="text-[10px] text-slate-500">Automatic tenant partitioning & encryption</div>
                   </div>
                 </div>
                 <Badge variant="emerald" size="sm" dot>Provisioned</Badge>
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-[11px]">
-                <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-300">
-                    <TrendingUp className="w-3.5 h-3.5 text-[#ff7a59]" />
+                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                    <TrendingUp className="w-3.5 h-3.5 text-[#f0512f]" />
                     CRM Pipeline
                   </span>
-                  <span className="text-emerald-400 font-mono text-[10px]">Active</span>
+                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
                 </div>
 
-                <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-300">
-                    <Users className="w-3.5 h-3.5 text-amber-400" />
+                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                    <Users className="w-3.5 h-3.5 text-amber-600" />
                     HRMS & People
                   </span>
-                  <span className="text-emerald-400 font-mono text-[10px]">Active</span>
+                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
                 </div>
 
-                <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-300">
+                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
                     <Zap className="w-3.5 h-3.5 text-[#f0512f]" />
                     Recruitment ATS
                   </span>
-                  <span className="text-emerald-400 font-mono text-[10px]">Active</span>
+                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
                 </div>
 
-                <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-300">
-                    <Receipt className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                    <Receipt className="w-3.5 h-3.5 text-emerald-600" />
                     Expense Flow
                   </span>
-                  <span className="text-emerald-400 font-mono text-[10px]">Active</span>
+                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
                 </div>
 
-                <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-300">
-                    <Package className="w-3.5 h-3.5 text-amber-400" />
+                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                    <Package className="w-3.5 h-3.5 text-amber-600" />
                     Inventory & POs
                   </span>
-                  <span className="text-emerald-400 font-mono text-[10px]">Active</span>
+                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
                 </div>
 
-                <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-300">
-                    <Sparkles className="w-3.5 h-3.5 text-[#ff8c70]" />
+                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                    <Sparkles className="w-3.5 h-3.5 text-[#ea580c]" />
                     Unified AI Engine
                   </span>
-                  <span className="text-emerald-400 font-mono text-[10px]">Active</span>
+                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
                 </div>
               </div>
 
             </div>
           </div>
 
-          <div className="relative z-10 pt-6 border-t border-slate-800/80">
-            <p className="text-sm text-slate-300 italic mb-3 leading-relaxed">
+          <div className="relative z-10 pt-6 border-t border-slate-200">
+            <p className="text-sm text-slate-700 italic mb-3 leading-relaxed">
               "{quote.text}"
             </p>
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs font-semibold text-white">{quote.author}</div>
-                <div className="text-[11px] text-slate-400">{quote.role} · {quote.org}</div>
+                <div className="text-xs font-bold text-slate-900">{quote.author}</div>
+                <div className="text-[11px] text-slate-500">{quote.role} · {quote.org}</div>
               </div>
-              <div className="flex items-center gap-1 text-slate-400 text-xs font-mono">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <div className="flex items-center gap-1 text-slate-600 text-xs font-mono font-medium">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
                 <span>SOC2 Compliant</span>
               </div>
             </div>

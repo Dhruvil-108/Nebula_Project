@@ -28,6 +28,7 @@ export interface PermissionCatalog {
   modules: PermissionModule[];
   actions: PermissionAction[];
   roles: PermissionRole[];
+  activeRoles?: PermissionRole[];
 }
 
 export interface PermissionRow {
@@ -39,6 +40,7 @@ export interface PermissionRow {
 
 export interface PermissionMatrixResponse {
   matrix: PermissionRow[];
+  activeRoles?: PermissionRole[];
 }
 
 export interface PermissionUpdate {
@@ -53,51 +55,51 @@ export const MODULE_METADATA: Record<
   crm: {
     label: 'CRM',
     description: 'Leads, pipeline, deals & customer relationships',
-    color: 'text-[#7a2f05]',
-    badgeBg: 'bg-[#fbeae0]',
-    badgeBorder: 'border-[#de7a3d]',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
   },
   hrms: {
     label: 'HRMS',
     description: 'Attendance, leaves, employee directory & records',
-    color: 'text-[#7a2f05]',
-    badgeBg: 'bg-[#fbeae0]',
-    badgeBorder: 'border-[#de7a3d]',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
   },
   recruitment: {
     label: 'Recruitment',
     description: 'Job postings, candidates & interview pipelines',
-    color: 'text-[#7a2f05]',
-    badgeBg: 'bg-[#fbeae0]',
-    badgeBorder: 'border-[#de7a3d]',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
   },
   expenses: {
     label: 'Expenses',
     description: 'Expense claims, receipts, disbursements & claims',
-    color: 'text-[#7a2f05]',
-    badgeBg: 'bg-[#fbeae0]',
-    badgeBorder: 'border-[#de7a3d]',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
   },
   inventory: {
     label: 'Inventory',
     description: 'Products, stock tracking, warehouse & supplies',
-    color: 'text-[#7a2f05]',
-    badgeBg: 'bg-[#fbeae0]',
-    badgeBorder: 'border-[#de7a3d]',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
   },
   analytics: {
     label: 'Analytics',
     description: 'Executive dashboards, revenue metrics & reports',
-    color: 'text-[#7a2f05]',
-    badgeBg: 'bg-[#fbeae0]',
-    badgeBorder: 'border-[#de7a3d]',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
   },
   settings: {
     label: 'Settings',
     description: 'Company profiles, security & system configs',
-    color: 'text-[#7a2f05]',
-    badgeBg: 'bg-[#fbeae0]',
-    badgeBorder: 'border-[#de7a3d]',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
   },
 };
 

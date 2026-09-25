@@ -49,9 +49,9 @@ export const PermissionCell: React.FC<PermissionCellProps> = ({
       className={clsx(
         'relative p-3 rounded-xl border transition-all duration-200 flex flex-col gap-2.5 select-none',
         enabled
-          ? 'bg-white border-[#ece0d6] shadow-xs hover:border-[#de7a3d]/50 hover:shadow-sm'
+          ? 'bg-white border-[#ece0d6] shadow-xs hover:border-[#fed7aa]/50 hover:shadow-sm'
           : 'bg-[#faf8f6]/80 border-[#f0e6de] opacity-65 hover:opacity-90',
-        isDirty && 'ring-2 ring-[#f0512f]/40 border-[#de7a3d] bg-[#fffaf7]'
+        isDirty && 'ring-2 ring-[#f0512f]/40 border-[#fed7aa] bg-[#fffaf7]'
       )}
     >
       {/* Unsaved change indicator dot */}
@@ -80,7 +80,7 @@ export const PermissionCell: React.FC<PermissionCellProps> = ({
             className={clsx(
               'w-8 h-4.5 rounded-full transition-colors duration-200 ease-in-out relative cursor-pointer',
               'after:content-[""] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all after:duration-200 after:shadow-xs',
-              'peer-checked:bg-[#d06b28] peer-checked:after:translate-x-3.5 peer-focus-visible:ring-2 peer-focus-visible:ring-[#f0512f]',
+              'peer-checked:bg-[#ea580c] peer-checked:after:translate-x-3.5 peer-focus-visible:ring-2 peer-focus-visible:ring-[#f0512f]',
               'bg-[#d6cbbf]'
             )}
           />
@@ -108,11 +108,11 @@ export const PermissionCell: React.FC<PermissionCellProps> = ({
               className={clsx(
                 'group relative flex flex-col items-center justify-center p-1.5 rounded-lg border text-[10px] font-medium transition-all duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f0512f]',
                 isChecked
-                  ? 'bg-[#fbeae0] text-[#7a2f05] border-[#de7a3d] font-semibold shadow-2xs'
-                  : 'bg-white text-[#9b9b9b] border-[#ece0d6] hover:text-[#1a1a1a] hover:bg-[#fbf0e7] hover:border-[#de7a3d]/50'
+                  ? 'bg-[#fff7ed] text-[#ea580c] border-[#fed7aa] font-semibold shadow-2xs'
+                  : 'bg-white text-[#9b9b9b] border-[#ece0d6] hover:text-[#1a1a1a] hover:bg-[#fbf0e7] hover:border-[#fed7aa]/50'
               )}
             >
-              <Icon className={clsx('w-3.5 h-3.5 mb-0.5 transition-transform group-hover:scale-110', isChecked ? 'text-[#c2540c]' : 'text-[#9b9b9b] group-hover:text-[#1a1a1a]')} />
+              <Icon className={clsx('w-3.5 h-3.5 mb-0.5 transition-transform group-hover:scale-110', isChecked ? 'text-[#f97316]' : 'text-[#9b9b9b] group-hover:text-[#1a1a1a]')} />
               <span className="leading-tight text-[9px] capitalize tracking-tight font-mono">
                 {label.slice(0, 3)}
               </span>

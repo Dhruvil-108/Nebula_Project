@@ -21,6 +21,31 @@ const organizationSchema = new mongoose.Schema(
       trim: true,
       default: null,
     },
+    subIndustry: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    logoUrl: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    faviconUrl: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    website: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    brandColor: {
+      type: String,
+      trim: true,
+      default: '#f0512f',
+    },
     primaryFocus: {
       type: [String],
       enum: {

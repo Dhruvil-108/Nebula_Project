@@ -63,7 +63,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return (
       <div className="flex items-center justify-center h-screen bg-white">
         <div className="flex flex-col items-center gap-4">
-          <LoaderCircle className="w-10 h-10 text-[#c2540c] animate-spin" aria-hidden="true" />
+          <LoaderCircle className="w-10 h-10 text-[#f97316] animate-spin" aria-hidden="true" />
           <p className="text-xs text-[#6b6b6b] font-mono">Restoring session...</p>
         </div>
       </div>
@@ -118,12 +118,36 @@ const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
   </div>
 );
 
+// ── Synchronizes browser tab favicon with tenant branding ──
+const FaviconSynchronizer: React.FC = () => {
+  const { organization } = useAuth();
+
+  React.useEffect(() => {
+    const iconUrl = organization?.faviconUrl || organization?.logoUrl;
+    if (iconUrl) {
+      let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'shortcut icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      link.href = iconUrl;
+    }
+    if (organization?.name) {
+      document.title = `${organization.name} — Nebula Hub`;
+    }
+  }, [organization?.faviconUrl, organization?.logoUrl, organization?.name]);
+
+  return null;
+};
+
 export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <>
           <ScrollToTop />
+          <FaviconSynchronizer />
 
           {/* Toastify container — styled to match the orange and white theme */}
           <ToastContainer
@@ -137,9 +161,9 @@ export const App: React.FC = () => {
             className="theme-toast-container"
             progressClassName="theme-toast-progress"
             toastStyle={{
-              background: '#fbf0e7',
-              border: '1px solid #de7a3d',
-              color: '#7a2f05',
+              background: '#fff7ed',
+              border: '1px solid #fed7aa',
+              color: '#ea580c',
               fontSize: '13px',
               borderRadius: '12px',
             }}

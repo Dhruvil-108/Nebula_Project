@@ -5,12 +5,12 @@ import { STAGE_LABELS, type PipelineStage } from '../../types/crm';
 // Pipeline stage → color mapping (design-system Section 5, used EVERYWHERE for consistency)
 const STAGE_PILL_STYLES: Record<PipelineStage, string> = {
   // Neutral — not yet engaged
-  new: 'bg-[#FBF0E7] text-[#6B6B6B] border-[#ECE0D6]',
+  new: 'bg-[#fff7ed] text-[#6B6B6B] border-[#ECE0D6]',
   // Info blue-gray — introduced only for the pipeline stage system
   contacted: 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/25',
   // Orange progression
-  qualified: 'bg-[#FBEAE0] text-[#C2540C] border-[#F0D3BC]',
-  proposal: 'bg-[#C2540C] text-white border-[#A6470A]',
+  qualified: 'bg-[#fff7ed] text-[#f97316] border-[#fed7aa]',
+  proposal: 'bg-[#f97316] text-white border-[#c2410c]',
   // Warning tint
   negotiation: 'bg-[#B45309]/10 text-[#B45309] border-[#B45309]/25',
   // Success tint
@@ -40,7 +40,7 @@ export const StagePill: React.FC<StagePillProps> = ({ stage, className = '' }) =
 const STAGE_DOT_STYLES: Record<PipelineStage, string> = {
   new: 'bg-[#6B6B6B]',
   contacted: 'bg-[#3B82F6]',
-  qualified: 'bg-[#C2540C]',
+  qualified: 'bg-[#f97316]',
   proposal: 'bg-white',
   negotiation: 'bg-[#B45309]',
   won: 'bg-[#16A34A]',

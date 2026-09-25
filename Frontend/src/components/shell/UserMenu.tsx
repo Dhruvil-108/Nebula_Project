@@ -55,22 +55,22 @@ export const UserMenu: React.FC<UserMenuProps> = ({ collapsed }) => {
       <button
         onClick={() => setOpen((o) => !o)}
         className={clsx(
-          'w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800/60 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0512f] focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950',
-          open && 'bg-slate-800/60'
+          'w-full flex items-center gap-3 p-3 rounded-xl hover:bg-[#fff7ed] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f97316]',
+          open && 'bg-[#fff7ed]'
         )}
         aria-expanded={open}
         aria-haspopup="true"
       >
         {/* Avatar */}
-        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-[#f0512f] to-[#ff7a59] flex items-center justify-center text-white text-xs font-bold shadow-md shadow-[#f0512f]/25">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-[#f97316] to-[#fb923c] flex items-center justify-center text-white text-xs font-bold shadow-md shadow-[#f97316]/25">
           {initials}
         </div>
 
         {/* Name + role */}
         {!collapsed && (
           <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-medium text-slate-100 truncate">{user.fullName}</p>
-            <p className="sidebar-user-role text-[10px] font-medium text-white truncate">
+            <p className="text-sm font-semibold text-slate-800 truncate">{user.fullName}</p>
+            <p className="sidebar-user-role text-[10px] font-medium text-slate-500 truncate">
               {ROLE_LABELS[user.role]}
             </p>
           </div>
@@ -79,7 +79,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ collapsed }) => {
         {!collapsed && (
           <ChevronUp
             className={clsx(
-              'w-4 h-4 text-slate-500 transition-transform duration-200',
+              'w-4 h-4 text-slate-400 transition-transform duration-200',
               open ? 'rotate-180' : 'rotate-0'
             )}
           />
@@ -95,14 +95,14 @@ export const UserMenu: React.FC<UserMenuProps> = ({ collapsed }) => {
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ duration: 0.15 }}
             className={clsx(
-              'absolute z-50 mb-2 w-56 rounded-xl bg-slate-900 border border-slate-700/60 shadow-2xl overflow-hidden',
+              'absolute z-50 mb-2 w-56 rounded-xl bg-white border border-slate-200 shadow-xl overflow-hidden',
               collapsed ? 'bottom-full left-full ml-3' : 'bottom-full left-0 right-0'
             )}
           >
             {/* User info header */}
-            <div className="px-4 py-3 border-b border-slate-800">
-              <p className="text-sm font-semibold text-white">{user.fullName}</p>
-              <p className="text-xs text-slate-400 truncate">{user.email}</p>
+            <div className="px-4 py-3 border-b border-slate-100 bg-[#fff7ed]/60">
+              <p className="text-sm font-semibold text-slate-900">{user.fullName}</p>
+              <p className="text-xs text-slate-500 truncate">{user.email}</p>
               <span
                 className={clsx(
                   'inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border',
@@ -118,26 +118,26 @@ export const UserMenu: React.FC<UserMenuProps> = ({ collapsed }) => {
             <div className="py-1">
               <button
                 onClick={() => { setOpen(false); navigate('/dashboard/profile'); }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-[#fff7ed] hover:text-[#7c2d12] transition-colors"
               >
                 <User className="w-4 h-4 text-slate-400" />
                 Profile
               </button>
               <button
                 onClick={() => { setOpen(false); navigate('/dashboard/settings'); }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-[#fff7ed] hover:text-[#7c2d12] transition-colors"
               >
                 <Settings className="w-4 h-4 text-slate-400" />
                 Organization Settings
               </button>
             </div>
 
-            <div className="py-1 border-t border-slate-800">
+            <div className="py-1 border-t border-[#ece0d6]">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-white hover:bg-[#d06b28] hover:text-white transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4 text-rose-500" />
                 Sign Out
               </button>
             </div>
