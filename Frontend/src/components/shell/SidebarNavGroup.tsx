@@ -1,68 +1,23 @@
 import React, { useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { clsx } from 'clsx';
-import { NavLink, useLocation } from 'react-router-dom';
 
-export interface SubNavItem {
+interface SubItem {
   to: string;
   icon: React.ReactNode;
   label: string;
 }
 
 interface SidebarNavGroupProps {
-  /** Parent item target — first sub-route */
   to: string;
   icon: React.ReactNode;
   label: string;
   collapsed: boolean;
-  subItems: SubNavItem[];
+  subItems: SubItem[];
 }
 
-const itemBase =
-  'post-login-nav-item group relative flex items-center gap-3 rounded-lg text-sm transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0512f]';
-
-/**
- * Indented sub-item link. Icon/label color via NavLink children-as-function.
- */
-const SubNavLink: React.FC<SubNavItem> = ({ to, icon, label }) => {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        clsx(
-          'flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12.5px] font-medium transition-all duration-150',
-          isActive
-            ? 'post-login-nav-active bg-[#fff7ed] text-[#ea580c] font-semibold border border-[#fed7aa]'
-            : 'post-login-nav-inactive text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed]'
-        )
-      }
-    >
-      {({ isActive }: { isActive: boolean }) => (
-        <>
-          <span
-            className={clsx(
-              'flex-shrink-0 w-3.5 h-3.5 flex items-center justify-center',
-              isActive ? 'text-[#f97316]' : 'text-slate-400 group-hover:text-[#f97316]'
-            )}
-          >
-            {icon}
-          </span>
-          <span className={isActive ? 'text-[#ea580c] font-semibold' : 'text-slate-600 group-hover:text-[#1a1a1a]'}>
-            {label}
-          </span>
-        </>
-      )}
-    </NavLink>
-  );
-};
-
-/**
- * Expandable nav group.
- * Expanded mode: parent toggles the sub-list (auto-expands when a sub-route is active).
- * Collapsed (icon-only) mode: parent links to the first sub-route; hovering reveals
- * a flyout popover with the sub-items.
- */
 export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
   to,
   icon,
@@ -70,162 +25,141 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
   collapsed,
   subItems,
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const location = useLocation();
+  const isGroupActive = location.pathname === to || location.pathname.startsWith(to + '/');
+  const [open, setOpen] = useState(isGroupActive);
 
-  // ── Collapsed (icon-only) mode: parent link + hover flyout ──
+  // Auto-expand group if navigated into
+  React.useEffect(() => {
+    if (isGroupActive) {
+      setOpen(true);
+    }
+  }, [isGroupActive]);
+
   if (collapsed) {
     return (
-      <div className="group relative">
-        <NavLink
-          to={subItems[0]?.to || to}
-          className={({ isActive }) =>
-            clsx(
-              itemBase,
-              'justify-center px-3 py-2.5',
-              isActive
-                ? 'post-login-nav-active bg-[#fff7ed] border border-[#fed7aa] text-[#ea580c] font-semibold shadow-sm'
-                : 'post-login-nav-inactive text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed] font-medium'
-            )
-          }
-        >
-          {({ isActive }: { isActive: boolean }) => (
-            <>
-              <span
-                className={clsx(
-                  'flex-shrink-0 w-5 h-5 flex items-center justify-center',
-                  isActive ? 'text-[#f97316]' : 'text-slate-500 group-hover:text-[#f97316]'
-                )}
-              >
-                {icon}
-              </span>
-
-              {/* Flyout popover with sub-items */}
-              <div className="absolute left-full ml-3 top-0 z-50 hidden group-hover:block">
-                <div className="px-2.5 py-2 rounded-xl bg-white border border-[#ece0d6] shadow-xl min-w-[180px]">
-                  <p className="px-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-400 uppercase tracking-widest">
-                    {label}
-                  </p>
-                  {subItems.map((sub) => (
-                    <FlyoutLink key={sub.to} sub={sub} />
-                  ))}
-                  {/* Arrow */}
-                  <div className="absolute right-full top-4 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-[#ece0d6]" />
-                </div>
-              </div>
-            </>
-          )}
-        </NavLink>
-      </div>
-    );
-  }
-
-  // ── Expanded mode: toggle parent + indented sub-items ──
-  return <ExpandedGroup to={to} icon={icon} label={label} subItems={subItems} />;
-};
-
-/**
- * Flyout sub-item (collapsed mode) — plain links inside the popover.
- */
-const FlyoutLink: React.FC<{ sub: SubNavItem }> = ({ sub }) => (
-  <NavLink
-    to={sub.to}
-    className={({ isActive }) =>
-      clsx(
-        'flex items-center gap-2.5 px-2 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors',
-        isActive
-          ? 'bg-[#fff7ed] text-[#ea580c] font-semibold border border-[#fed7aa]'
-          : 'text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed]'
-      )
-    }
-  >
-    <span className="flex-shrink-0 w-4 h-4">{sub.icon}</span>
-    {sub.label}
-  </NavLink>
-);
-
-/**
- * Expanded-mode group: toggle button + animated sub-list.
- */
-const ExpandedGroup: React.FC<{
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-  subItems: SubNavItem[];
-}> = ({ to, icon, label, subItems }) => {
-  const location = useLocationValue();
-  const [expanded, setExpanded] = useState(false);
-
-  const groupActive = subItems.some((sub) => location.pathname.startsWith(sub.to));
-  const hasActive = groupActive || location.pathname.startsWith(to);
-
-  // Auto-expand when a sub-route is active
-  React.useEffect(() => {
-    if (groupActive) setExpanded(true);
-  }, [groupActive]);
-
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={() => setExpanded((e) => !e)}
+      <NavLink
+        to={to}
         className={clsx(
-          itemBase,
-          'w-full px-3 py-2.5 text-left text-[13.5px] font-medium',
-          hasActive
-            ? 'post-login-nav-active bg-[#fff7ed] border border-[#fed7aa] text-[#ea580c] font-semibold shadow-sm'
-            : 'post-login-nav-inactive text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed]'
+          'post-login-nav-item group relative flex items-center justify-center px-3 py-2 rounded-xl select-none focus-visible:outline-none transition-all duration-150',
+          isGroupActive
+            ? 'post-login-nav-active bg-white text-slate-900 border border-slate-200/90 shadow-2xs font-semibold'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent font-medium'
         )}
-        aria-expanded={expanded}
       >
+        {isGroupActive && (
+          <span
+            className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#ea580c]"
+            aria-hidden="true"
+          />
+        )}
         <span
-          className={clsx(
-            'flex-shrink-0 w-5 h-5 flex items-center justify-center',
-            hasActive ? 'text-[#f97316]' : 'text-slate-500 group-hover:text-[#f97316]'
-          )}
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center transition-colors duration-150"
+          style={{
+            color: isGroupActive ? '#ea580c' : '#64748b',
+          }}
         >
           {icon}
         </span>
+
+        {/* Collapsed tooltip */}
+        <div
+          className="absolute left-full ml-3 px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 shadow-md bg-slate-900 text-slate-50 border border-slate-800"
+        >
+          {label}
+          <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-slate-900" />
+        </div>
+      </NavLink>
+    );
+  }
+
+  return (
+    <div>
+      {/* Group header button */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className={clsx(
+          'post-login-nav-item w-full group relative flex items-center gap-3 px-3 py-2 rounded-xl text-sm select-none focus-visible:outline-none transition-all duration-150',
+          isGroupActive
+            ? 'post-login-nav-active bg-white text-slate-900 border border-slate-200/90 shadow-2xs font-semibold'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent font-medium'
+        )}
+        aria-expanded={open}
+      >
+        {isGroupActive && (
+          <span
+            className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#ea580c]"
+            aria-hidden="true"
+          />
+        )}
+
         <span
-          className={clsx(
-            'flex-1 truncate tracking-tight text-[13.5px]',
-            hasActive ? 'text-[#ea580c] font-semibold' : 'text-slate-700 group-hover:text-[#1a1a1a]'
-          )}
+          className="flex-shrink-0 w-5 h-5 flex items-center justify-center transition-colors duration-150"
+          style={{
+            color: isGroupActive ? '#ea580c' : '#64748b',
+          }}
+        >
+          {icon}
+        </span>
+
+        <span
+          className="flex-1 text-left truncate text-[13px] tracking-tight transition-colors duration-150"
+          style={{
+            color: isGroupActive ? '#0f172a' : '#475569',
+            fontWeight: isGroupActive ? 600 : 500,
+          }}
         >
           {label}
         </span>
+
         <ChevronDown
-          className={clsx(
-            'w-4 h-4 flex-shrink-0 transition-transform duration-200',
-            expanded && 'rotate-180',
-            hasActive ? 'text-[#f97316]' : 'text-slate-400 group-hover:text-slate-600'
-          )}
+          className="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200"
+          style={{
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            color: isGroupActive ? '#ea580c' : '#94a3b8',
+          }}
         />
       </button>
 
-      {/* Sub-items with animated collapse */}
+      {/* Sub-items */}
       <AnimatePresence initial={false}>
-        {expanded && (
+        {open && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            transition={{ duration: 0.16, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="pl-4 ml-4 border-l border-[#ece0d6] space-y-0.5 py-1">
-              {subItems.map((sub) => (
-                <SubNavLink key={sub.to} to={sub.to} icon={sub.icon} label={sub.label} />
-              ))}
+            <div className="mt-0.5 ml-4 pl-3 space-y-0.5" style={{ borderLeft: '1.5px solid #e2e8f0' }}>
+              {subItems.map((sub) => {
+                const isSubActive =
+                  location.pathname === sub.to || location.pathname.startsWith(sub.to + '/');
+                return (
+                  <NavLink
+                    key={sub.to}
+                    to={sub.to}
+                    className={clsx(
+                      'group flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] select-none focus-visible:outline-none transition-colors duration-150',
+                      isSubActive
+                        ? 'bg-orange-50/80 text-[#ea580c] font-semibold border border-orange-200/60 shadow-2xs'
+                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/70 border border-transparent font-medium'
+                    )}
+                  >
+                    <span
+                      className="flex-shrink-0 flex items-center justify-center transition-colors duration-150"
+                      style={{ color: isSubActive ? '#ea580c' : '#94a3b8' }}
+                    >
+                      {sub.icon}
+                    </span>
+                    <span className="truncate">{sub.label}</span>
+                  </NavLink>
+                );
+              })}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
   );
-};
-
-// Tiny helper so ExpandedGroup stays declarative
-const useLocationValue = () => {
-  const location = useLocation();
-  return location;
 };

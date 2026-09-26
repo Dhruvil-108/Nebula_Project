@@ -25,6 +25,8 @@ import {
   CalendarClock as CalendarEvent,
   FileText,
   Gauge,
+  ChevronsUpDown,
+  Search,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SidebarNavItem } from './SidebarNavItem';
@@ -36,10 +38,6 @@ import type { Role } from '../../types/user';
 import type { FocusArea } from '../../types/organization';
 import type { PermissionModule } from '../../types/permissions';
 import { NebulaLogo } from '../ui/NebulaLogo';
-
-// ─────────────────────────────────────────────────────────
-// Nav configuration based on role
-// ─────────────────────────────────────────────────────────
 
 interface NavItem {
   to: string;
@@ -73,7 +71,6 @@ const getNavConfig = (
     { to: '/dashboard/analytics', icon: <BarChart3 className="w-5 h-5" />, label: 'Analytics' },
   ];
 
-  // Employee and Intern get a simplified nav
   if (isEmployee) {
     return {
       primary: [
@@ -86,7 +83,6 @@ const getNavConfig = (
     };
   }
 
-  // Role-based emphasis — put the most relevant module first
   const emphasized: Partial<Record<Role, string>> = {
     sales: '/dashboard/crm',
     manager: '/dashboard/crm',
@@ -128,10 +124,6 @@ const getNavConfig = (
   return { primary, secondary };
 };
 
-// ─────────────────────────────────────────────────────────
-// Sidebar
-// ─────────────────────────────────────────────────────────
-
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
@@ -153,18 +145,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 
   const sidebarContent = (
-    <div className="post-login-sidebar flex flex-col h-full bg-white select-none">
+    <div
+      className="post-login-sidebar flex flex-col h-full select-none"
+      style={{ background: '#fafafb' }}
+    >
       {/* ── Header / Logo ── */}
       <div
         className={clsx(
-          'flex items-center border-b border-[#ece0d6] py-4 transition-all duration-200',
-          collapsed ? 'justify-center px-2' : 'justify-between px-4'
+          'flex items-center py-3.5 transition-all duration-200',
+          collapsed ? 'justify-center px-3' : 'justify-between px-4'
         )}
+        style={{ borderBottom: '1px solid var(--pl-border-subtle)' }}
       >
         {collapsed ? (
           <button
             onClick={onToggle}
-            className="group relative flex items-center justify-center p-1 rounded-xl hover:bg-[#fbf0e7] transition-colors focus-visible:outline-none"
+            className="group relative flex items-center justify-center p-1.5 rounded-xl hover:bg-slate-100 focus-visible:outline-none transition-all duration-150"
             aria-label="Expand sidebar"
             title="Expand sidebar"
           >
@@ -175,12 +171,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex min-w-0 flex-1 items-center">
               <NebulaLogo className="max-w-full" />
             </div>
-
-            {/* Collapse toggle — hidden on mobile */}
             <button
               onClick={onToggle}
-              className="ml-auto hidden md:flex flex-shrink-0 w-6 h-6 rounded-md hover:bg-[#fff7ed] text-slate-400 hover:text-slate-700 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#f97316]"
+              className="ml-auto hidden md:flex flex-shrink-0 w-7 h-7 rounded-lg items-center justify-center transition-all duration-150 focus-visible:outline-none border border-slate-200/80 bg-white hover:bg-slate-100 text-slate-400 hover:text-slate-700 shadow-2xs"
               aria-label="Collapse sidebar"
+              title="Collapse sidebar"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -191,42 +186,67 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* ── Workspace Card ── */}
       {!collapsed && organization && (
         <div className="px-3 pt-3 pb-1">
-          <div className="px-3 py-2.5 rounded-lg bg-[#fff7ed] border border-[#fed7aa] flex items-center gap-2.5 shadow-2xs">
-            <div className="sidebar-workspace-mark w-7 h-7 rounded-lg bg-white border border-[#fed7aa] flex items-center justify-center text-xs font-bold text-[#f97316] flex-shrink-0 overflow-hidden shadow-xs">
-              {organization.logoUrl ? (
-                <img
-                  src={organization.logoUrl}
-                  alt={organization.name}
-                  className="w-full h-full object-contain p-0.5"
-                />
-              ) : (
-                organization.name.charAt(0).toUpperCase()
-              )}
+          <div className="group flex items-center justify-between p-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-2xs hover:border-slate-300 transition-all cursor-pointer">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 text-white font-bold flex items-center justify-center text-xs shadow-xs flex-shrink-0">
+                {organization.logoUrl ? (
+                  <img
+                    src={organization.logoUrl}
+                    alt={organization.name}
+                    className="w-full h-full object-contain p-0.5 rounded-lg"
+                  />
+                ) : (
+                  organization.name.charAt(0).toUpperCase()
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-slate-800 truncate leading-tight group-hover:text-slate-900">
+                  {organization.name}
+                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-[10px] font-medium text-slate-400 truncate">
+                    {organization.industry || 'Active Workspace'}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[9px] font-mono font-medium text-slate-500 uppercase tracking-wider leading-none mb-0.5 truncate">
-                {organization.industry ? `${organization.industry}` : 'Workspace'}
-              </p>
-              <p className="text-xs font-semibold text-slate-800 truncate leading-tight">
-                {organization.name}
-              </p>
-            </div>
+            <ChevronsUpDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 flex-shrink-0" />
           </div>
         </div>
       )}
 
+      {/* ── Quick Search Trigger ── */}
+      {!collapsed && (
+        <div className="px-3 pt-1.5 pb-1">
+          <button
+            onClick={() => {
+              const searchInput = document.querySelector('input[type="search"], input[placeholder*="Search"]') as HTMLInputElement;
+              searchInput?.focus();
+            }}
+            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-white border border-slate-200/80 text-slate-400 hover:text-slate-600 hover:border-slate-300 text-xs shadow-2xs transition-all"
+          >
+            <div className="flex items-center gap-2">
+              <Search className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-[12px]">Quick jump...</span>
+            </div>
+            <kbd className="px-1.5 py-0.5 text-[9px] font-mono font-medium bg-slate-50 border border-slate-200/80 rounded text-slate-400">
+              Ctrl K
+            </kbd>
+          </button>
+        </div>
+      )}
+
       {/* ── Primary nav ── */}
-      <nav aria-label="Primary navigation" className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-3 space-y-1">
+      <nav aria-label="Primary navigation" className="flex-1 overflow-x-hidden overflow-y-auto px-3 py-2 space-y-0.5">
         {!collapsed && (
-          <p className="px-3 pt-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-400 uppercase tracking-widest">
-            Modules
+          <p className="px-3 pt-2 pb-1.5 text-[10.5px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+            Core Engines
           </p>
         )}
         {navConfig.primary.map((item) => {
           const mod = pathToModuleMap[item.to];
-          if (mod && !checkAccess(mod)) {
-            return null;
-          }
+          if (mod && !checkAccess(mod)) return null;
 
           if (item.to === '/dashboard/crm') {
             return (
@@ -278,12 +298,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           );
         })}
-        {/* ── Organization nav (directly after modules) ── */}
+
+        {/* ── Organization nav ── */}
         {navConfig.secondary.length > 0 && (
-          <div className="pt-3 mt-3 border-t border-slate-100 space-y-1">
+          <div
+            className="pt-3 mt-3 space-y-0.5"
+            style={{ borderTop: '1px solid var(--pl-border-subtle)' }}
+          >
             {!collapsed && (
-              <p className="px-3 pt-1 pb-1.5 text-[10px] font-mono font-semibold text-slate-400 uppercase tracking-widest">
-                Organization
+              <p className="px-3 pt-2 pb-1.5 text-[10.5px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+                Platform & Admin
               </p>
             )}
             {navConfig.secondary.map((item) => (
@@ -300,7 +324,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* ── User menu ── */}
-      <div className="px-3 pb-3 pt-2 border-t border-slate-100">
+      <div
+        className="px-3 pb-3 pt-2"
+        style={{ borderTop: '1px solid var(--pl-border-subtle)' }}
+      >
         <UserMenu collapsed={collapsed} />
       </div>
     </div>
@@ -308,21 +335,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* ── Mobile overlay ── */}
+      {/* Mobile overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
             onClick={onMobileClose}
             aria-hidden="true"
           />
         )}
       </AnimatePresence>
 
-      {/* ── Mobile drawer ── */}
+      {/* Mobile drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.aside
@@ -330,7 +357,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             animate={{ x: 0 }}
             exit={{ x: -280 }}
             transition={{ type: 'spring', damping: 28, stiffness: 280 }}
-            className="post-login-sidebar fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-[#ece0d6] md:hidden"
+            className="post-login-sidebar fixed inset-y-0 left-0 z-50 w-72 md:hidden"
+            style={{
+              background: 'var(--pl-sidebar-bg)',
+              borderRight: '1px solid var(--pl-border-subtle)',
+              boxShadow: '4px 0 24px -8px rgba(0,0,0,0.08)',
+            }}
             aria-label="Mobile navigation"
           >
             {sidebarContent}
@@ -338,11 +370,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </AnimatePresence>
 
-      {/* ── Desktop sidebar ── */}
+      {/* Desktop sidebar */}
       <motion.aside
         animate={{ width: collapsed ? 72 : 256 }}
         transition={{ type: 'spring', damping: 30, stiffness: 280 }}
-        className="post-login-sidebar hidden md:flex flex-col flex-shrink-0 bg-white border-r border-[#ece0d6] overflow-hidden"
+        className="post-login-sidebar hidden md:flex flex-col flex-shrink-0 overflow-hidden"
+        style={{
+          background: '#fafafb',
+          borderRight: '1px solid #e2e8f0',
+          boxShadow: '1px 0 2px 0 rgba(0,0,0,0.02)',
+        }}
         aria-label="Primary navigation"
       >
         {sidebarContent}

@@ -1,6 +1,5 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 
 interface SidebarNavItemProps {
@@ -26,38 +25,41 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
       end={to === '/dashboard'}
       className={({ isActive }) =>
         clsx(
-          'post-login-nav-item group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0512f]',
+          'post-login-nav-item group relative flex items-center gap-3 px-3 py-2 rounded-xl text-sm select-none focus-visible:outline-none transition-all duration-150',
           isActive
-            ? 'post-login-nav-active bg-[#fff7ed] border border-[#fed7aa] text-[#ea580c] font-semibold shadow-sm'
-            : emphasized
-              ? 'post-login-nav-emphasized text-slate-700 hover:text-[#1a1a1a] hover:bg-[#fff7ed] font-medium'
-              : 'post-login-nav-inactive text-slate-600 hover:text-[#1a1a1a] hover:bg-[#fff7ed] font-medium'
+            ? 'post-login-nav-active bg-white text-slate-900 border border-slate-200/90 shadow-2xs font-semibold'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent font-medium'
         )
       }
     >
       {({ isActive }) => (
         <>
+          {/* Subtle 3px active indicator bar on left edge */}
+          {isActive && (
+            <span
+              className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#ea580c]"
+              aria-hidden="true"
+            />
+          )}
+
           {/* Icon */}
           <span
-            className={clsx(
-              'flex-shrink-0 w-5 h-5 transition-colors flex items-center justify-center',
-              isActive
-                ? 'text-[#f97316]'
-                : emphasized
-                  ? 'text-slate-600 group-hover:text-[#f97316]'
-                  : 'text-slate-500 group-hover:text-[#f97316]'
-            )}
+            className="flex-shrink-0 w-5 h-5 flex items-center justify-center transition-colors duration-150"
+            style={{
+              color: isActive ? '#ea580c' : emphasized ? '#475569' : '#64748b',
+            }}
           >
             {icon}
           </span>
 
-          {/* Label — hidden when collapsed */}
+          {/* Label */}
           {!collapsed && (
             <span
-              className={clsx(
-                'flex-1 truncate tracking-tight text-[13.5px]',
-                isActive ? 'text-[#ea580c] font-semibold' : 'text-slate-700 group-hover:text-[#1a1a1a]'
-              )}
+              className="flex-1 truncate text-[13px] tracking-tight transition-colors duration-150"
+              style={{
+                color: isActive ? '#0f172a' : '#475569',
+                fontWeight: isActive ? 600 : 500,
+              }}
             >
               {label}
             </span>
@@ -65,20 +67,25 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
 
           {/* Badge */}
           {!collapsed && badge !== undefined && badge > 0 && (
-            <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 rounded-full bg-[#f97316] text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
+            <span
+              className="flex-shrink-0 min-w-[18px] h-[18px] px-1.5 rounded-full text-white text-[10px] font-semibold flex items-center justify-center bg-[#ea580c]"
+            >
               {badge > 99 ? '99+' : badge}
             </span>
           )}
 
-          {/* Tooltip when collapsed */}
+          {/* Collapsed tooltip */}
           {collapsed && (
-            <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 border border-slate-700/80 rounded-lg text-xs text-slate-200 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 shadow-xl">
+            <div
+              className="absolute left-full ml-3 px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 shadow-md bg-slate-900 text-slate-50 border border-slate-800"
+            >
               {label}
               {badge !== undefined && badge > 0 && (
-                <span className="ml-1.5 px-1 rounded bg-[#f0512f] text-white">{badge}</span>
+                <span className="ml-1.5 px-1 py-0.2 rounded-full text-white font-medium bg-[#ea580c] text-[9px]">
+                  {badge}
+                </span>
               )}
-              {/* Arrow */}
-              <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-slate-700/80" />
+              <div className="absolute right-full top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-slate-900" />
             </div>
           )}
         </>
@@ -86,4 +93,3 @@ export const SidebarNavItem: React.FC<SidebarNavItemProps> = ({
     </NavLink>
   );
 };
-

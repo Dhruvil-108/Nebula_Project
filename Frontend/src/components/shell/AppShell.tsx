@@ -59,7 +59,7 @@ export const AppShell: React.FC = () => {
   const pageTitle = PAGE_TITLES[location.pathname] || 'Dashboard';
 
   return (
-    <div className="authenticated-shell flex h-screen bg-slate-950 overflow-hidden">
+    <div className="authenticated-shell flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--pl-canvas)' }}>
       <Sidebar
         collapsed={collapsed}
         onToggle={() => setCollapsed((c) => !c)}
@@ -78,7 +78,8 @@ export const AppShell: React.FC = () => {
         <main
           id="main-content"
           role="main"
-          className="flex-1 overflow-y-auto bg-slate-950"
+          className="flex-1 overflow-y-auto"
+          style={{ backgroundColor: 'var(--pl-canvas)' }}
         >
           <Outlet />
         </main>
