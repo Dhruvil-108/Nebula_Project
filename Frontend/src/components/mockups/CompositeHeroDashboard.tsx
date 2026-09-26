@@ -17,6 +17,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
+import { BorderBeam } from '../ui/BorderBeam';
 import { CrmKanbanMock } from './CrmKanbanMock';
 import { HrmsCardMock } from './HrmsCardMock';
 import { ExpenseFlowMock } from './ExpenseFlowMock';
@@ -28,51 +29,10 @@ export const CompositeHeroDashboard: React.FC = () => {
 
   return (
     <div className="relative w-full max-w-[1550px] mx-auto">
-      {/* Floating Animated Badges for Rich Hero Aesthetics */}
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-        className="hidden 2xl:flex absolute -top-5 -left-4 z-20 items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-xl shadow-slate-900/8 text-xs text-slate-800"
-      >
-        <div className="p-1.5 rounded-xl bg-emerald-100 text-emerald-600">
-          <TrendingUp className="w-4 h-4" />
-        </div>
-        <div>
-          <div className="font-bold text-slate-900 text-xs">+34% Revenue Velocity</div>
-          <div className="text-[10px] text-slate-500 font-mono">Real-time CRM Pipeline</div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-        className="hidden 2xl:flex absolute -bottom-5 -right-4 z-20 items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-xl shadow-slate-900/8 text-xs text-slate-800"
-      >
-        <div className="p-1.5 rounded-xl bg-orange-100 text-[#ea580c]">
-          <Sparkles className="w-4 h-4" />
-        </div>
-        <div>
-          <div className="font-bold text-slate-900 text-xs">Autonomous AI Copilot</div>
-          <div className="text-[10px] text-slate-500 font-mono">Cross-module correlation</div>
-        </div>
-      </motion.div>
-
-      <motion.div
-        animate={{ y: [0, -6, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
-        className="hidden 2xl:flex absolute -top-5 -right-4 z-20 items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-xl shadow-slate-900/8 text-xs text-slate-800"
-      >
-        <div className="p-1.5 rounded-xl bg-amber-100 text-amber-600">
-          <ShieldCheck className="w-4 h-4" />
-        </div>
-        <div>
-          <div className="font-bold text-slate-900 text-xs">SOC 2 Multi-Tenant</div>
-          <div className="text-[10px] text-slate-500 font-mono">Encrypted Partition</div>
-        </div>
-      </motion.div>
-
       {/* Main Container Shell */}
-      <div className="relative rounded-2xl p-1 bg-gradient-to-b from-orange-200/80 via-slate-200/80 to-slate-200 shadow-2xl shadow-slate-900/10">
+      <div className="relative rounded-2xl p-1 bg-gradient-to-b from-orange-200/80 via-slate-200/80 to-slate-200 shadow-2xl shadow-slate-900/10 overflow-hidden">
+        {/* Continuous Traveling BorderBeam */}
+        <BorderBeam rx={16} duration={9} size={25} color="#f0512f" strokeWidth={2} />
         <div className="relative bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xl">
 
           {/* Fake App Header */}

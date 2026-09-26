@@ -19,7 +19,8 @@ interface RolePersona {
   badge: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
+  iconColor: string;
   keyBenefits: string[];
   quote: {
     text: string;
@@ -39,7 +40,8 @@ export const RoleValueSection: React.FC = () => {
       badge: 'Executive Command',
       title: 'Full operational clarity with zero departmental blind spots.',
       description: 'Stop waiting for weekly synthesis meetings and outdated slide decks. Get continuous real-time visibility across customer acquisition, employee capacity, cash burn, and operational fulfillment.',
-      icon: <Building2 className="w-5 h-5 text-[#ff7a59]" />,
+      icon: Building2,
+      iconColor: 'text-[#ea580c]',
       keyBenefits: [
         'Single pane of glass unifying revenue, headcount, spend, and inventory',
         'AI plain-language briefings delivered automatically each morning',
@@ -62,7 +64,8 @@ export const RoleValueSection: React.FC = () => {
       badge: 'Revenue Velocity',
       title: 'Close enterprise deals faster with automated operations sync.',
       description: 'Move deals seamlessly through the 6-stage pipeline. Automatically check warehouse inventory availability before committing delivery dates, and hand off closed accounts directly to finance for billing.',
-      icon: <TrendingUp className="w-5 h-5 text-[#f0512f]" />,
+      icon: TrendingUp,
+      iconColor: 'text-[#ea580c]',
       keyBenefits: [
         'Visual 6-stage deal pipeline with automated contact enrichment',
         'Real-time inventory stock checks embedded in deal proposal views',
@@ -85,7 +88,8 @@ export const RoleValueSection: React.FC = () => {
       badge: 'People & Culture',
       title: 'Seamless recruitment, attendance, and leave management.',
       description: 'Run smooth candidate hiring pipelines in ATS, then transition new hires into HRMS with a single click. Keep employee records, leave requests, and company policies organized in one compliant vault.',
-      icon: <Users className="w-5 h-5 text-amber-400" />,
+      icon: Users,
+      iconColor: 'text-amber-600',
       keyBenefits: [
         '1-click candidate to employee profile generation without duplicate data',
         'Customizable multi-tier leave approval policies & automated balance tracking',
@@ -108,7 +112,8 @@ export const RoleValueSection: React.FC = () => {
       badge: 'Financial Governance',
       title: 'Automated 3-tier expense approvals and instant spend audit trails.',
       description: 'Enforce spend limits with automated policy checks. Route expense submissions smoothly through Employee → Manager → Finance approval stages, matched to General Ledger codes.',
-      icon: <DollarSign className="w-5 h-5 text-emerald-400" />,
+      icon: DollarSign,
+      iconColor: 'text-emerald-600',
       keyBenefits: [
         'Structured 3-tier approval hierarchy with receipt OCR matching',
         'Cross-check supplier purchase orders directly against warehouse deliveries',
@@ -156,6 +161,7 @@ export const RoleValueSection: React.FC = () => {
         <div className="flex flex-wrap items-center justify-center gap-2.5 mb-10">
           {personas.map((persona) => {
             const isActive = persona.id === activeRoleId;
+            const Icon = persona.icon;
             return (
               <motion.button
                 key={persona.id}
@@ -164,8 +170,8 @@ export const RoleValueSection: React.FC = () => {
                 whileTap={{ scale: 0.98 }}
                 className={`relative flex items-center gap-2.5 px-5 py-2.5 rounded-full text-xs font-semibold transition-colors duration-200 cursor-pointer ${
                   isActive 
-                    ? 'text-white' 
-                    : 'text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                    ? 'text-white shadow-sm' 
+                    : 'text-slate-700 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 shadow-2xs'
                 }`}
               >
                 {isActive && (
@@ -176,7 +182,7 @@ export const RoleValueSection: React.FC = () => {
                   />
                 )}
                 <span className="relative z-10 flex items-center gap-2">
-                  <span className={isActive ? 'text-white' : 'text-[#f0512f]'}>{persona.icon}</span>
+                  <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-white' : persona.iconColor}`} />
                   <span>{persona.role}</span>
                 </span>
               </motion.button>

@@ -90,11 +90,10 @@ export const WizardStepAccount: React.FC<WizardStepAccountProps> = ({
         <span>Continue with Google Workspace</span>
       </button>
 
-      <div className="relative flex items-center justify-center">
-        <div className="w-full border-t border-slate-200" />
-        <span className="bg-white px-3 text-xs uppercase tracking-wider text-slate-500 font-mono font-medium">
-          or sign up with work email
-        </span>
+      <div className="relative flex items-center">
+        <div className="flex-1 border-t border-slate-150" />
+        <span className="px-3 text-[11px] text-slate-400 font-medium bg-white">or continue with email</span>
+        <div className="flex-1 border-t border-slate-150" />
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>

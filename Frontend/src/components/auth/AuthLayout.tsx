@@ -1,235 +1,130 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  Building2,
-  ShieldCheck,
-  TrendingUp,
-  Users,
-  Package,
-  Receipt,
-  Sparkles,
-  Zap
-} from 'lucide-react';
-import { Badge } from '../ui/Badge';
 import { NebulaLogo } from '../ui/NebulaLogo';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
-  title: string;
-  subtitle: string;
-  currentStep?: number;
-  totalSteps?: number;
-  quote?: {
-    text: string;
-    author: string;
-    role: string;
-    org: string;
-  };
+  /** Card title shown above the form */
+  heading: string;
+  /** Subtext below the heading */
+  subheading?: string;
+  /** Width class for the card - defaults to max-w-md */
+  maxWidth?: string;
 }
 
 export const AuthLayout: React.FC<AuthLayoutProps> = ({
   children,
-  title,
-  subtitle,
-  currentStep,
-  totalSteps,
-  quote = {
-    text: "Consolidating our CRM, HRMS, and Expenses into Nebula cut our weekly admin hours by 40% and gave us real-time operational clarity.",
-    author: "Elena Rostova",
-    role: "Chief Operating Officer",
-    org: "Apex Global Dynamics"
-  }
+  heading,
+  subheading,
+  maxWidth = 'max-w-md',
 }) => {
   return (
-    <div className="min-h-screen w-full bg-white text-slate-900 flex flex-col justify-between relative overflow-hidden selection:bg-[#f0512f] selection:text-white">
+    <div className="min-h-screen w-full relative flex flex-col items-center justify-center overflow-hidden bg-[#fdfaf7] selection:bg-[#f0512f]/20 selection:text-[#c2410c]">
 
-      {/* Background ambient lighting */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-orange-50/50 via-white to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-dot-pattern opacity-10 pointer-events-none" />
-
-      {/* Main Split Container */}
-      <div className="flex-1 flex flex-col lg:flex-row relative z-10">
-
-        {/* Left Side: Form / Wizard Canvas */}
-        <motion.div
-          initial={{ opacity: 0, x: -18 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-12 lg:p-14 max-w-2xl mx-auto lg:max-w-none"
-        >
-
-          {/* Top Brand Link & Progress Info */}
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, duration: 0.4 }}
-              className="flex items-center justify-between mb-8 sm:mb-10"
-            >
-              <Link to="/" className="inline-flex items-center gap-2.5 group">
-                <NebulaLogo />
-              </Link>
-
-              {currentStep && totalSteps && (
-                <Badge variant="brand" size="sm">
-                  Wizard Step {currentStep} of {totalSteps}
-                </Badge>
-              )}
-            </motion.div>
-
-            {/* Header Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25, duration: 0.45 }}
-              className="mb-6 text-left"
-            >
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight mb-2">
-                {title}
-              </h1>
-              <p className="text-sm text-slate-600">
-                {subtitle}
-              </p>
-            </motion.div>
-
-            {/* Form / Wizard Slot */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.45 }}
-              className="w-full max-w-md"
-            >
-              {children}
-            </motion.div>
-          </div>
-
-          {/* Micro Footer */}
-          <div className="pt-8 text-xs text-slate-500 flex items-center justify-between border-t border-slate-200 mt-10 max-w-md">
-            <span>© {new Date().getFullYear()} Nebula Hub</span>
-            <div className="flex items-center gap-3">
-              <Link to="/" className="hover:text-slate-800 transition-colors">Home</Link>
-              <span>·</span>
-              <a href="#" className="hover:text-slate-800 transition-colors">Privacy</a>
-              <span>·</span>
-              <a href="#" className="hover:text-slate-800 transition-colors">Security Architecture</a>
-            </div>
-          </div>
-
-        </motion.div>
-
-        {/* Right Side: Enterprise Branded Visual Panel (Hidden on mobile) */}
-        <motion.div
-          initial={{ opacity: 0, x: 18 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-orange-50/70 via-slate-50 to-orange-100/40 border-l border-slate-200 p-12 lg:p-14 flex-col justify-between relative overflow-hidden"
-        >
-
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#f0512f]/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-10 right-10 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Top Status Badge */}
-          <div className="flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-mono text-slate-700 font-medium">Multi-Tenant Tenant Isolation Active</span>
-            </div>
-            <Badge variant="brand" size="sm">
-              {currentStep ? `Step ${currentStep}: Provisioning` : 'Enterprise Hub'}
-            </Badge>
-          </div>
-
-          {/* Centerpiece Visual: Module Connectivity Architecture */}
-          <div className="my-auto py-6 relative z-10">
-            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xl shadow-slate-900/5 space-y-4">
-
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-orange-100 text-[#ea580c]">
-                    <Building2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900">Your Organization Workspace</div>
-                    <div className="text-[10px] text-slate-500">Automatic tenant partitioning & encryption</div>
-                  </div>
-                </div>
-                <Badge variant="emerald" size="sm" dot>Provisioned</Badge>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
-                    <TrendingUp className="w-3.5 h-3.5 text-[#f0512f]" />
-                    CRM Pipeline
-                  </span>
-                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
-                </div>
-
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
-                    <Users className="w-3.5 h-3.5 text-amber-600" />
-                    HRMS & People
-                  </span>
-                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
-                </div>
-
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
-                    <Zap className="w-3.5 h-3.5 text-[#f0512f]" />
-                    Recruitment ATS
-                  </span>
-                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
-                </div>
-
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
-                    <Receipt className="w-3.5 h-3.5 text-emerald-600" />
-                    Expense Flow
-                  </span>
-                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
-                </div>
-
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
-                    <Package className="w-3.5 h-3.5 text-amber-600" />
-                    Inventory & POs
-                  </span>
-                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
-                </div>
-
-                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
-                    <Sparkles className="w-3.5 h-3.5 text-[#ea580c]" />
-                    Unified AI Engine
-                  </span>
-                  <span className="text-emerald-600 font-mono text-[10px] font-semibold">Active</span>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <div className="relative z-10 pt-6 border-t border-slate-200">
-            <p className="text-sm text-slate-700 italic mb-3 leading-relaxed">
-              "{quote.text}"
-            </p>
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs font-bold text-slate-900">{quote.author}</div>
-                <div className="text-[11px] text-slate-500">{quote.role} · {quote.org}</div>
-              </div>
-              <div className="flex items-center gap-1 text-slate-600 text-xs font-mono font-medium">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>SOC2 Compliant</span>
-              </div>
-            </div>
-          </div>
-
-        </motion.div>
-
+      {/* ── Ambient warm gradient mesh ── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Top-left warm amber glow */}
+        <div className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-gradient-radial from-amber-200/60 via-orange-100/30 to-transparent rounded-full blur-3xl" />
+        {/* Top-right soft peach glow */}
+        <div className="absolute -top-24 -right-24 w-[500px] h-[500px] bg-gradient-radial from-orange-200/40 via-amber-100/20 to-transparent rounded-full blur-3xl" />
+        {/* Bottom-center warm red-orange */}
+        <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-radial from-[#f0512f]/12 via-amber-200/15 to-transparent rounded-full blur-3xl" />
+        {/* Subtle dot grid overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.3]"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(120,53,15,0.12) 1px, transparent 1px)',
+            backgroundSize: '22px 22px',
+          }}
+        />
       </div>
 
+      {/* ── Floating ambient orbs (animated) ── */}
+      <motion.div
+        animate={{ x: [0, 18, -12, 0], y: [0, -22, 14, 0], scale: [1, 1.08, 0.96, 1] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-1/4 left-1/6 w-72 h-72 bg-amber-300/20 rounded-full blur-3xl pointer-events-none"
+      />
+      <motion.div
+        animate={{ x: [0, -15, 20, 0], y: [0, 18, -10, 0], scale: [1, 0.92, 1.06, 1] }}
+        transition={{ duration: 24, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
+        className="absolute bottom-1/3 right-1/6 w-80 h-80 bg-orange-200/25 rounded-full blur-3xl pointer-events-none"
+      />
+
+      {/* ── Centered content wrapper ── */}
+      <div className={`relative z-10 w-full ${maxWidth} mx-auto px-4 py-10`}>
+
+        {/* Logo — above card */}
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="flex justify-center mb-7"
+        >
+          <Link to="/" className="inline-flex">
+            <NebulaLogo />
+          </Link>
+        </motion.div>
+
+        {/* ── Main floating card ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+          className="bg-white rounded-2xl border border-[rgba(0,0,0,0.08)] shadow-[0_8px_40px_rgba(0,0,0,0.10),0_1px_3px_rgba(0,0,0,0.06)] overflow-hidden"
+        >
+          {/* Card header with title */}
+          {(heading || subheading) && (
+            <div className="px-8 pt-8 pb-6 text-center border-b border-slate-100">
+              <motion.h1
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.12, duration: 0.4 }}
+                className="text-[1.6rem] font-bold text-slate-950 tracking-tight mb-1.5"
+              >
+                {heading}
+              </motion.h1>
+              {subheading && (
+                <motion.p
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.18, duration: 0.4 }}
+                  className="text-sm text-slate-500 leading-relaxed"
+                >
+                  {subheading}
+                </motion.p>
+              )}
+            </div>
+          )}
+
+          {/* Card body — form slot */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25, duration: 0.4 }}
+            className="px-8 py-7"
+          >
+            {children}
+          </motion.div>
+        </motion.div>
+
+        {/* Below-card footer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.4 }}
+          className="flex items-center justify-center gap-4 mt-6 text-[11px] text-slate-400"
+        >
+          <Link to="/" className="hover:text-slate-600 transition-colors">Home</Link>
+          <span>·</span>
+          <a href="#" className="hover:text-slate-600 transition-colors">Privacy</a>
+          <span>·</span>
+          <a href="#" className="hover:text-slate-600 transition-colors">Security</a>
+          <span>·</span>
+          <span>© {new Date().getFullYear()} Nebula Hub</span>
+        </motion.div>
+      </div>
     </div>
   );
 };

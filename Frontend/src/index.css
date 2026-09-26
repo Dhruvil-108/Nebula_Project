@@ -701,6 +701,10 @@ html {
   .zorvi-glow {
     box-shadow: 0 4px 25px -4px rgba(240, 81, 47, 0.2);
   }
+
+  .bg-gradient-radial {
+    background-image: radial-gradient(var(--tw-gradient-stops));
+  }
 }
 
 /* Custom scrollbar matching Zorvi design */
