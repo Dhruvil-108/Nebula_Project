@@ -414,6 +414,13 @@ const uploadEmployeeDocument = async (req, res) => {
       return res.status(400).json({ error: 'Invalid document type.' });
     }
 
+    if (!isManagementRole(req.user.role)) {
+      const self = await Employee.findOne(scopedFilter(req, { userId: req.user._id })).lean();
+      if (!self || self._id.toString() !== id) {
+        return res.status(403).json({ error: 'Access denied. You can only upload documents to your own employee record.' });
+      }
+    }
+
     const employee = await Employee.findOne(scopedFilter(req, { _id: id })).lean();
     if (!employee) {
       return res.status(404).json({ error: 'Employee not found.' });
@@ -449,11 +456,19 @@ const deleteEmployeeDocument = async (req, res) => {
       return res.status(400).json({ error: 'Invalid document id.' });
     }
 
-    const doc = await EmployeeDocument.findOneAndDelete(scopedFilter(req, { _id: id }));
+    const doc = await EmployeeDocument.findOne(scopedFilter(req, { _id: id }));
     if (!doc) {
       return res.status(404).json({ error: 'Document not found.' });
     }
 
+    if (!isManagementRole(req.user.role)) {
+      const self = await Employee.findOne(scopedFilter(req, { userId: req.user._id })).lean();
+      if (!self || doc.employeeId.toString() !== self._id.toString()) {
+        return res.status(403).json({ error: 'Access denied. You can only delete your own documents.' });
+      }
+    }
+
+    await doc.deleteOne();
     return res.json({ message: 'Document deleted successfully.' });
   } catch (err) {
     console.error('[employeeController.deleteEmployeeDocument] Error:', err);

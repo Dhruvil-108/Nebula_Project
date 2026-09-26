@@ -286,6 +286,28 @@ const approveLeaveRequest = async (req, res) => {
     return res.status(400).json({ error: 'Invalid leave request id.' });
   }
 
+  // Pre-flight check: Segregation of duties prevents self-approval for non-super_admins
+  const preCheck = await LeaveRequest.findOne({ _id: id, organizationId: req.organizationId }).lean();
+  if (!preCheck) {
+    return res.status(404).json({ error: 'Leave request not found.' });
+  }
+  if (preCheck.status !== 'pending') {
+    return res.status(400).json({ error: `Cannot approve a request that is already ${preCheck.status}.` });
+  }
+
+  let isOwnRequest = preCheck.employeeId.toString() === req.user._id.toString();
+  if (!isOwnRequest) {
+    const ownEmp = await Employee.findOne({ userId: req.user._id, organizationId: req.organizationId }).select('_id').lean();
+    if (ownEmp && preCheck.employeeId.toString() === ownEmp._id.toString()) {
+      isOwnRequest = true;
+    }
+  }
+  if (isOwnRequest && req.user.role !== 'super_admin') {
+    return res.status(403).json({
+      error: 'Self-approval is not permitted. Your leave request must be approved by another manager or administrator.',
+    });
+  }
+
   const approveOps = async (session) => {
     const opts = session ? { session } : {};
     const request = await LeaveRequest.findOne({ _id: id, organizationId: req.organizationId }).session(session || null);
@@ -505,6 +527,19 @@ const rejectLeaveRequest = async (req, res) => {
     }
     if (request.status !== 'pending') {
       return res.status(400).json({ error: `Cannot reject a request that is already ${request.status}.` });
+    }
+
+    let isOwnRequest = request.employeeId.toString() === req.user._id.toString();
+    if (!isOwnRequest) {
+      const ownEmp = await Employee.findOne({ userId: req.user._id, organizationId: req.organizationId }).select('_id').lean();
+      if (ownEmp && request.employeeId.toString() === ownEmp._id.toString()) {
+        isOwnRequest = true;
+      }
+    }
+    if (isOwnRequest && req.user.role !== 'super_admin') {
+      return res.status(403).json({
+        error: 'Self-review is not permitted. Your leave request must be reviewed by another manager or administrator.',
+      });
     }
 
     request.status = 'rejected';

@@ -282,15 +282,14 @@ const createUser = async (req, res) => {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Check if account with same email exists in the organization
+    // Check if account with same email exists anywhere in the system (must be globally unique for login)
     const existing = await User.findOne({
       email: normalizedEmail,
-      organizationId: orgId,
     });
 
     if (existing) {
       return res.status(409).json({
-        error: `An account with email "${normalizedEmail}" already exists in this organization.`,
+        error: `An account with email "${normalizedEmail}" already exists.`,
       });
     }
 

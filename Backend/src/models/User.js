@@ -59,10 +59,9 @@ const userSchema = new mongoose.Schema(
 );
 
 /**
- * Compound unique index: email is unique WITHIN an organization.
- * The same person can have accounts across different organizations
- * (though in our current login flow we treat email as globally unique).
+ * Unique index on email: emails are globally unique across the platform
+ * so that login lookup by email is always unambiguous and safe.
  */
-userSchema.index({ email: 1, organizationId: 1 }, { unique: true });
+userSchema.index({ email: 1 }, { unique: true });
 
 module.exports = mongoose.model('User', userSchema);

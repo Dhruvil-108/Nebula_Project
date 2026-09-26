@@ -165,7 +165,18 @@ const getDashboardStats = async (req, res) => {
       .limit(5)
       .lean();
 
-    // 7. Managed staff count (for HR)
+    // 7. Role-based privacy scoping:
+    // Management roles (super_admin, admin, manager, hr) receive the team roster and all pending leaves for approval.
+    // Non-management accounts receive only their own pending requests and no colleague rosters.
+    const isManagementRole = ['super_admin', 'admin', 'manager', 'hr'].includes(userRole);
+    const visibleRoster = isManagementRole ? todayRoster : [];
+    const visiblePendingLeaves = isManagementRole
+      ? pendingLeaves
+      : pendingLeaves.filter(
+          (l) => l.employeeId?._id?.toString() === userId.toString()
+        );
+
+    // Managed staff count (for HR/Admin)
     const managedStaffCount = allUsers.filter((u) =>
       ['employee', 'intern', 'recruiter'].includes(u.role)
     ).length;
@@ -179,17 +190,17 @@ const getDashboardStats = async (req, res) => {
       },
       stats: {
         totalAccounts,
-        roleDistribution,
-        activeRolesList,
+        roleDistribution: isManagementRole ? roleDistribution : {},
+        activeRolesList: isManagementRole ? activeRolesList : [],
         checkedInTodayCount,
         onBreakTodayCount,
         checkedOutTodayCount,
         notCheckedInTodayCount,
         activeTodayTotal,
         todayAttendanceRate,
-        pendingLeavesCount,
-        configuredPermissionsCount,
-        managedStaffCount,
+        pendingLeavesCount: isManagementRole ? pendingLeavesCount : myPendingLeavesCount,
+        configuredPermissionsCount: isManagementRole ? configuredPermissionsCount : 0,
+        managedStaffCount: isManagementRole ? managedStaffCount : 0,
         upcomingHolidaysCount: upcomingHolidays.length,
       },
       personal: {
@@ -199,8 +210,8 @@ const getDashboardStats = async (req, res) => {
         myRemainingLeaves,
         myPendingLeavesCount,
       },
-      todayRoster,
-      pendingLeaves: pendingLeaves.map((l) => ({
+      todayRoster: visibleRoster,
+      pendingLeaves: visiblePendingLeaves.map((l) => ({
         id: l._id.toString(),
         employeeName: l.employeeId?.fullName || 'Team Member',
         employeeEmail: l.employeeId?.email || '',

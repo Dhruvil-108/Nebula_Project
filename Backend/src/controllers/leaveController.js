@@ -150,6 +150,13 @@ const approveLeaveRequest = async (req, res) => {
       });
     }
 
+    // Segregation of duties: managers/admins cannot self-approve their own leave requests
+    if (leaveRequest.employeeId.toString() === req.user._id.toString() && req.user.role !== 'super_admin') {
+      return res.status(403).json({
+        error: 'Self-approval is not permitted. Your leave request must be approved by another manager or administrator.',
+      });
+    }
+
     const year = new Date(leaveRequest.startDate).getUTCFullYear();
 
     // 1. Enforce balance ceiling so used never exceeds allocated
@@ -242,6 +249,12 @@ const rejectLeaveRequest = async (req, res) => {
     if (leaveRequest.status !== 'pending') {
       return res.status(400).json({
         error: `Cannot reject a request that is already ${leaveRequest.status}.`,
+      });
+    }
+
+    if (leaveRequest.employeeId.toString() === req.user._id.toString() && req.user.role !== 'super_admin') {
+      return res.status(403).json({
+        error: 'Self-review is not permitted. Your leave request must be reviewed by another manager or administrator.',
       });
     }
 
