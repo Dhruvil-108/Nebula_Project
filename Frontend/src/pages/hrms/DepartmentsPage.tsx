@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2,
   Search,
@@ -22,6 +22,7 @@ import { Drawer } from '../../components/crm/Drawer';
 import { InfoTile } from '../../components/hrms/InfoTile';
 import { useModuleAccess } from '../../hooks/useModuleAccess';
 import type { Department } from '../../types/hrms';
+import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 
 const initialForm = { name: '', headId: '', description: '' };
 
@@ -248,87 +249,97 @@ export const DepartmentsPage: React.FC = () => {
       </div>
 
       {/* ── Create/Edit modal ── */}
-      {canCreate && showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={closeModal} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
-              <h3 className="text-base font-semibold text-[#1A1A1A]">
-                {editing ? 'Edit Department' : 'Add Department'}
-              </h3>
-              <button
-                type="button"
-                onClick={closeModal}
-                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                  Name <span className="text-[#DC2626]">*</span>
-                </label>
-                <input
-                  required
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className={inputCls}
-                  placeholder="e.g. Engineering"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Department head</label>
-                <select
-                  value={form.headId}
-                  onChange={(e) => setForm({ ...form, headId: e.target.value })}
-                  className={inputCls}
-                >
-                  <option value="">No head</option>
-                  {(employees || []).map((emp) => (
-                    <option key={emp._id} value={emp._id}>
-                      {emp.fullName} ({emp.employeeCode})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Description</label>
-                <textarea
-                  rows={2}
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className={`${inputCls} resize-none`}
-                  placeholder="What does this department do?"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
+      <AnimatePresence>
+        {canCreate && showCreate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={closeModal}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
+                <h3 className="text-base font-semibold text-[#1A1A1A]">
+                  {editing ? 'Edit Department' : 'Add Department'}
+                </h3>
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending || !form.name.trim()}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
-                >
-                  {(createMutation.isPending || updateMutation.isPending) && (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  )}
-                  {editing ? 'Save Changes' : 'Create Department'}
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                    Name <span className="text-[#DC2626]">*</span>
+                  </label>
+                  <input
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className={inputCls}
+                    placeholder="e.g. Engineering"
+                  />
+                </div>
+                <div>
+                  <FloatingDropdown
+                    label="Department head"
+                    value={form.headId}
+                    onChange={(val) => setForm({ ...form, headId: val })}
+                    options={[
+                      { value: '', label: 'No head' },
+                      ...(employees || []).map((emp) => ({
+                        value: emp._id,
+                        label: `${emp.fullName} (${emp.employeeCode})`,
+                      })),
+                    ]}
+                    searchable={true}
+                    searchPlaceholder="Search employee..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Description</label>
+                  <textarea
+                    rows={2}
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    className={`${inputCls} resize-none`}
+                    placeholder="What does this department do?"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={createMutation.isPending || updateMutation.isPending || !form.name.trim()}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
+                  >
+                    {(createMutation.isPending || updateMutation.isPending) && (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    )}
+                    {editing ? 'Save Changes' : 'Create Department'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ── Detail drawer with members ── */}
       <Drawer

@@ -27,6 +27,9 @@ import {
   Gauge,
   ChevronsUpDown,
   Search,
+  CheckSquare,
+  PieChart,
+  Tags,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SidebarNavItem } from './SidebarNavItem';
@@ -282,6 +285,45 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   { to: '/dashboard/hrms/departments', icon: <Network className="w-3.5 h-3.5" />, label: 'Departments' },
                   { to: '/dashboard/hrms/holidays', icon: <CalendarEvent className="w-3.5 h-3.5" />, label: 'Holidays' },
                   { to: '/dashboard/hrms/documents', icon: <FileText className="w-3.5 h-3.5" />, label: 'Documents' },
+                ]}
+              />
+            );
+          }
+
+          if (item.to === '/dashboard/recruitment') {
+            return (
+              <SidebarNavGroup
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+                collapsed={collapsed}
+                subItems={[
+                  { to: '/dashboard/recruitment', icon: <LayoutDashboard className="w-3.5 h-3.5" />, label: 'Overview' },
+                  { to: '/dashboard/recruitment/jobs', icon: <Briefcase className="w-3.5 h-3.5" />, label: 'Job Openings' },
+                  { to: '/dashboard/recruitment/pipeline', icon: <Kanban className="w-3.5 h-3.5" />, label: 'ATS Pipeline' },
+                  { to: '/dashboard/recruitment/candidates', icon: <Users className="w-3.5 h-3.5" />, label: 'Candidates' },
+                  { to: '/dashboard/recruitment/interviews', icon: <CalendarEvent className="w-3.5 h-3.5" />, label: 'Interviews' },
+                  { to: '/dashboard/recruitment/offers', icon: <FileText className="w-3.5 h-3.5" />, label: 'Offers & Hire' },
+                ]}
+              />
+            );
+          }
+
+          if (item.to === '/dashboard/expenses') {
+            return (
+              <SidebarNavGroup
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+                collapsed={collapsed}
+                subItems={[
+                  { to: '/dashboard/expenses', icon: <LayoutDashboard className="w-3.5 h-3.5" />, label: 'Overview' },
+                  { to: '/dashboard/expenses/my-claims', icon: <Receipt className="w-3.5 h-3.5" />, label: 'My Claims' },
+                  { to: '/dashboard/expenses/approvals', icon: <CheckSquare className="w-3.5 h-3.5" />, label: 'Approvals' },
+                  { to: '/dashboard/expenses/budgets', icon: <PieChart className="w-3.5 h-3.5" />, label: 'Budgets' },
+                  { to: '/dashboard/expenses/categories', icon: <Tags className="w-3.5 h-3.5" />, label: 'Categories & Policy' },
                 ]}
               />
             );

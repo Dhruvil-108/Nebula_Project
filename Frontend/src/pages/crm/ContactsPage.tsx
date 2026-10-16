@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../lib/apiClient';
 import {
@@ -23,6 +23,7 @@ import { InfoTile } from '../../components/crm/InfoTile';
 import { crmApi } from '../../lib/crmApi';
 import { useModuleAccess } from '../../hooks/useModuleAccess';
 import type { Contact } from '../../types/crm';
+import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 
 interface OwnerOption {
   _id: string;
@@ -146,14 +147,21 @@ export const ContactsPage: React.FC = () => {
             className={`${inputCls} pl-9`}
           />
         </div>
-        <select value={companyFilter} onChange={(e) => setCompanyFilter(e.target.value)} className={`${inputCls} sm:w-56`}>
-          <option value="">All companies</option>
-          {(companies || []).map((c) => (
-            <option key={c._id} value={c._id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+        <FloatingDropdown
+          value={companyFilter}
+          onChange={(val) => setCompanyFilter(val)}
+          options={[
+            { value: '', label: 'All companies' },
+            ...(companies || []).map((c) => ({
+              value: c._id,
+              label: c.name,
+            })),
+          ]}
+          searchable={true}
+          searchPlaceholder="Search company..."
+          fullWidth={false}
+          className="sm:w-56"
+        />
       </div>
 
       {/* Table */}
@@ -229,14 +237,22 @@ export const ContactsPage: React.FC = () => {
       </div>
 
       {/* Create modal */}
-      {canCreate && showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowCreate(false)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
+      <AnimatePresence>
+        {canCreate && showCreate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setShowCreate(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
               <h3 className="text-base font-semibold text-[#1A1A1A]">Add Contact</h3>
               <button
@@ -262,19 +278,20 @@ export const ContactsPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Company</label>
-                  <select
+                  <FloatingDropdown
+                    label="Company"
                     value={form.companyId}
-                    onChange={(e) => setForm({ ...form, companyId: e.target.value })}
-                    className={inputCls}
-                  >
-                    <option value="">No company</option>
-                    {(companies || []).map((c) => (
-                      <option key={c._id} value={c._id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, companyId: val })}
+                    options={[
+                      { value: '', label: 'No company' },
+                      ...(companies || []).map((c) => ({
+                        value: c._id,
+                        label: c.name,
+                      })),
+                    ]}
+                    searchable={true}
+                    searchPlaceholder="Search company..."
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Job title</label>
@@ -305,19 +322,18 @@ export const ContactsPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Owner</label>
-                  <select
+                  <FloatingDropdown
+                    label="Owner"
                     value={form.owner}
-                    onChange={(e) => setForm({ ...form, owner: e.target.value })}
-                    className={inputCls}
-                  >
-                    <option value="">Me (default)</option>
-                    {(owners || []).map((o) => (
-                      <option key={o._id} value={o._id}>
-                        {o.fullName}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, owner: val })}
+                    options={[
+                      { value: '', label: 'Me (default)' },
+                      ...(owners || []).map((o) => ({
+                        value: o._id,
+                        label: o.fullName,
+                      })),
+                    ]}
+                  />
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
@@ -341,6 +357,7 @@ export const ContactsPage: React.FC = () => {
           </motion.div>
         </div>
       )}
+    </AnimatePresence>
 
       {/* Detail drawer */}
       <Drawer

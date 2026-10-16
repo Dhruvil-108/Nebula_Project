@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
+import { FloatingDropdown } from '../ui/FloatingDropdown';
 
 export interface IndustryOption {
   id: string;
@@ -343,55 +344,36 @@ export const WizardStepOrganization: React.FC<WizardStepOrganizationProps> = ({
           </div>
 
           {/* Industry Selection */}
-          <div className="space-y-1.5">
-            <label className="block text-xs font-semibold text-slate-700">
-              Industry Sector <span className="text-rose-500">*</span>
-            </label>
-            <div className="relative">
-              <select
-                value={formData.industry || 'Technology & SaaS'}
-                onChange={(e) => {
-                  const selectedName = e.target.value;
-                  const matched = INDUSTRIES.find((ind) => ind.name === selectedName);
-                  updateFormData({
-                    industry: selectedName,
-                    subIndustry: matched?.subIndustries[0] || 'General',
-                  });
-                }}
-                className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#f0512f] focus:ring-2 focus:ring-[#f0512f]/20 transition-all appearance-none cursor-pointer pr-10 shadow-xs"
-              >
-                {INDUSTRIES.map((ind) => (
-                  <option key={ind.id} value={ind.name} className="bg-white text-slate-800">
-                    {ind.icon} {ind.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+          <div>
+            <FloatingDropdown
+              label="Industry Sector *"
+              value={formData.industry || 'Technology & SaaS'}
+              onChange={(val) => {
+                const selectedName = val;
+                const matched = INDUSTRIES.find((ind) => ind.name === selectedName);
+                updateFormData({
+                  industry: selectedName,
+                  subIndustry: matched?.subIndustries[0] || 'General',
+                });
+              }}
+              options={INDUSTRIES.map((ind) => ({
+                value: ind.name,
+                label: `${ind.icon} ${ind.name}`,
+              }))}
+            />
           </div>
 
           {/* Sub-Industry Selection (Dynamic) */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="block text-xs font-semibold text-slate-700">
-                Sub-Industry / Specialization
-              </label>
-              <span className="text-[10px] text-slate-500 font-medium">Contextual templates</span>
-            </div>
-            <div className="relative">
-              <select
-                value={formData.subIndustry || currentIndustryObj.subIndustries[0]}
-                onChange={(e) => updateFormData({ subIndustry: e.target.value })}
-                className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-[#f0512f] focus:ring-2 focus:ring-[#f0512f]/20 transition-all appearance-none cursor-pointer pr-10 shadow-xs"
-              >
-                {currentIndustryObj.subIndustries.map((sub, idx) => (
-                  <option key={idx} value={sub} className="bg-white text-slate-800">
-                    {sub}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-4 h-4 text-slate-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+          <div>
+            <FloatingDropdown
+              label="Sub-Industry / Specialization"
+              value={formData.subIndustry || currentIndustryObj.subIndustries[0]}
+              onChange={(val) => updateFormData({ subIndustry: val })}
+              options={currentIndustryObj.subIndustries.map((sub) => ({
+                value: sub,
+                label: sub,
+              }))}
+            />
           </div>
 
           {/* Website / Domain */}

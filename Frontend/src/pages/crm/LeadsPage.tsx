@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../lib/apiClient';
 import {
@@ -22,6 +22,7 @@ import { ActivityTimeline } from '../../components/crm/ActivityTimeline';
 import { InfoTile } from '../../components/crm/InfoTile';
 import { crmApi } from '../../lib/crmApi';
 import { useModuleAccess } from '../../hooks/useModuleAccess';
+import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 import {
   PIPELINE_STAGES,
   STAGE_LABELS,
@@ -183,22 +184,32 @@ export const LeadsPage: React.FC = () => {
             className={`${inputCls} pl-9`}
           />
         </div>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={`${inputCls} sm:w-44`}>
-          <option value="">All statuses</option>
-          {PIPELINE_STAGES.map((s) => (
-            <option key={s} value={s}>
-              {STAGE_LABELS[s]}
-            </option>
-          ))}
-        </select>
-        <select value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)} className={`${inputCls} sm:w-48`}>
-          <option value="">All owners</option>
-          {(owners || []).map((o) => (
-            <option key={o._id} value={o._id}>
-              {o.fullName}
-            </option>
-          ))}
-        </select>
+        <FloatingDropdown
+          value={statusFilter}
+          onChange={(val) => setStatusFilter(val)}
+          options={[
+            { value: '', label: 'All statuses' },
+            ...PIPELINE_STAGES.map((s) => ({
+              value: s,
+              label: STAGE_LABELS[s],
+            })),
+          ]}
+          fullWidth={false}
+          className="sm:w-44"
+        />
+        <FloatingDropdown
+          value={ownerFilter}
+          onChange={(val) => setOwnerFilter(val)}
+          options={[
+            { value: '', label: 'All owners' },
+            ...(owners || []).map((o) => ({
+              value: o._id,
+              label: o.fullName,
+            })),
+          ]}
+          fullWidth={false}
+          className="sm:w-48"
+        />
       </div>
 
       {/* ── Table ── */}
@@ -310,14 +321,22 @@ export const LeadsPage: React.FC = () => {
       </div>
 
       {/* ── Create modal ── */}
-      {canCreate && showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowCreate(false)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
+      <AnimatePresence>
+        {canCreate && showCreate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setShowCreate(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
               <h3 className="text-base font-semibold text-[#1A1A1A]">Add Lead</h3>
               <button
@@ -380,33 +399,29 @@ export const LeadsPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Source</label>
-                  <select
+                  <FloatingDropdown
+                    label="Source"
                     value={form.source}
-                    onChange={(e) => setForm({ ...form, source: e.target.value as LeadSource })}
-                    className={inputCls}
-                  >
-                    {LEAD_SOURCES.map((s) => (
-                      <option key={s} value={s}>
-                        {SOURCE_LABELS[s]}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, source: val as LeadSource })}
+                    options={LEAD_SOURCES.map((s) => ({
+                      value: s,
+                      label: SOURCE_LABELS[s],
+                    }))}
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Owner</label>
-                  <select
+                  <FloatingDropdown
+                    label="Owner"
                     value={form.owner}
-                    onChange={(e) => setForm({ ...form, owner: e.target.value })}
-                    className={inputCls}
-                  >
-                    <option value="">Me (default)</option>
-                    {(owners || []).map((o) => (
-                      <option key={o._id} value={o._id}>
-                        {o.fullName}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, owner: val })}
+                    options={[
+                      { value: '', label: 'Me (default)' },
+                      ...(owners || []).map((o) => ({
+                        value: o._id,
+                        label: o.fullName,
+                      })),
+                    ]}
+                  />
                 </div>
               </div>
               <div>
@@ -440,6 +455,7 @@ export const LeadsPage: React.FC = () => {
           </motion.div>
         </div>
       )}
+    </AnimatePresence>
 
       {/* ── Detail drawer ── */}
       <Drawer

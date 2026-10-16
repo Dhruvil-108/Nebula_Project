@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -719,21 +719,23 @@ export const ProfilePage: React.FC = () => {
       )}
 
       {/* Edit Profile Modal */}
-      {editOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-          onClick={() => setEditOpen(false)}
-        >
-          <motion.div
-            initial={{ scale: 0.95, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.95, y: 20 }}
-            className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
+      <AnimatePresence>
+        {editOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setEditOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl border border-[#ECE0D6] p-6 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900">Edit Profile</h2>
               <button
@@ -793,8 +795,9 @@ export const ProfilePage: React.FC = () => {
               </Button>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       )}
+    </AnimatePresence>
     </div>
   );
 };

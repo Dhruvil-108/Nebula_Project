@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarDays,
   Check,
@@ -21,6 +21,7 @@ import { useModuleAccess } from '../../hooks/useModuleAccess';
 import { useAuth } from '../../contexts/AuthContext';
 import type { LeaveRequest } from '../../types/hrms';
 import { LEAVE_REQUEST_STATUSES, LEAVE_STATUS_LABELS } from '../../types/hrms';
+import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 
 const fmtDate = (d: string) => new Date(d).toLocaleDateString();
 
@@ -165,101 +166,104 @@ const MyLeave: React.FC = () => {
       </div>
 
       {/* ── Request modal ── */}
-      {showRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowRequest(false)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
-              <h3 className="text-base font-semibold text-[#1A1A1A]">Request Leave</h3>
-              <button
-                type="button"
-                onClick={() => setShowRequest(false)}
-                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                  Leave type <span className="text-[#DC2626]">*</span>
-                </label>
-                <select
-                  required
-                  value={form.leaveTypeId}
-                  onChange={(e) => setForm({ ...form, leaveTypeId: e.target.value })}
-                  className={inputCls}
-                >
-                  <option value="">Select a leave type…</option>
-                  {(leaveTypes || []).map((t) => (
-                    <option key={t._id} value={t._id}>
-                      {t.name} ({t.annualQuota > 0 ? `${t.annualQuota} days/yr` : 'unpaid'})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                    Start date <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={form.startDate}
-                    onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                    className={inputCls}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                    End date <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    min={form.startDate || undefined}
-                    value={form.endDate}
-                    onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                    className={inputCls}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Reason</label>
-                <textarea
-                  rows={2}
-                  value={form.reason}
-                  onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                  className={`${inputCls} resize-none`}
-                  placeholder="Context for your approver…"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
+      <AnimatePresence>
+        {showRequest && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setShowRequest(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
+                <h3 className="text-base font-semibold text-[#1A1A1A]">Request Leave</h3>
                 <button
                   type="button"
                   onClick={() => setShowRequest(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={createMutation.isPending || !form.leaveTypeId || !form.startDate || !form.endDate}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
-                >
-                  {createMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  Submit Request
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <div>
+                  <FloatingDropdown
+                    label="Leave type *"
+                    value={form.leaveTypeId}
+                    onChange={(val) => setForm({ ...form, leaveTypeId: val })}
+                    options={(leaveTypes || []).map((t) => ({
+                      value: t._id,
+                      label: `${t.name} (${t.annualQuota > 0 ? `${t.annualQuota} days/yr` : 'unpaid'})`,
+                    }))}
+                    placeholder="Select a leave type…"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                      Start date <span className="text-[#DC2626]">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={form.startDate}
+                      onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                      className={inputCls}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                      End date <span className="text-[#DC2626]">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      min={form.startDate || undefined}
+                      value={form.endDate}
+                      onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                      className={inputCls}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Reason</label>
+                  <textarea
+                    rows={2}
+                    value={form.reason}
+                    onChange={(e) => setForm({ ...form, reason: e.target.value })}
+                    className={`${inputCls} resize-none`}
+                    placeholder="Context for your approver…"
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowRequest(false)}
+                    className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={createMutation.isPending || !form.leaveTypeId || !form.startDate || !form.endDate}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
+                  >
+                    {createMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    Submit Request
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -297,18 +301,19 @@ const Approvals: React.FC = () => {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <select
+          <FloatingDropdown
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className={`${inputCls} sm:w-44`}
-          >
-            <option value="">All statuses</option>
-            {LEAVE_REQUEST_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {LEAVE_STATUS_LABELS[s]}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setStatusFilter(val)}
+            options={[
+              { value: '', label: 'All statuses' },
+              ...LEAVE_REQUEST_STATUSES.map((s) => ({
+                value: s,
+                label: LEAVE_STATUS_LABELS[s],
+              })),
+            ]}
+            fullWidth={false}
+            className="sm:w-44"
+          />
           <button
             type="button"
             onClick={() => refetch()}

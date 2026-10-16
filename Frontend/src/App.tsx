@@ -26,8 +26,16 @@ import LeavePage from './pages/hrms/LeavePage';
 import DepartmentsPage from './pages/hrms/DepartmentsPage';
 import HolidaysPage from './pages/hrms/HolidaysPage';
 import DocumentsPage from './pages/hrms/DocumentsPage';
-import RecruitmentPage from './pages/modules/RecruitmentPage';
-import ExpensesPage from './pages/modules/ExpensesPage';
+import { RecruitmentDashboardPage } from './pages/recruitment/RecruitmentDashboardPage';
+import { JobsPage } from './pages/recruitment/JobsPage';
+import { PipelinePage as RecruitmentPipelinePage } from './pages/recruitment/PipelinePage';
+import { CandidatesPage } from './pages/recruitment/CandidatesPage';
+import { InterviewsPage } from './pages/recruitment/InterviewsPage';
+import { ExpensesOverviewPage } from './pages/expenses/ExpensesOverviewPage';
+import { MyExpensesPage } from './pages/expenses/MyExpensesPage';
+import { ExpenseApprovalsPage } from './pages/expenses/ExpenseApprovalsPage';
+import { ExpenseBudgetsPage } from './pages/expenses/ExpenseBudgetsPage';
+import { ExpenseCategoriesPage } from './pages/expenses/ExpenseCategoriesPage';
 import InventoryPage from './pages/modules/InventoryPage';
 import AnalyticsPage from './pages/modules/AnalyticsPage';
 import { ManagePermissionsPage } from './pages/ManagePermissionsPage';
@@ -212,8 +220,16 @@ export const App: React.FC = () => {
               <Route path="hrms/departments" element={<DepartmentsPage />} />
               <Route path="hrms/holidays" element={<HolidaysPage />} />
               <Route path="hrms/documents" element={<DocumentsPage />} />
-              <Route path="recruitment" element={<RecruitmentPage />} />
-              <Route path="expenses" element={<ExpensesPage />} />
+              <Route path="recruitment" element={<RecruitmentDashboardPage />} />
+              <Route path="recruitment/jobs" element={<JobsPage />} />
+              <Route path="recruitment/pipeline" element={<RecruitmentPipelinePage />} />
+              <Route path="recruitment/candidates" element={<CandidatesPage />} />
+              <Route path="recruitment/interviews" element={<InterviewsPage />} />
+              <Route path="expenses" element={<ExpensesOverviewPage />} />
+              <Route path="expenses/my-claims" element={<MyExpensesPage />} />
+              <Route path="expenses/approvals" element={<ExpenseApprovalsPage />} />
+              <Route path="expenses/budgets" element={<ExpenseBudgetsPage />} />
+              <Route path="expenses/categories" element={<ExpenseCategoriesPage />} />
               <Route path="inventory" element={<InventoryPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="settings" element={<PlaceholderPage title="Settings" />} />

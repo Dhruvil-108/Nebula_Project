@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText,
   RefreshCw,
@@ -19,6 +19,7 @@ import {
 import { useModuleAccess } from '../../hooks/useModuleAccess';
 import { useAuth } from '../../contexts/AuthContext';
 import { DOC_TYPES, DOC_TYPE_LABELS, type DocType } from '../../types/hrms';
+import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 
 export const DocumentsPage: React.FC = () => {
   const { user } = useAuth();
@@ -93,19 +94,20 @@ export const DocumentsPage: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           {isManagement && (
-            <select
+            <FloatingDropdown
               value={selectedEmployeeId}
-              onChange={(e) => setSelectedEmployeeId(e.target.value)}
-              className="rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all sm:w-56"
-            >
-              {(visibleEmployees.length === 0 ? [{ _id: '', fullName: 'No employees' }] : visibleEmployees).map(
-                (emp) => (
-                  <option key={emp._id} value={emp._id}>
-                    {emp.fullName}
-                  </option>
-                )
+              onChange={(val) => setSelectedEmployeeId(val)}
+              options={(visibleEmployees.length === 0 ? [{ _id: '', fullName: 'No employees' }] : visibleEmployees).map(
+                (emp) => ({
+                  value: emp._id,
+                  label: emp.fullName,
+                })
               )}
-            </select>
+              searchable={true}
+              searchPlaceholder="Search employee..."
+              fullWidth={false}
+              className="sm:w-56"
+            />
           )}
           <button
             type="button"
@@ -219,89 +221,93 @@ export const DocumentsPage: React.FC = () => {
       </div>
 
       {/* ── Upload modal ── */}
-      {canUpload && showUpload && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowUpload(false)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
-              <h3 className="text-base font-semibold text-[#1A1A1A]">Upload Document</h3>
-              <button
-                type="button"
-                onClick={() => setShowUpload(false)}
-                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                  Document type <span className="text-[#DC2626]">*</span>
-                </label>
-                <select
-                  value={form.docType}
-                  onChange={(e) => setForm({ ...form, docType: e.target.value as DocType })}
-                  className={inputCls}
-                >
-                  {DOC_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {DOC_TYPE_LABELS[t]}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                  File name <span className="text-[#DC2626]">*</span>
-                </label>
-                <input
-                  required
-                  value={form.fileName}
-                  onChange={(e) => setForm({ ...form, fileName: e.target.value })}
-                  className={inputCls}
-                  placeholder="e.g. passport.pdf"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                  File URL <span className="text-[#DC2626]">*</span>
-                </label>
-                <input
-                  required
-                  value={form.fileUrl}
-                  onChange={(e) => setForm({ ...form, fileUrl: e.target.value })}
-                  className={inputCls}
-                  placeholder="https://storage.example.com/documents/passport.pdf"
-                />
-                <p className="text-[10px] text-[#9B9B9B] mt-1">
-                  Link to the stored file (S3, Drive, or your storage provider).
-                </p>
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
+      <AnimatePresence>
+        {canUpload && showUpload && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setShowUpload(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
+                <h3 className="text-base font-semibold text-[#1A1A1A]">Upload Document</h3>
                 <button
                   type="button"
                   onClick={() => setShowUpload(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={uploadMutation.isPending || !form.fileName.trim() || !form.fileUrl.trim()}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
-                >
-                  {uploadMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  Upload
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <div>
+                  <FloatingDropdown
+                    label="Document type *"
+                    value={form.docType}
+                    onChange={(val) => setForm({ ...form, docType: val as DocType })}
+                    options={DOC_TYPES.map((t) => ({
+                      value: t,
+                      label: DOC_TYPE_LABELS[t],
+                    }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                    File name <span className="text-[#DC2626]">*</span>
+                  </label>
+                  <input
+                    required
+                    value={form.fileName}
+                    onChange={(e) => setForm({ ...form, fileName: e.target.value })}
+                    className={inputCls}
+                    placeholder="e.g. passport.pdf"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                    File URL <span className="text-[#DC2626]">*</span>
+                  </label>
+                  <input
+                    required
+                    value={form.fileUrl}
+                    onChange={(e) => setForm({ ...form, fileUrl: e.target.value })}
+                    className={inputCls}
+                    placeholder="https://storage.example.com/documents/passport.pdf"
+                  />
+                  <p className="text-[10px] text-[#9B9B9B] mt-1">
+                    Link to the stored file (S3, Drive, or your storage provider).
+                  </p>
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowUpload(false)}
+                    className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={uploadMutation.isPending || !form.fileName.trim() || !form.fileUrl.trim()}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
+                  >
+                    {uploadMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    Upload
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

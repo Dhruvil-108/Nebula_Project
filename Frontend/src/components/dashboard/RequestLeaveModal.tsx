@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { X, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
 import { apiClient } from '../../lib/apiClient';
 import type { LeaveBalance } from '../../types/attendance';
+import { FloatingDropdown } from '../ui/FloatingDropdown';
 
 interface RequestLeaveModalProps {
   isOpen: boolean;
@@ -102,7 +103,7 @@ export const RequestLeaveModal: React.FC<RequestLeaveModalProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs"
           />
 
           {/* Dialog */}
@@ -110,7 +111,7 @@ export const RequestLeaveModal: React.FC<RequestLeaveModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            className="relative w-full max-w-lg p-6 bg-white border border-slate-200 rounded-2xl shadow-2xl z-10 space-y-6"
+            className="relative w-full max-w-lg p-6 bg-white border border-[#ECE0D6] rounded-2xl shadow-2xl z-10 space-y-6"
           >
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -132,21 +133,16 @@ export const RequestLeaveModal: React.FC<RequestLeaveModalProps> = ({
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Leave Type Select */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Leave Type
-                </label>
-                <select
+                <FloatingDropdown
+                  label="Leave Type"
                   id="leave-type-select"
                   value={leaveTypeId}
-                  onChange={(e) => setLeaveTypeId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#f97316] focus:border-[#f97316] transition-colors"
-                >
-                  {leaveBalances.map((b) => (
-                    <option key={b.id} value={b.leaveTypeId}>
-                      {b.leaveType} ({b.remaining} remaining of {b.allocated})
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setLeaveTypeId(val)}
+                  options={leaveBalances.map((b) => ({
+                    value: b.leaveTypeId,
+                    label: `${b.leaveType} (${b.remaining} remaining of ${b.allocated})`,
+                  }))}
+                />
               </div>
 
               {/* Date Range */}

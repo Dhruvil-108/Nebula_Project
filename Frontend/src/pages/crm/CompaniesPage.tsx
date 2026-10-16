@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2,
   Search,
@@ -203,14 +203,22 @@ export const CompaniesPage: React.FC = () => {
       </div>
 
       {/* Create modal */}
-      {canCreate && showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowCreate(false)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
+      <AnimatePresence>
+        {canCreate && showCreate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setShowCreate(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
               <h3 className="text-base font-semibold text-[#1A1A1A]">Add Company</h3>
               <button
@@ -293,6 +301,7 @@ export const CompaniesPage: React.FC = () => {
           </motion.div>
         </div>
       )}
+    </AnimatePresence>
 
       {/* Detail drawer */}
       <Drawer

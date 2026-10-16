@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../lib/apiClient';
 import {
@@ -26,6 +26,7 @@ import { ActivityTimeline } from '../../components/crm/ActivityTimeline';
 import { StagePill } from '../../components/crm/StagePill';
 import { InfoTile } from '../../components/crm/InfoTile';
 import { useModuleAccess } from '../../hooks/useModuleAccess';
+import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 import {
   PIPELINE_STAGES,
   STAGE_LABELS,
@@ -178,14 +179,19 @@ export const DealsPage: React.FC = () => {
             className={`${inputCls} pl-9`}
           />
         </div>
-        <select value={stageFilter} onChange={(e) => setStageFilter(e.target.value)} className={`${inputCls} sm:w-44`}>
-          <option value="">All stages</option>
-          {PIPELINE_STAGES.map((s) => (
-            <option key={s} value={s}>
-              {STAGE_LABELS[s]}
-            </option>
-          ))}
-        </select>
+        <FloatingDropdown
+          value={stageFilter}
+          onChange={(val) => setStageFilter(val)}
+          options={[
+            { value: '', label: 'All stages' },
+            ...PIPELINE_STAGES.map((s) => ({
+              value: s,
+              label: STAGE_LABELS[s],
+            })),
+          ]}
+          fullWidth={false}
+          className="sm:w-44"
+        />
       </div>
 
       {/* Table */}
@@ -293,14 +299,22 @@ export const DealsPage: React.FC = () => {
       </div>
 
       {/* Create modal */}
-      {canCreate && showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowCreate(false)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
+      <AnimatePresence>
+        {canCreate && showCreate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setShowCreate(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
               <h3 className="text-base font-semibold text-[#1A1A1A]">Add Deal</h3>
               <button
@@ -326,36 +340,38 @@ export const DealsPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Company</label>
-                  <select
+                  <FloatingDropdown
+                    label="Company"
                     value={form.companyId}
-                    onChange={(e) => setForm({ ...form, companyId: e.target.value, contactId: '' })}
-                    className={inputCls}
-                  >
-                    <option value="">No company</option>
-                    {(companies || []).map((c) => (
-                      <option key={c._id} value={c._id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, companyId: val, contactId: '' })}
+                    options={[
+                      { value: '', label: 'No company' },
+                      ...(companies || []).map((c) => ({
+                        value: c._id,
+                        label: c.name,
+                      })),
+                    ]}
+                    searchable={true}
+                    searchPlaceholder="Search company..."
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Contact</label>
-                  <select
+                  <FloatingDropdown
+                    label="Contact"
                     value={form.contactId}
-                    onChange={(e) => setForm({ ...form, contactId: e.target.value })}
-                    className={inputCls}
-                  >
-                    <option value="">No contact</option>
-                    {(allContacts || [])
-                      .filter((ct) => !form.companyId || ct.companyId?._id === form.companyId)
-                      .map((ct) => (
-                        <option key={ct._id} value={ct._id}>
-                          {ct.fullName}
-                        </option>
-                      ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, contactId: val })}
+                    options={[
+                      { value: '', label: 'No contact' },
+                      ...(allContacts || [])
+                        .filter((ct) => !form.companyId || ct.companyId?._id === form.companyId)
+                        .map((ct) => ({
+                          value: ct._id,
+                          label: ct.fullName,
+                        })),
+                    ]}
+                    searchable={true}
+                    searchPlaceholder="Search contact..."
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
@@ -392,18 +408,15 @@ export const DealsPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Stage</label>
-                  <select
+                  <FloatingDropdown
+                    label="Stage"
                     value={form.stage}
-                    onChange={(e) => setForm({ ...form, stage: e.target.value as PipelineStage })}
-                    className={inputCls}
-                  >
-                    {PIPELINE_STAGES.map((s) => (
-                      <option key={s} value={s}>
-                        {STAGE_LABELS[s]}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, stage: val as PipelineStage })}
+                    options={PIPELINE_STAGES.map((s) => ({
+                      value: s,
+                      label: STAGE_LABELS[s],
+                    }))}
+                  />
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
@@ -427,6 +440,7 @@ export const DealsPage: React.FC = () => {
           </motion.div>
         </div>
       )}
+    </AnimatePresence>
 
       {/* Detail drawer */}
       <Drawer

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import {
   AreaChart,
@@ -57,6 +57,7 @@ import { ROLE_LABELS } from '../../types/user';
 import type { Role } from '../../types/user';
 import { apiClient } from '../../lib/apiClient';
 import type { PermissionRowDto } from '../../hooks/useModuleAccess';
+import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 
 // ─────────────────────────────────────────────────────────
 // Theme tokens — identical palette to HRMS/Admin pages
@@ -566,28 +567,31 @@ const AccountsTab: React.FC<{ isSuper: boolean; selfId: string }> = ({
             className={`${inputCls} pl-9`}
           />
         </div>
-        <select
+        <FloatingDropdown
           value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value)}
-          className={`${inputCls} sm:w-44`}
-        >
-          <option value="">All roles</option>
-          {(isSuper ? ['super_admin', ...roleOptions] : roleOptions).map((r) => (
-            <option key={r} value={r}>
-              {ROLE_LABELS[r as Role] || r}
-            </option>
-          ))}
-        </select>
-        <select
+          onChange={(val) => setRoleFilter(val)}
+          options={[
+            { value: '', label: 'All roles' },
+            ...(isSuper ? ['super_admin', ...roleOptions] : roleOptions).map((r) => ({
+              value: r,
+              label: ROLE_LABELS[r as Role] || r,
+            })),
+          ]}
+          fullWidth={false}
+          className="sm:w-44"
+        />
+        <FloatingDropdown
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className={`${inputCls} sm:w-40`}
-        >
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="invited">Invited</option>
-          <option value="disabled">Disabled</option>
-        </select>
+          onChange={(val) => setStatusFilter(val)}
+          options={[
+            { value: '', label: 'All statuses' },
+            { value: 'active', label: 'Active', dotColor: '#10b981' },
+            { value: 'invited', label: 'Invited', dotColor: '#f59e0b' },
+            { value: 'disabled', label: 'Disabled', dotColor: '#ef4444' },
+          ]}
+          fullWidth={false}
+          className="sm:w-40"
+        />
         <button
           type="button"
           onClick={() => refetch()}
@@ -730,81 +734,82 @@ const AccountsTab: React.FC<{ isSuper: boolean; selfId: string }> = ({
         </div>
       </div>
 
-      {roleEditorFor && (
-        <div className="fixed inset-0 z-50 flex items-center editor justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-[2px]"
-            onClick={() => setRoleEditorFor(null)}
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
-              <h3 className="text-base font-semibold text-[#1A1A1A] flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-[#f97316]" />
-                Change Role
-              </h3>
-              <button
-                type="button"
-                onClick={() => setRoleEditorFor(null)}
-                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="rounded-xl bg-[#FBF8F4] border border-[#ECE0D6] px-4 py-3">
-                <p className="text-sm font-medium text-[#1A1A1A]">{roleEditorFor.fullName}</p>
-                <p className="text-xs text-[#6B6B6B]">{roleEditorFor.email}</p>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                  New role <span className="text-[#DC2626]">*</span>
-                </label>
-                <select
-                  value={newRole}
-                  onChange={(e) => setNewRole(e.target.value)}
-                  className={inputCls}
-                >
-                  {roleOptions.map((r) => (
-                    <option key={r} value={r}>
-                      {ROLE_LABELS[r as Role] || r}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[11px] text-[#9B9B9B] mt-2">
-                  Module access updates immediately and the change is recorded in the audit trail.
-                </p>
-              </div>
-              <div className="flex justify-end gap-2 pt-1">
+      <AnimatePresence>
+        {roleEditorFor && (
+          <div className="fixed inset-0 z-50 flex items-center editor justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setRoleEditorFor(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
+                <h3 className="text-base font-semibold text-[#1A1A1A] flex items-center gap-2">
+                  <KeyRound className="w-4 h-4 text-[#f97316]" />
+                  Change Role
+                </h3>
                 <button
                   type="button"
                   onClick={() => setRoleEditorFor(null)}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={!newRole || newRole === roleEditorFor.role || roleMutation.isPending}
-                  onClick={() =>
-                    roleMutation.mutate(
-                      { id: roleEditorFor.id, role: newRole },
-                      { onSuccess: () => setRoleEditorFor(null) }
-                    )
-                  }
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
-                >
-                  {roleMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  Update Role
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
+              <div className="p-6 space-y-4">
+                <div className="rounded-xl bg-[#FBF8F4] border border-[#ECE0D6] px-4 py-3">
+                  <p className="text-sm font-medium text-[#1A1A1A]">{roleEditorFor.fullName}</p>
+                  <p className="text-xs text-[#6B6B6B]">{roleEditorFor.email}</p>
+                </div>
+                <div>
+                  <FloatingDropdown
+                    label="New role *"
+                    value={newRole}
+                    onChange={(val) => setNewRole(val)}
+                    options={roleOptions.map((r) => ({
+                      value: r,
+                      label: ROLE_LABELS[r as Role] || r,
+                    }))}
+                  />
+                  <p className="text-[11px] text-[#9B9B9B] mt-2">
+                    Module access updates immediately and the change is recorded in the audit trail.
+                  </p>
+                </div>
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setRoleEditorFor(null)}
+                    className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!newRole || newRole === roleEditorFor.role || roleMutation.isPending}
+                    onClick={() =>
+                      roleMutation.mutate(
+                        { id: roleEditorFor.id, role: newRole },
+                        { onSuccess: () => setRoleEditorFor(null) }
+                      )
+                    }
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
+                  >
+                    {roleMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    Update Role
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -825,21 +830,24 @@ const AuditTab: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <select
+        <FloatingDropdown
           value={actionFilter}
-          onChange={(e) => {
-            setActionFilter(e.target.value);
+          onChange={(val) => {
+            setActionFilter(val);
             setPage(1);
           }}
-          className={`${inputCls} max-w-xs`}
-        >
-          <option value="">All actions</option>
-          {ADMIN_ACTIONS.map((a) => (
-            <option key={a} value={a}>
-              {a.replace(/_/g, ' ')}
-            </option>
-          ))}
-        </select>
+          options={[
+            { value: '', label: 'All actions' },
+            ...ADMIN_ACTIONS.map((a) => ({
+              value: a,
+              label: a.replace(/_/g, ' '),
+            })),
+          ]}
+          searchable={true}
+          searchPlaceholder="Search action..."
+          fullWidth={false}
+          className="max-w-xs"
+        />
         {data && (
           <p className="text-xs text-[#6B6B6B]">
             {data.total} event{data.total === 1 ? '' : 's'} · page {data.page} of{' '}

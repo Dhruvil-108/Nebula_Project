@@ -1,6 +1,7 @@
 import React from 'react';
 import { Mail, Plus, Trash2, ArrowRight, ArrowLeft, UserPlus } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { FloatingDropdown } from '../ui/FloatingDropdown';
 
 export interface TeammateInvite {
   email: string;
@@ -101,17 +102,16 @@ export const WizardStepInvites: React.FC<WizardStepInvitesProps> = ({
                 <Mail className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
               </div>
 
-              <select
+              <FloatingDropdown
                 value={invite.role}
-                onChange={(e) => handleChangeRole(idx, e.target.value as TeammateInvite['role'])}
-                className="bg-white border border-slate-200 text-slate-800 text-xs rounded-md px-2.5 py-2 focus:outline-none focus:border-[#f0512f] focus:ring-2 focus:ring-[#f0512f]/20"
-              >
-                {roleOptions.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => handleChangeRole(idx, val as TeammateInvite['role'])}
+                options={roleOptions.map((r) => ({
+                  value: r.value,
+                  label: r.label,
+                }))}
+                fullWidth={false}
+                className="w-44"
+              />
 
               <button
                 type="button"

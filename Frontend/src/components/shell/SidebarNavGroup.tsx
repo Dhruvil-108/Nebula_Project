@@ -26,7 +26,17 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
   subItems,
 }) => {
   const location = useLocation();
-  const isGroupActive = location.pathname === to || location.pathname.startsWith(to + '/');
+  const currentPath = location.pathname.replace(/\/$/, '');
+  const groupPath = to.replace(/\/$/, '');
+
+  // Check if current route is exactly the group root or any sub-route
+  const isExactGroupRoute = currentPath === groupPath;
+  const isAnySubRouteActive = subItems.some((sub) => {
+    const target = sub.to.replace(/\/$/, '');
+    return currentPath === target || (target !== groupPath && currentPath.startsWith(target + '/'));
+  });
+  const isGroupActive = isExactGroupRoute || isAnySubRouteActive;
+
   const [open, setOpen] = useState(isGroupActive);
 
   // Auto-expand group if navigated into
@@ -73,20 +83,25 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
     );
   }
 
+  // When open and a child is active, parent acts as open section header (not a competing active card)
+  const isParentActiveCard = isExactGroupRoute || (!open && isGroupActive);
+
   return (
-    <div>
+    <div className="space-y-0.5">
       {/* Group header button */}
       <button
         onClick={() => setOpen((o) => !o)}
         className={clsx(
           'post-login-nav-item w-full group relative flex items-center gap-3 px-3 py-2 rounded-xl text-sm select-none focus-visible:outline-none transition-all duration-150',
-          isGroupActive
+          isParentActiveCard
             ? 'post-login-nav-active bg-white text-slate-900 border border-slate-200/90 shadow-2xs font-semibold'
-            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 border border-transparent font-medium'
+            : isGroupActive
+              ? 'text-slate-900 hover:bg-slate-100/70 border border-transparent font-semibold'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 border border-transparent font-medium'
         )}
         aria-expanded={open}
       >
-        {isGroupActive && (
+        {isParentActiveCard && (
           <span
             className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#ea580c]"
             aria-hidden="true"
@@ -131,28 +146,48 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
             transition={{ duration: 0.16, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="mt-0.5 ml-4 pl-3 space-y-0.5" style={{ borderLeft: '1.5px solid #e2e8f0' }}>
+            <div className="relative ml-5 pl-3.5 my-1 space-y-0.5 border-l border-slate-200/90">
               {subItems.map((sub) => {
-                const isSubActive =
-                  location.pathname === sub.to || location.pathname.startsWith(sub.to + '/');
+                const isExactRoot = sub.to === to;
+                const targetPath = sub.to.replace(/\/$/, '');
+                const isSubActive = isExactRoot
+                  ? currentPath === targetPath
+                  : currentPath === targetPath || currentPath.startsWith(targetPath + '/');
+
                 return (
                   <NavLink
                     key={sub.to}
                     to={sub.to}
+                    end={isExactRoot}
                     className={clsx(
-                      'group flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-[13px] select-none focus-visible:outline-none transition-colors duration-150',
+                      'group relative flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-[13px] select-none focus-visible:outline-none transition-all duration-150',
                       isSubActive
-                        ? 'bg-orange-50/80 text-[#ea580c] font-semibold border border-orange-200/60 shadow-2xs'
-                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/70 border border-transparent font-medium'
+                        ? 'bg-slate-900 text-white font-medium shadow-xs'
+                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/80 font-medium'
                     )}
                   >
+                    {/* Active connector node on the tree rail */}
+                    {isSubActive && (
+                      <span
+                        className="absolute -left-[18px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-900 ring-2 ring-[#fafafb]"
+                        aria-hidden="true"
+                      />
+                    )}
+
+                    {/* Icon */}
                     <span
-                      className="flex-shrink-0 flex items-center justify-center transition-colors duration-150"
-                      style={{ color: isSubActive ? '#ea580c' : '#94a3b8' }}
+                      className={clsx(
+                        'w-4 h-4 flex items-center justify-center transition-colors duration-150 flex-shrink-0',
+                        isSubActive
+                          ? 'text-orange-400'
+                          : 'text-slate-400 group-hover:text-slate-600'
+                      )}
                     >
                       {sub.icon}
                     </span>
-                    <span className="truncate">{sub.label}</span>
+
+                    {/* Label */}
+                    <span className="truncate flex-1 tracking-tight">{sub.label}</span>
                   </NavLink>
                 );
               })}

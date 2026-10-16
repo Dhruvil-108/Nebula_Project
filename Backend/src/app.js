@@ -17,6 +17,8 @@ const crmRoutes = require('./routes/crmRoutes');
 const hrRoutes = require('./routes/hrRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const masterRoutes = require('./routes/masterRoutes');
+const recruitmentRoutes = require('./routes/recruitmentRoutes');
+const expenseRoutes = require('./routes/expenseRoutes');
 
 const app = express();
 
@@ -108,6 +110,8 @@ app.use('/api/v1/permissions', permissionRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/crm', crmRoutes);
 app.use('/api/v1/hr', hrRoutes);
+app.use('/api/v1/recruitment', recruitmentRoutes);
+app.use('/api/v1/expenses', expenseRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
 // ── Master Panel (platform owner, IP-gated) ──

@@ -515,18 +515,20 @@ export const SignInPage: React.FC = () => {
       {/* Forgot Password Modal */}
       <AnimatePresence>
         {showForgotModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
-          >
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setShowForgotModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="w-full max-w-sm bg-white rounded-2xl border border-slate-200 shadow-2xl p-6 space-y-4"
+              className="relative z-10 w-full max-w-sm bg-white rounded-2xl border border-[#ECE0D6] shadow-2xl p-6 space-y-4 overflow-hidden"
             >
               <div>
                 <h3 className="text-base font-bold text-slate-900 mb-1">Reset your password</h3>
@@ -565,7 +567,7 @@ export const SignInPage: React.FC = () => {
                 </form>
               )}
             </motion.div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

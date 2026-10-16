@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CalendarDays,
   RefreshCw,
@@ -19,6 +19,7 @@ import {
 import { useModuleAccess } from '../../hooks/useModuleAccess';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Holiday } from '../../types/hrms';
+import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 
 export const HolidaysPage: React.FC = () => {
   const { user } = useAuth();
@@ -107,17 +108,16 @@ export const HolidaysPage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <select
+          <FloatingDropdown
             value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            className="rounded-lg border border-[#ECE0D6] bg-white px-3 py-2 text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all"
-          >
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setYear(Number(val))}
+            options={years.map((y) => ({
+              value: y,
+              label: String(y),
+            }))}
+            fullWidth={false}
+            className="w-28"
+          />
           <button
             type="button"
             onClick={() => refetch()}
@@ -267,83 +267,92 @@ export const HolidaysPage: React.FC = () => {
       </div>
 
       {/* ── Add/Edit modal ── */}
-      {isManagement && showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={closeModal} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
-              <h3 className="text-base font-semibold text-[#1A1A1A]">
-                {editing ? 'Edit Holiday' : 'Add Holiday'}
-              </h3>
-              <button
-                type="button"
-                onClick={closeModal}
-                className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                  Name <span className="text-[#DC2626]">*</span>
-                </label>
-                <input
-                  required
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className={inputCls}
-                  placeholder="e.g. Diwali"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                  Date <span className="text-[#DC2626]">*</span>
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={form.date}
-                  onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className={inputCls}
-                />
-              </div>
-              <label className="flex items-center gap-2 text-xs text-[#1A1A1A] cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={form.isOptional}
-                  onChange={(e) => setForm({ ...form, isOptional: e.target.checked })}
-                  className="w-4 h-4 rounded border-[#ECE0D6] accent-[#f97316]"
-                />
-                Optional holiday (counts as a working day)
-              </label>
-              <div className="flex justify-end gap-2 pt-2">
+      <AnimatePresence>
+        {isManagement && showForm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={closeModal}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-md rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
+                <h3 className="text-base font-semibold text-[#1A1A1A]">
+                  {editing ? 'Edit Holiday' : 'Add Holiday'}
+                </h3>
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  className="p-1.5 rounded-lg text-[#6B6B6B] hover:bg-[#fff7ed] transition-colors"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={createMutation.isPending || updateMutation.isPending || !form.name.trim() || !form.date}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
-                >
-                  {(createMutation.isPending || updateMutation.isPending) && (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  )}
-                  {editing ? 'Save Changes' : 'Create Holiday'}
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                    Name <span className="text-[#DC2626]">*</span>
+                  </label>
+                  <input
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className={inputCls}
+                    placeholder="e.g. Diwali"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                    Date <span className="text-[#DC2626]">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    className={inputCls}
+                  />
+                </div>
+                <label className="flex items-center gap-2 text-xs text-[#1A1A1A] cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={form.isOptional}
+                    onChange={(e) => setForm({ ...form, isOptional: e.target.checked })}
+                    className="w-4 h-4 rounded border-[#ECE0D6] accent-[#f97316]"
+                  />
+                  Optional holiday (counts as a working day)
+                </label>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={createMutation.isPending || updateMutation.isPending || !form.name.trim() || !form.date}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
+                  >
+                    {(createMutation.isPending || updateMutation.isPending) && (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    )}
+                    {editing ? 'Save Changes' : 'Create Holiday'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

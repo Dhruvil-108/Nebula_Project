@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../lib/apiClient';
 import {
@@ -31,6 +31,7 @@ import { InfoTile } from '../../components/hrms/InfoTile';
 import { EmployeeStatusPill, AttendanceStatusPill } from '../../components/hrms/HrmsStatusPill';
 import { useModuleAccess } from '../../hooks/useModuleAccess';
 import type { Employee } from '../../types/hrms';
+import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 import {
   EMPLOYMENT_TYPES,
   EMPLOYMENT_TYPE_LABELS,
@@ -178,30 +179,45 @@ export const EmployeesPage: React.FC = () => {
             className={`${inputCls} pl-9`}
           />
         </div>
-        <select value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)} className={`${inputCls} sm:w-44`}>
-          <option value="">All departments</option>
-          {(departments || []).map((d) => (
-            <option key={d._id} value={d._id}>
-              {d.name}
-            </option>
-          ))}
-        </select>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={`${inputCls} sm:w-36`}>
-          <option value="">All statuses</option>
-          {EMPLOYEE_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {EMPLOYEE_STATUS_LABELS[s]}
-            </option>
-          ))}
-        </select>
-        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className={`${inputCls} sm:w-36`}>
-          <option value="">All types</option>
-          {EMPLOYMENT_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {EMPLOYMENT_TYPE_LABELS[t]}
-            </option>
-          ))}
-        </select>
+        <FloatingDropdown
+          value={departmentFilter}
+          onChange={(val) => setDepartmentFilter(val)}
+          options={[
+            { value: '', label: 'All departments' },
+            ...(departments || []).map((d) => ({
+              value: d._id,
+              label: d.name,
+            })),
+          ]}
+          fullWidth={false}
+          className="sm:w-44"
+        />
+        <FloatingDropdown
+          value={statusFilter}
+          onChange={(val) => setStatusFilter(val)}
+          options={[
+            { value: '', label: 'All statuses' },
+            ...EMPLOYEE_STATUSES.map((s) => ({
+              value: s,
+              label: EMPLOYEE_STATUS_LABELS[s],
+            })),
+          ]}
+          fullWidth={false}
+          className="sm:w-36"
+        />
+        <FloatingDropdown
+          value={typeFilter}
+          onChange={(val) => setTypeFilter(val)}
+          options={[
+            { value: '', label: 'All types' },
+            ...EMPLOYMENT_TYPES.map((t) => ({
+              value: t,
+              label: EMPLOYMENT_TYPE_LABELS[t],
+            })),
+          ]}
+          fullWidth={false}
+          className="sm:w-36"
+        />
       </div>
 
       {/* ── Table ── */}
@@ -300,14 +316,22 @@ export const EmployeesPage: React.FC = () => {
       </div>
 
       {/* ── Create modal ── */}
-      {canCreate && showCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setShowCreate(false)} />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl"
-          >
+      <AnimatePresence>
+        {canCreate && showCreate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-xs"
+              onClick={() => setShowCreate(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative z-10 w-full max-w-lg rounded-2xl bg-white border border-[#ECE0D6] shadow-2xl overflow-hidden"
+            >
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#ECE0D6]">
               <h3 className="text-base font-semibold text-[#1A1A1A]">Add Employee</h3>
               <button
@@ -345,19 +369,20 @@ export const EmployeesPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Department</label>
-                  <select
+                  <FloatingDropdown
+                    label="Department"
                     value={form.departmentId}
-                    onChange={(e) => setForm({ ...form, departmentId: e.target.value })}
-                    className={inputCls}
-                  >
-                    <option value="">No department</option>
-                    {(departments || []).map((d) => (
-                      <option key={d._id} value={d._id}>
-                        {d.name}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, departmentId: val })}
+                    options={[
+                      { value: '', label: 'No department' },
+                      ...(departments || []).map((d) => ({
+                        value: d._id,
+                        label: d.name,
+                      })),
+                    ]}
+                    searchable={true}
+                    searchPlaceholder="Search department..."
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Designation</label>
@@ -397,47 +422,42 @@ export const EmployeesPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Manager</label>
-                  <select
+                  <FloatingDropdown
+                    label="Manager"
                     value={form.managerId}
-                    onChange={(e) => setForm({ ...form, managerId: e.target.value })}
-                    className={inputCls}
-                  >
-                    <option value="">No manager</option>
-                    {(managerOptions || []).map((m) => (
-                      <option key={m._id} value={m._id}>
-                        {m.fullName}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, managerId: val })}
+                    options={[
+                      { value: '', label: 'No manager' },
+                      ...(managerOptions || []).map((m) => ({
+                        value: m._id,
+                        label: m.fullName,
+                      })),
+                    ]}
+                    searchable={true}
+                    searchPlaceholder="Search manager..."
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Employment type</label>
-                  <select
+                  <FloatingDropdown
+                    label="Employment type"
                     value={form.employmentType}
-                    onChange={(e) => setForm({ ...form, employmentType: e.target.value as EmploymentType })}
-                    className={inputCls}
-                  >
-                    {EMPLOYMENT_TYPES.map((t) => (
-                      <option key={t} value={t}>
-                        {EMPLOYMENT_TYPE_LABELS[t]}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, employmentType: val as EmploymentType })}
+                    options={EMPLOYMENT_TYPES.map((t) => ({
+                      value: t,
+                      label: EMPLOYMENT_TYPE_LABELS[t],
+                    }))}
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">Status</label>
-                  <select
+                  <FloatingDropdown
+                    label="Status"
                     value={form.status}
-                    onChange={(e) => setForm({ ...form, status: e.target.value as EmployeeStatus })}
-                    className={inputCls}
-                  >
-                    {EMPLOYEE_STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {EMPLOYEE_STATUS_LABELS[s]}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setForm({ ...form, status: val as EmployeeStatus })}
+                    options={EMPLOYEE_STATUSES.map((s) => ({
+                      value: s,
+                      label: EMPLOYEE_STATUS_LABELS[s],
+                    }))}
+                  />
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
@@ -461,6 +481,7 @@ export const EmployeesPage: React.FC = () => {
           </motion.div>
         </div>
       )}
+    </AnimatePresence>
 
       {/* ── Detail drawer ── */}
       <Drawer
