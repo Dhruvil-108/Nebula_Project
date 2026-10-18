@@ -19,8 +19,11 @@ import {
   Briefcase,
   Mail,
   UserCheck,
+  Clock,
+  AlertCircle,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { MatchScoreBadge } from './MatchScoreBadge';
 import { useMoveCandidateStage } from '../../hooks/useRecruitment';
 import { useModuleAccess } from '../../hooks/useModuleAccess';
 import { CandidateStagePill } from './CandidateStagePill';
@@ -69,12 +72,21 @@ const CandidateCard: React.FC<CandidateCardProps> = ({
             <p className="text-[10px] font-mono text-[#9B9B9B]">{candidate.candidateCode}</p>
           </div>
         </div>
-        {candidate.rating > 0 && (
-          <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60 flex-shrink-0">
-            <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-            {candidate.rating.toFixed(1)}
-          </span>
-        )}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {((candidate as any).matchScore?.overallScore || (candidate as any).aiScore) && (
+            <MatchScoreBadge
+              size="sm"
+              score={(candidate as any).matchScore?.overallScore || (candidate as any).aiScore}
+              matchDetails={(candidate as any).matchScore}
+            />
+          )}
+          {candidate.rating > 0 && (
+            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-500 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/60 flex-shrink-0">
+              <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+              {candidate.rating.toFixed(1)}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="pl-5 space-y-1">
@@ -115,12 +127,33 @@ const CandidateCard: React.FC<CandidateCardProps> = ({
             Hired
           </span>
         ) : (
-          <span className="font-mono text-[10px] text-[#9B9B9B]">
-            {new Date(candidate.updatedAt || candidate.createdAt).toLocaleDateString(undefined, {
-              month: 'short',
-              day: 'numeric',
-            })}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {(() => {
+              const days = Math.floor(
+                (Date.now() - new Date(candidate.updatedAt || candidate.createdAt).getTime()) /
+                  (1000 * 60 * 60 * 24)
+              );
+              if (days >= 5) {
+                return (
+                  <span
+                    className="inline-flex items-center gap-0.5 text-[9.5px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200"
+                    title={`${days} days in current stage (SLA Alert)`}
+                  >
+                    <Clock className="w-2.5 h-2.5 text-amber-500" />
+                    {days}d in stage
+                  </span>
+                );
+              }
+              return (
+                <span className="font-mono text-[10px] text-[#9B9B9B]">
+                  {new Date(candidate.updatedAt || candidate.createdAt).toLocaleDateString(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+              );
+            })()}
+          </div>
         )}
       </div>
     </div>

@@ -7,14 +7,7 @@ const EmployeeDocument = require('../models/EmployeeDocument');
 const RecruitmentActivity = require('../models/RecruitmentActivity');
 const { scopedFilter } = require('../middleware/tenant');
 
-// Helper to generate unique Employee Code: EMP-XXX
-const generateEmployeeCode = async (orgId) => {
-  const prefix = 'EMP-';
-  const count = await Employee.countDocuments({
-    organizationId: orgId,
-  });
-  return `${prefix}${String(count + 1).padStart(4, '0')}`;
-};
+const counterService = require('../services/counterService');
 
 // ─────────────────────────────────────────────────────────
 // POST /api/v1/recruitment/candidates/:id/onboard-employee
@@ -67,7 +60,7 @@ const onboardCandidateToEmployee = async (req, res) => {
     const finalEmployeeCode =
       employeeCode && employeeCode.trim()
         ? employeeCode.trim().toUpperCase()
-        : await generateEmployeeCode(req.organizationId);
+        : await counterService.generateEmployeeCode(req.organizationId);
 
     // Verify employeeCode uniqueness in organization
     const existingEmp = await Employee.findOne({
@@ -135,16 +128,18 @@ const onboardCandidateToEmployee = async (req, res) => {
 
     // 4. Update Job Opening metrics
     if (candidate.jobOpeningId) {
-      await JobOpening.findByIdAndUpdate(candidate.jobOpeningId._id, {
-        $inc: { filledPositions: 1 },
-      });
+      await JobOpening.findOneAndUpdate(
+        scopedFilter(req, { _id: candidate.jobOpeningId._id }),
+        { $inc: { filledPositions: 1 } }
+      );
     }
 
     // 5. Update Offer Status to 'accepted' if not already
     if (offer && offer.status !== 'accepted') {
-      await JobOffer.findByIdAndUpdate(offer._id, {
-        $set: { status: 'accepted', respondedAt: new Date() },
-      });
+      await JobOffer.findOneAndUpdate(
+        scopedFilter(req, { _id: offer._id }),
+        { $set: { status: 'accepted', respondedAt: new Date() } }
+      );
     }
 
     // 6. Log Activity

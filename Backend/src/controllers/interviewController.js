@@ -1,9 +1,11 @@
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const Interview = require('../models/Interview');
 const Candidate = require('../models/Candidate');
 const JobOpening = require('../models/JobOpening');
 const RecruitmentActivity = require('../models/RecruitmentActivity');
 const { scopedFilter } = require('../middleware/tenant');
+const calendarService = require('../services/calendarService');
 
 const USER_FIELDS = 'fullName email role';
 
@@ -20,6 +22,8 @@ const getInterviews = async (req, res) => {
     if (jobOpeningId && mongoose.Types.ObjectId.isValid(jobOpeningId)) extra.jobOpeningId = jobOpeningId;
     if (interviewerId && mongoose.Types.ObjectId.isValid(interviewerId)) {
       extra.interviewers = interviewerId;
+    } else if (req.user && ['interviewer', 'employee'].includes(req.user.role)) {
+      extra.interviewers = req.user._id;
     }
     if (upcoming === 'true') {
       extra.scheduledStart = { $gte: new Date(Date.now() - 30 * 60 * 1000) }; // Include currently in-progress
@@ -56,8 +60,11 @@ const scheduleInterview = async (req, res) => {
       scheduledStart,
       scheduledEnd,
       timezone,
+      meetingPlatform,
       meetingLink,
+      meetingPassword,
       location,
+      icsUid,
     } = req.body;
 
     if (!candidateId || !mongoose.Types.ObjectId.isValid(candidateId)) {
@@ -87,8 +94,11 @@ const scheduleInterview = async (req, res) => {
       scheduledStart: new Date(scheduledStart),
       scheduledEnd: new Date(scheduledEnd),
       timezone: timezone || 'Asia/Kolkata',
+      meetingPlatform: meetingPlatform || 'google_meet',
       meetingLink: meetingLink || '',
+      meetingPassword: meetingPassword || '',
       location: location || '',
+      icsUid: icsUid || `${crypto.randomUUID()}@nebulahub.local`,
       status: 'scheduled',
     });
 
@@ -134,7 +144,9 @@ const updateInterview = async (req, res) => {
       'scheduledStart',
       'scheduledEnd',
       'timezone',
+      'meetingPlatform',
       'meetingLink',
+      'meetingPassword',
       'location',
       'status',
     ];
@@ -211,9 +223,10 @@ const submitScorecard = async (req, res) => {
       const avg =
         allCandidateInterviews.reduce((acc, curr) => acc + (curr.scorecard?.rating || 0), 0) /
         allCandidateInterviews.length;
-      await Candidate.findByIdAndUpdate(interview.candidateId, {
-        rating: Math.round(avg * 10) / 10,
-      });
+      await Candidate.findOneAndUpdate(
+        scopedFilter(req, { _id: interview.candidateId }),
+        { rating: Math.round(avg * 10) / 10 }
+      );
     }
 
     const populated = await Interview.findById(interview._id)
@@ -288,10 +301,109 @@ const cancelInterview = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────
+// PATCH /api/v1/recruitment/interviews/:id/reschedule — Reschedule interview with audit history
+// ─────────────────────────────────────────────────────────
+const rescheduleInterview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { scheduledStart, scheduledEnd, reason, timezone } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid interview id.' });
+    }
+    if (!scheduledStart || !scheduledEnd) {
+      return res.status(400).json({ error: 'Both scheduledStart and scheduledEnd are required.' });
+    }
+
+    const interview = await Interview.findOne(scopedFilter(req, { _id: id }));
+    if (!interview) {
+      return res.status(404).json({ error: 'Interview not found.' });
+    }
+
+    const historyEntry = {
+      previousStart: interview.scheduledStart,
+      previousEnd: interview.scheduledEnd,
+      newStart: new Date(scheduledStart),
+      newEnd: new Date(scheduledEnd),
+      reason: reason || 'Interview rescheduled',
+      rescheduledBy: req.user._id,
+      rescheduledAt: new Date(),
+    };
+
+    interview.rescheduleHistory.push(historyEntry);
+    interview.scheduledStart = new Date(scheduledStart);
+    interview.scheduledEnd = new Date(scheduledEnd);
+    if (timezone) interview.timezone = timezone;
+    interview.status = 'rescheduled';
+
+    await interview.save();
+
+    const populated = await Interview.findById(interview._id)
+      .populate('candidateId', 'fullName candidateCode email phone')
+      .populate('jobOpeningId', 'title jobCode')
+      .populate('interviewers', USER_FIELDS)
+      .populate('scorecard.submittedBy', USER_FIELDS)
+      .lean();
+
+    await RecruitmentActivity.create({
+      organizationId: req.organizationId,
+      candidateId: interview.candidateId,
+      jobOpeningId: interview.jobOpeningId,
+      type: 'interview_rescheduled',
+      title: 'Interview Rescheduled',
+      description: `"${interview.title}" rescheduled to ${new Date(scheduledStart).toLocaleString()}: ${reason || 'No reason provided'}.`,
+      performedBy: req.user._id,
+      metadata: { interviewId: interview._id, scheduledStart, scheduledEnd, reason },
+    });
+
+    return res.json(populated);
+  } catch (err) {
+    console.error('[interviewController.rescheduleInterview] Error:', err);
+    return res.status(500).json({ error: 'Failed to reschedule interview.' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────
+// GET /api/v1/recruitment/interviews/:id/ics — RFC 5545 iCalendar download
+// ─────────────────────────────────────────────────────────
+const getInterviewIcs = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid interview id.' });
+    }
+
+    const interview = await Interview.findOne(scopedFilter(req, { _id: id }))
+      .populate('candidateId', 'fullName email phone')
+      .populate('jobOpeningId', 'title jobCode')
+      .populate('interviewers', USER_FIELDS)
+      .lean();
+
+    if (!interview) {
+      return res.status(404).json({ error: 'Interview not found.' });
+    }
+
+    const icsContent = calendarService.generateIcs(interview, {
+      organizerName: req.user?.fullName || 'Nebula Hiring Team',
+      organizerEmail: req.user?.email || 'recruitment@nebula.local',
+    });
+
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="interview-${interview._id}.ics"`);
+    return res.send(icsContent);
+  } catch (err) {
+    console.error('[interviewController.getInterviewIcs] Error:', err);
+    return res.status(500).json({ error: 'Failed to generate calendar file.' });
+  }
+};
+
 module.exports = {
   getInterviews,
   scheduleInterview,
   updateInterview,
+  rescheduleInterview,
+  getInterviewIcs,
   submitScorecard,
   cancelInterview,
 };

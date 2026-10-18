@@ -30,6 +30,9 @@ import {
   CheckSquare,
   PieChart,
   Tags,
+  FileCheck,
+  Sliders,
+  Database,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SidebarNavItem } from './SidebarNavItem';
@@ -300,11 +303,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 collapsed={collapsed}
                 subItems={[
                   { to: '/dashboard/recruitment', icon: <LayoutDashboard className="w-3.5 h-3.5" />, label: 'Overview' },
+                  { to: '/dashboard/recruitment/requisitions', icon: <FileCheck className="w-3.5 h-3.5" />, label: 'Requisitions' },
                   { to: '/dashboard/recruitment/jobs', icon: <Briefcase className="w-3.5 h-3.5" />, label: 'Job Openings' },
                   { to: '/dashboard/recruitment/pipeline', icon: <Kanban className="w-3.5 h-3.5" />, label: 'ATS Pipeline' },
                   { to: '/dashboard/recruitment/candidates', icon: <Users className="w-3.5 h-3.5" />, label: 'Candidates' },
+                  { to: '/dashboard/recruitment/talent-pools', icon: <Database className="w-3.5 h-3.5" />, label: 'Talent Pools' },
+                  { to: '/dashboard/recruitment/referrals', icon: <UserPlus className="w-3.5 h-3.5" />, label: 'Referrals' },
                   { to: '/dashboard/recruitment/interviews', icon: <CalendarEvent className="w-3.5 h-3.5" />, label: 'Interviews' },
                   { to: '/dashboard/recruitment/offers', icon: <FileText className="w-3.5 h-3.5" />, label: 'Offers & Hire' },
+                  { to: '/dashboard/recruitment/analytics', icon: <BarChart3 className="w-3.5 h-3.5" />, label: 'Analytics & ROI' },
+                  { to: '/dashboard/recruitment/compliance', icon: <ShieldCheck className="w-3.5 h-3.5" />, label: 'EEO Compliance' },
+                  { to: '/dashboard/recruitment/settings', icon: <Sliders className="w-3.5 h-3.5" />, label: 'Settings' },
                 ]}
               />
             );

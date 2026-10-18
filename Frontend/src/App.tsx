@@ -31,6 +31,16 @@ import { JobsPage } from './pages/recruitment/JobsPage';
 import { PipelinePage as RecruitmentPipelinePage } from './pages/recruitment/PipelinePage';
 import { CandidatesPage } from './pages/recruitment/CandidatesPage';
 import { InterviewsPage } from './pages/recruitment/InterviewsPage';
+import { OffersPage } from './pages/recruitment/OffersPage';
+import { RequisitionsPage } from './pages/recruitment/RequisitionsPage';
+import { RecruitmentSettingsPage } from './pages/recruitment/RecruitmentSettingsPage';
+import { TalentPoolsPage } from './pages/recruitment/TalentPoolsPage';
+import { ReferralsPage } from './pages/recruitment/ReferralsPage';
+import { RecruitmentAnalyticsPage } from './pages/recruitment/RecruitmentAnalyticsPage';
+import { EeoCompliancePage } from './pages/recruitment/EeoCompliancePage';
+import { CareersPortalPage } from './pages/public/CareersPortalPage';
+import { PublicJobDetailsPage } from './pages/public/PublicJobDetailsPage';
+import { CandidateOfferSigningPage } from './pages/public/CandidateOfferSigningPage';
 import { ExpensesOverviewPage } from './pages/expenses/ExpensesOverviewPage';
 import { MyExpensesPage } from './pages/expenses/MyExpensesPage';
 import { ExpenseApprovalsPage } from './pages/expenses/ExpenseApprovalsPage';
@@ -197,6 +207,11 @@ export const App: React.FC = () => {
               }
             />
 
+            {/* ── Public Careers & Offer E-Sign Portal ── */}
+            <Route path="/careers/:tenantSlug" element={<CareersPortalPage />} />
+            <Route path="/careers/:tenantSlug/jobs/:jobId" element={<PublicJobDetailsPage />} />
+            <Route path="/offers/sign/:token" element={<CandidateOfferSigningPage />} />
+
             {/* ── Protected app shell ── */}
             <Route
               path="/dashboard"
@@ -222,9 +237,16 @@ export const App: React.FC = () => {
               <Route path="hrms/documents" element={<DocumentsPage />} />
               <Route path="recruitment" element={<RecruitmentDashboardPage />} />
               <Route path="recruitment/jobs" element={<JobsPage />} />
+              <Route path="recruitment/requisitions" element={<RequisitionsPage />} />
               <Route path="recruitment/pipeline" element={<RecruitmentPipelinePage />} />
               <Route path="recruitment/candidates" element={<CandidatesPage />} />
               <Route path="recruitment/interviews" element={<InterviewsPage />} />
+              <Route path="recruitment/offers" element={<OffersPage />} />
+              <Route path="recruitment/settings" element={<RecruitmentSettingsPage />} />
+              <Route path="recruitment/talent-pools" element={<TalentPoolsPage />} />
+              <Route path="recruitment/referrals" element={<ReferralsPage />} />
+              <Route path="recruitment/analytics" element={<RecruitmentAnalyticsPage />} />
+              <Route path="recruitment/compliance" element={<EeoCompliancePage />} />
               <Route path="expenses" element={<ExpensesOverviewPage />} />
               <Route path="expenses/my-claims" element={<MyExpensesPage />} />
               <Route path="expenses/approvals" element={<ExpenseApprovalsPage />} />

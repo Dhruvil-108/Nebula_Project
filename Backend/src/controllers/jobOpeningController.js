@@ -7,16 +7,7 @@ const { scopedFilter } = require('../middleware/tenant');
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const USER_FIELDS = 'fullName email role';
 
-// Helper to generate unique Job Code: JOB-YYYY-XXX
-const generateJobCode = async (orgId) => {
-  const currentYear = new Date().getFullYear();
-  const prefix = `JOB-${currentYear}-`;
-  const count = await JobOpening.countDocuments({
-    organizationId: orgId,
-    jobCode: new RegExp(`^${prefix}`),
-  });
-  return `${prefix}${String(count + 1).padStart(3, '0')}`;
-};
+const counterService = require('../services/counterService');
 
 // ─────────────────────────────────────────────────────────
 // GET /api/v1/recruitment/jobs — List jobs with filters
@@ -97,7 +88,7 @@ const createJob = async (req, res) => {
       return res.status(400).json({ error: 'A valid department is required.' });
     }
 
-    const jobCode = await generateJobCode(req.organizationId);
+    const jobCode = await counterService.generateJobCode(req.organizationId);
 
     const newJob = await JobOpening.create({
       organizationId: req.organizationId,

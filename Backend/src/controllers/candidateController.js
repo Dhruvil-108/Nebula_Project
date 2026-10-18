@@ -9,16 +9,7 @@ const { scopedFilter } = require('../middleware/tenant');
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const USER_FIELDS = 'fullName email role';
 
-// Helper to generate unique Candidate Code: CAND-YYYY-XXX
-const generateCandidateCode = async (orgId) => {
-  const currentYear = new Date().getFullYear();
-  const prefix = `CAND-${currentYear}-`;
-  const count = await Candidate.countDocuments({
-    organizationId: orgId,
-    candidateCode: new RegExp(`^${prefix}`),
-  });
-  return `${prefix}${String(count + 1).padStart(4, '0')}`;
-};
+const counterService = require('../services/counterService');
 
 // ─────────────────────────────────────────────────────────
 // GET /api/v1/recruitment/candidates — List candidates
@@ -104,7 +95,7 @@ const createCandidate = async (req, res) => {
       return res.status(404).json({ error: 'Job opening not found in this organization.' });
     }
 
-    const candidateCode = await generateCandidateCode(req.organizationId);
+    const candidateCode = await counterService.generateCandidateCode(req.organizationId);
     const initialStage = stage || 'applied';
 
     const newCandidate = await Candidate.create({

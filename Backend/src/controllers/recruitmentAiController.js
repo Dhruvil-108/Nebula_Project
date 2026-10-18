@@ -1,25 +1,28 @@
 const JobOpening = require('../models/JobOpening');
+const Candidate = require('../models/Candidate');
+const Application = require('../models/Application');
 const Organization = require('../models/Organization');
+const Interview = require('../models/Interview');
+const { scopedFilter } = require('../middleware/tenant');
+const aiService = require('../services/ai/aiService');
 
 /**
  * Generate LinkedIn post text for a Job Opening
- * Supports Gemini API (if GEMINI_API_KEY is configured) and fallback prompt engine
  */
 exports.generateLinkedInPost = async (req, res) => {
   try {
     const { id } = req.params;
     const { tone = 'dynamic', customNotes = '' } = req.body;
 
-    const job = await JobOpening.findOne({
-      _id: id,
-      organizationId: req.user.organizationId,
-    }).populate('departmentId', 'name');
+    const job = await JobOpening.findOne(
+      scopedFilter(req, { _id: id })
+    ).populate('departmentId', 'name');
 
     if (!job) {
-      return res.status(404).json({ message: 'Job opening not found' });
+      return res.status(404).json({ message: 'Job opening not found in this organization.' });
     }
 
-    const org = await Organization.findById(req.user.organizationId);
+    const org = await Organization.findById(req.organizationId);
     const companyName = org?.name || 'Our Company';
     const deptName = job.departmentId?.name || 'Engineering';
 
@@ -31,141 +34,315 @@ exports.generateLinkedInPost = async (req, res) => {
     const skillsText = (job.skills || []).join(', ');
     const locText = job.location ? `${job.location} (${job.locationType})` : job.locationType;
 
-    // Check if GEMINI_API_KEY is available in environment
-    const geminiApiKey = process.env.GEMINI_API_KEY;
-
-    if (geminiApiKey) {
-      try {
-        const prompt = `You are an expert tech talent recruiter and LinkedIn content strategist for ${companyName}.
-Write a highly engaging, high-converting LinkedIn job post for the following position:
-- Role: ${job.title}
-- Department: ${deptName}
-- Employment Type: ${job.employmentType}
-- Location: ${locText}
-${salaryText ? `- Compensation: ${salaryText}` : ''}
-${skillsText ? `- Key Skills / Tech Stack: ${skillsText}` : ''}
-${job.description ? `- Job Overview: ${job.description}` : ''}
-- Tone requested: ${tone} (e.g. dynamic/startup, corporate/professional, or engineering/tech-focused)
-${customNotes ? `- Additional Context: ${customNotes}` : ''}
-
-Formatting Guidelines:
-1. Start with an irresistible 1-2 line hook that stops the scroll.
-2. Highlight why this role is exciting, the impact they will make, and key tech stack / responsibilities.
-3. List 3-5 clear bullet points for what we are looking for.
-4. Clear call-to-action inviting qualified candidates to apply or message directly.
-5. End with 4-6 relevant trending hashtags (e.g. #Hiring #${job.title.replace(/\s+/g, '')} #TechJobs #WeAreHiring).
-6. Do NOT include markdown bold asterisks that look like code; use clean, readable text with modern emojis.`;
-
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-            }),
-          }
-        );
-
-        if (response.ok) {
-          const json = await response.json();
-          const generatedText = json.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (generatedText) {
-            return res.json({
-              success: true,
-              post: generatedText.trim(),
-              provider: 'gemini-ai',
-            });
-          }
-        }
-      } catch (aiErr) {
-        console.warn('Gemini API call failed, using intelligent template engine:', aiErr.message);
-      }
-    }
-
-    // Intelligent Built-In Prompt Engine
-    let post = '';
-    const cleanSkills = (job.skills || []).slice(0, 5).join(' · ');
-    const hashtags = [
-      '#WeAreHiring',
-      `#${job.title.replace(/[^a-zA-Z0-9]/g, '')}`,
-      `#${deptName.replace(/[^a-zA-Z0-9]/g, '')}Jobs`,
-      '#CareerGrowth',
-      '#TechHiring',
-      '#JoinOurTeam',
-    ].join(' ');
-
-    if (tone === 'dynamic') {
-      post = `🚀 WE ARE HIRING! Are you ready to build the future with us?
-
-${companyName} is expanding our ${deptName} team and looking for an exceptional ${job.title} to join our mission!
-
-📍 Location: ${locText}
-💼 Type: ${job.employmentType.replace(/_/g, ' ').toUpperCase()}
-${salaryText ? `💰 Compensation: ${salaryText} + equity & full benefits\n` : ''}
-⚡ What you will be doing:
-${job.description || '• Driving high-impact projects from architecture to production\n• Collaborating closely with cross-functional product teams\n• Building scalable, resilient systems that delight users'}
-
-🎯 What we are looking for:
-${skillsText ? `• Strong experience with: ${cleanSkills}\n` : ''}• Passion for clean code, problem-solving, and continuous learning
-• A proactive mindset and drive to make a visible difference
-
-💡 Perks & Culture:
-• Flexible remote / hybrid flexibility
-• Premium healthcare coverage & annual wellness stipend
-• Continuous learning budget & conference sponsorships
-
-Interested or know someone who would be a great fit?
-📩 Apply directly or send a DM to connect!
-
-${hashtags}`;
-    } else if (tone === 'engineering') {
-      post = `🛠️ Engineers: We're scaling our core systems at ${companyName} and hiring a ${job.title}.
-
-If you love tackling complex technical challenges, high-throughput architectures, and shipping clean software, this is for you.
-
-🔍 The Tech Stack:
-${skillsText ? `👉 ${skillsText}` : '👉 Modern cloud-native stack, microservices, containerized infrastructure'}
-
-📌 The Role:
-- Position: ${job.title} (${deptName})
-- Work Setup: ${locText}
-${salaryText ? `- Target Band: ${salaryText}\n` : ''}
-What you'll own:
-• End-to-end design, implementation, and deployment of mission-critical features.
-• Writing robust, self-documenting code with high test coverage.
-• Mentoring engineers and elevating our engineering practices.
-
-Check out the full specs or reach out directly to learn more. Let's build together! 👨‍💻👩‍💻
-
-${hashtags}`;
-    } else {
-      // Professional / Corporate
-      post = `📢 Opportunity Announcement | ${companyName}
-
-We are actively seeking a talented ${job.title} to join our ${deptName} department.
-
-In this role, you will play a pivotal part in shaping our team's operational excellence, delivering high-quality business outcomes, and collaborating with visionary leadership.
-
-Key Position Details:
-• Title: ${job.title}
-• Department: ${deptName}
-• Arrangement: ${locText}
-${salaryText ? `• Offered Salary: ${salaryText}\n` : ''}${skillsText ? `• Key Competencies: ${skillsText}\n` : ''}
-We offer comprehensive benefits, professional advancement pathways, and a collaborative work environment.
-
-To apply or refer a qualified candidate, please visit our careers portal or reach out directly via LinkedIn.
-
-${hashtags}`;
-    }
+    const result = await aiService.generate({
+      task: 'linked_in_post',
+      input: {
+        jobTitle: job.title,
+        departmentName: deptName,
+        companyName,
+        employmentType: job.employmentType,
+        locationText: locText,
+        salaryText,
+        skillsText,
+        description: job.description,
+        tone: ['dynamic', 'engineering', 'corporate'].includes(tone) ? tone : 'dynamic',
+        customNotes,
+      },
+      organizationId: req.organizationId,
+      userId: req.user?._id,
+      entityType: 'JobOpening',
+      entityId: job._id,
+    });
 
     return res.json({
       success: true,
-      post: post.trim(),
-      provider: 'nebula-engine',
+      post: result.data.post,
+      provider: result.provider === 'gemini' ? 'gemini-ai' : 'fallback',
+      model: result.model,
     });
   } catch (err) {
-    console.error('generateLinkedInPost error:', err);
-    return res.status(500).json({ message: 'Failed to generate LinkedIn post', error: err.message });
+    console.error('LinkedIn AI generation failed:', err);
+    return res.status(500).json({ message: err.message || 'AI generation failed' });
+  }
+};
+
+/**
+ * Generate Multi-Channel Posts (LinkedIn, Naukri, Indeed, WhatsApp, Twitter)
+ */
+exports.generateMultiChannelPosts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { tone = 'dynamic' } = req.body;
+
+    const job = await JobOpening.findOne(
+      scopedFilter(req, { _id: id })
+    ).populate('departmentId', 'name');
+
+    if (!job) {
+      return res.status(404).json({ message: 'Job opening not found in this organization.' });
+    }
+
+    const org = await Organization.findById(req.organizationId);
+    const companyName = org?.name || 'Our Company';
+    const deptName = job.departmentId?.name || 'Engineering';
+
+    const salaryText =
+      job.salaryRange?.min && job.salaryRange?.max
+        ? `${job.salaryRange.currency || 'USD'} ${job.salaryRange.min.toLocaleString()} - ${job.salaryRange.max.toLocaleString()}`
+        : 'Competitive compensation';
+
+    const skillsText = (job.skills || []).join(', ');
+    const locText = job.location ? `${job.location} (${job.locationType})` : job.locationType;
+
+    const result = await aiService.generate({
+      task: 'multi_channel_post',
+      input: {
+        jobTitle: job.title,
+        companyName,
+        departmentName: deptName,
+        locationText: locText,
+        salaryText,
+        skillsText,
+        description: job.description || '',
+        tone: ['professional', 'dynamic', 'casual', 'executive'].includes(tone) ? tone : 'dynamic',
+      },
+      organizationId: req.organizationId,
+      userId: req.user?._id,
+      entityType: 'JobOpening',
+      entityId: job._id,
+    });
+
+    return res.json({
+      success: true,
+      channels: result.data,
+      provider: result.provider,
+      model: result.model,
+    });
+  } catch (err) {
+    console.error('Multi-channel AI post generation failed:', err);
+    return res.status(500).json({ message: err.message || 'Multi-channel generation failed' });
+  }
+};
+
+/**
+ * AI Resume Parser
+ */
+exports.parseResume = async (req, res) => {
+  try {
+    const { resumeText, rawFileName } = req.body;
+    if (!resumeText) {
+      return res.status(400).json({ message: 'resumeText is required for parsing.' });
+    }
+
+    const result = await aiService.generate({
+      task: 'resume_parser',
+      input: {
+        resumeText,
+        rawFileName: rawFileName || 'resume.pdf',
+      },
+      organizationId: req.organizationId,
+      userId: req.user?._id,
+    });
+
+    return res.json({
+      success: true,
+      parsedProfile: result.data,
+      provider: result.provider,
+    });
+  } catch (err) {
+    console.error('AI resume parsing failed:', err);
+    return res.status(500).json({ message: err.message || 'Resume parsing failed' });
+  }
+};
+
+/**
+ * Blind Candidate Match Scoring
+ */
+exports.calculateMatchScore = async (req, res) => {
+  try {
+    const { id } = req.params; // Application ID
+
+    const application = await Application.findOne(
+      scopedFilter(req, { _id: id })
+    ).populate('candidateId').populate('jobOpeningId');
+
+    if (!application) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    const cand = application.candidateId;
+    const job = application.jobOpeningId;
+
+    if (!cand || !job) {
+      return res.status(400).json({ message: 'Candidate or JobOpening reference missing on application' });
+    }
+
+    // Algorithmic Fairness: Blind all demographic indicators
+    const blindedCandidateProfile = {
+      skills: (cand.tags && cand.tags.length > 0) ? cand.tags : (cand.parsedProfile?.skills || []),
+      totalExperienceYears: cand.totalExperienceYears || 0,
+      summary: cand.summary || cand.parsedProfile?.summary || '',
+      workHistory: cand.parsedProfile?.workHistory || [],
+      education: cand.parsedProfile?.education || [],
+    };
+
+    const jobRequirements = {
+      title: job.title,
+      experienceLevel: job.experienceLevel || 'mid',
+      requirements: job.requirements || [],
+      skills: job.skills || [],
+      description: job.description || '',
+    };
+
+    const result = await aiService.generate({
+      task: 'match_scoring',
+      input: {
+        candidateProfile: blindedCandidateProfile,
+        jobRequirements,
+      },
+      organizationId: req.organizationId,
+      userId: req.user?._id,
+      entityType: 'Application',
+      entityId: application._id,
+    });
+
+    // Update application with match results
+    application.matchScore = result.data.score;
+    application.matchExplanation = {
+      matchedSkills: result.data.matchedSkills,
+      missingSkills: result.data.missingSkills,
+      experienceFit: result.data.experienceFit,
+      recommendation: result.data.recommendation,
+    };
+    await application.save();
+
+    return res.json({
+      success: true,
+      matchScore: result.data.score,
+      matchExplanation: application.matchExplanation,
+      evidenceCitations: result.data.evidenceCitations,
+    });
+  } catch (err) {
+    console.error('Match score generation failed:', err);
+    return res.status(500).json({ message: err.message || 'Match score calculation failed' });
+  }
+};
+
+/**
+ * AI Job Description Generator & Inclusivity Audit
+ */
+exports.generateJobDescription = async (req, res) => {
+  try {
+    const { title, department = 'Engineering', experienceLevel = 'mid', employmentType = 'full_time', keySkills = [], locationType = 'hybrid' } = req.body;
+
+    if (!title) {
+      return res.status(400).json({ message: 'Job title is required.' });
+    }
+
+    const org = await Organization.findById(req.organizationId);
+    const companyOverview = org?.name ? `${org.name} is an innovative organization in the ${org.industry || 'tech'} space.` : '';
+
+    const result = await aiService.generate({
+      task: 'jd_generator',
+      input: {
+        title,
+        department,
+        experienceLevel,
+        employmentType,
+        keySkills: Array.isArray(keySkills) ? keySkills : [],
+        companyOverview,
+        locationType,
+      },
+      organizationId: req.organizationId,
+      userId: req.user?._id,
+    });
+
+    return res.json({
+      success: true,
+      jobDescription: result.data,
+      provider: result.provider,
+    });
+  } catch (err) {
+    console.error('AI JD generation failed:', err);
+    return res.status(500).json({ message: err.message || 'JD generation failed' });
+  }
+};
+
+/**
+ * AI Structured Interview Question Kit Generator
+ * Generates competency probe questions, good signs, and red flag rubrics.
+ */
+exports.generateInterviewQuestionKit = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let jobTitle = req.body.jobTitle;
+    let skills = req.body.skills || [];
+    let experienceLevel = req.body.experienceLevel || 'mid';
+    let candidateSkills = req.body.candidateSkills || [];
+    let candidateGaps = req.body.candidateGaps || [];
+    let roundType = req.body.roundType || 'technical';
+    let interviewId = null;
+
+    if (id) {
+      const interview = await Interview.findOne(scopedFilter(req, { _id: id }))
+        .populate('candidateId')
+        .populate('jobOpeningId');
+
+      if (!interview) {
+        return res.status(404).json({ message: 'Interview not found in this organization.' });
+      }
+
+      interviewId = interview._id;
+      jobTitle = jobTitle || interview.jobOpeningId?.title || 'Engineer';
+      skills = skills.length ? skills : (interview.jobOpeningId?.skills || []);
+      experienceLevel = interview.jobOpeningId?.experienceLevel || experienceLevel;
+      roundType = interview.roundType || roundType;
+
+      if (interview.candidateId) {
+        candidateSkills = candidateSkills.length ? candidateSkills : (interview.candidateId.skills || []);
+
+        // Attempt to find application match explanation for gaps
+        const app = await Application.findOne(
+          scopedFilter(req, {
+            candidateId: interview.candidateId._id,
+            jobOpeningId: interview.jobOpeningId?._id || interview.candidateId.jobOpeningId,
+          })
+        ).lean();
+
+        if (app?.matchExplanation?.missingSkills?.length && !candidateGaps.length) {
+          candidateGaps = app.matchExplanation.missingSkills;
+        }
+      }
+    }
+
+    if (!jobTitle) {
+      return res.status(400).json({ message: 'Job title is required to generate question kit.' });
+    }
+
+    const result = await aiService.generate({
+      task: 'interview_question_kit',
+      input: {
+        jobTitle,
+        skills: Array.isArray(skills) ? skills : [],
+        experienceLevel,
+        candidateSkills: Array.isArray(candidateSkills) ? candidateSkills : [],
+        candidateGaps: Array.isArray(candidateGaps) ? candidateGaps : [],
+        roundType,
+      },
+      organizationId: req.organizationId,
+      userId: req.user?._id,
+      entityType: interviewId ? 'Interview' : undefined,
+      entityId: interviewId || undefined,
+    });
+
+    return res.json({
+      success: true,
+      kit: result.data,
+      provider: result.provider,
+      model: result.model,
+    });
+  } catch (err) {
+    console.error('[recruitmentAiController.generateInterviewQuestionKit] Error:', err);
+    return res.status(500).json({ message: err.message || 'Interview question kit generation failed.' });
   }
 };

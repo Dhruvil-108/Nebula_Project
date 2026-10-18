@@ -40,7 +40,7 @@ const candidateSchema = new mongoose.Schema(
     jobOpeningId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'JobOpening',
-      required: [true, 'Job opening is required'],
+      default: null,
       index: true,
     },
     fullName: {
@@ -99,6 +99,35 @@ const candidateSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: '',
+    },
+    resumeFileId: {
+      type: String,
+      default: '',
+    },
+    parsedProfile: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+    talentPoolIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'TalentPool',
+      },
+    ],
+    consent: {
+      capturedAt: { type: Date, default: null },
+      ipAddress: { type: String, default: '' },
+      consentVersion: { type: String, default: 'v1' },
+    },
+    doNotHire: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    mergedInto: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Candidate',
+      default: null,
     },
     skills: {
       type: [String],

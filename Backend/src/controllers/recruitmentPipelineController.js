@@ -99,9 +99,10 @@ const moveCandidateStage = async (req, res) => {
     if (stage === 'hired' && !candidate.hiredAt) {
       candidate.hiredAt = new Date();
       // Increment filledPositions in JobOpening
-      await JobOpening.findByIdAndUpdate(candidate.jobOpeningId, {
-        $inc: { filledPositions: 1 },
-      });
+      await JobOpening.findOneAndUpdate(
+        scopedFilter(req, { _id: candidate.jobOpeningId }),
+        { $inc: { filledPositions: 1 } }
+      );
     }
 
     await candidate.save();

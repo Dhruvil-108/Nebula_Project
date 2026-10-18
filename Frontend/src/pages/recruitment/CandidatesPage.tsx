@@ -25,6 +25,7 @@ import { AddCandidateModal } from '../../components/recruitment/AddCandidateModa
 import { ScheduleInterviewModal } from '../../components/recruitment/ScheduleInterviewModal';
 import { CreateOfferModal } from '../../components/recruitment/CreateOfferModal';
 import { OnboardEmployeeModal } from '../../components/recruitment/OnboardEmployeeModal';
+import { BulkActionBar } from '../../components/recruitment/BulkActionBar';
 import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
 import {
   CANDIDATE_STAGES,
@@ -46,6 +47,7 @@ export const CandidatesPage: React.FC = () => {
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState<string[]>([]);
 
   // Sub-modals
   const [interviewCandidate, setInterviewCandidate] = useState<Candidate | null>(null);
@@ -170,6 +172,24 @@ export const CandidatesPage: React.FC = () => {
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-[#ECE0D6] bg-[#FBF8F4] text-[11px] uppercase tracking-wider text-[#6B6B6B]">
+                <th className="px-4 py-3.5 font-bold w-10">
+                  <input
+                    type="checkbox"
+                    checked={
+                      Boolean(candidates &&
+                      candidates.length > 0 &&
+                      selectedCandidateIds.length === candidates.length)
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked && candidates) {
+                        setSelectedCandidateIds(candidates.map((c) => c._id));
+                      } else {
+                        setSelectedCandidateIds([]);
+                      }
+                    }}
+                    className="rounded border-[#ECE0D6] text-[#f97316] focus:ring-[#f97316]"
+                  />
+                </th>
                 <th className="px-5 py-3.5 font-bold">Candidate</th>
                 <th className="px-5 py-3.5 font-bold">Applied Job</th>
                 <th className="px-5 py-3.5 font-bold">Stage</th>
@@ -182,13 +202,13 @@ export const CandidatesPage: React.FC = () => {
             <tbody className="divide-y divide-[#F3EDE4]">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-slate-400">
+                  <td colSpan={8} className="px-5 py-12 text-center text-slate-400">
                     Loading candidates...
                   </td>
                 </tr>
               ) : (!candidates || candidates.length === 0) ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-12 text-center text-slate-400">
+                  <td colSpan={8} className="px-5 py-12 text-center text-slate-400">
                     No candidates found matching the selected filters.
                   </td>
                 </tr>
@@ -203,8 +223,25 @@ export const CandidatesPage: React.FC = () => {
                     <tr
                       key={cand._id}
                       onClick={() => setSelectedCandidateId(cand._id)}
-                      className="hover:bg-[#FAF7F2] transition-colors cursor-pointer group"
+                      className={`hover:bg-[#FAF7F2] transition-colors cursor-pointer group ${
+                        selectedCandidateIds.includes(cand._id) ? 'bg-orange-50/40' : ''
+                      }`}
                     >
+                      <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selectedCandidateIds.includes(cand._id)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            if (selectedCandidateIds.includes(cand._id)) {
+                              setSelectedCandidateIds(selectedCandidateIds.filter((id) => id !== cand._id));
+                            } else {
+                              setSelectedCandidateIds([...selectedCandidateIds, cand._id]);
+                            }
+                          }}
+                          className="rounded border-[#ECE0D6] text-[#f97316] focus:ring-[#f97316]"
+                        />
+                      </td>
                       <td className="px-5 py-4">
                         <div className="flex items-start gap-2.5">
                           <div className="w-8 h-8 rounded-lg bg-orange-100/70 border border-orange-200 text-orange-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
@@ -335,6 +372,13 @@ export const CandidatesPage: React.FC = () => {
         open={!!onboardCandidate}
         onClose={() => setOnboardCandidate(null)}
         candidate={onboardCandidate}
+      />
+
+      {/* Floating Bulk Operations Bar */}
+      <BulkActionBar
+        selectedIds={selectedCandidateIds}
+        onClear={() => setSelectedCandidateIds([])}
+        onRefresh={() => refetch()}
       />
     </div>
   );

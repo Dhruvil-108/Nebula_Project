@@ -26,6 +26,12 @@ const recruitmentActivitySchema = new mongoose.Schema(
       default: null,
       index: true,
     },
+    applicationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Application',
+      default: null,
+      index: true,
+    },
     jobOpeningId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'JobOpening',

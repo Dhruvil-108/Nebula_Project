@@ -124,6 +124,12 @@ const jobOpeningSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    requisitionId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Requisition',
+      default: null,
+      index: true,
+    },
   },
   { timestamps: true }
 );
