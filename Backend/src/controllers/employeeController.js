@@ -47,6 +47,8 @@ const getEmployees = async (req, res) => {
 
     const employees = await Employee.find(scopedFilter(req, extra))
       .populate('departmentId', 'name')
+      .populate('branchId', 'name code city isHeadquarters')
+      .populate('designationId', 'title code gradeLevel')
       .populate('managerId', 'fullName employeeCode')
       .populate('userId', MANAGER_FIELDS)
       .sort({ createdAt: -1 })
@@ -72,6 +74,16 @@ const createEmployee = async (req, res) => {
       phone,
       departmentId,
       designation,
+      branchId,
+      designationId,
+      grade,
+      personalInfo,
+      statutoryIds,
+      bankDetails,
+      emergencyContacts,
+      education,
+      workHistory,
+      customFields,
       joiningDate,
       managerId,
       employmentType,
@@ -92,7 +104,7 @@ const createEmployee = async (req, res) => {
     if (status && !EMPLOYEE_STATUSES.includes(status)) {
       return res.status(400).json({ error: 'Invalid employee status.' });
     }
-    for (const refId of [departmentId, managerId, userId].filter(Boolean)) {
+    for (const refId of [departmentId, managerId, userId, branchId, designationId].filter(Boolean)) {
       if (!mongoose.Types.ObjectId.isValid(refId)) {
         return res.status(400).json({ error: 'Invalid reference id supplied.' });
       }
@@ -128,7 +140,17 @@ const createEmployee = async (req, res) => {
       email: email ? String(email).trim().toLowerCase() : '',
       phone: phone ? String(phone).trim() : '',
       departmentId: departmentId || null,
+      branchId: branchId || null,
+      designationId: designationId || null,
       designation: designation ? String(designation).trim() : '',
+      grade: grade ? String(grade).trim() : 'L2',
+      personalInfo: personalInfo || {},
+      statutoryIds: statutoryIds || {},
+      bankDetails: bankDetails || {},
+      emergencyContacts: Array.isArray(emergencyContacts) ? emergencyContacts : [],
+      education: Array.isArray(education) ? education : [],
+      workHistory: Array.isArray(workHistory) ? workHistory : [],
+      customFields: customFields instanceof Map || typeof customFields === 'object' ? customFields : {},
       joiningDate: joiningDate ? new Date(joiningDate) : null,
       managerId: managerId || null,
       employmentType: employmentType || 'full_time',
@@ -138,13 +160,13 @@ const createEmployee = async (req, res) => {
     });
 
     // Seed leave balances so the new employee starts with quotas.
-    // Attendance/leave records are keyed by the linked User id when one
-    // exists (check-in flows use req.user._id), so seed under the same key.
     const balanceKey = employee.userId || employee._id;
     await ensureLeaveBalancesForEmployee(req.organizationId, balanceKey, new Date().getUTCFullYear());
 
     const populated = await Employee.findById(employee._id)
       .populate('departmentId', 'name')
+      .populate('branchId', 'name code city isHeadquarters')
+      .populate('designationId', 'title code gradeLevel')
       .populate('managerId', 'fullName employeeCode')
       .populate('userId', MANAGER_FIELDS)
       .lean();
@@ -176,6 +198,8 @@ const getEmployeeById = async (req, res) => {
 
     const employee = await Employee.findOne(scopedFilter(req, { _id: id }))
       .populate('departmentId', 'name')
+      .populate('branchId', 'name code city state isHeadquarters timezone')
+      .populate('designationId', 'title code gradeLevel')
       .populate('managerId', 'fullName employeeCode designation')
       .populate('userId', MANAGER_FIELDS)
       .lean();
@@ -246,8 +270,10 @@ const updateEmployee = async (req, res) => {
     }
 
     const allowedFields = [
-      'fullName', 'email', 'phone', 'departmentId', 'designation', 'joiningDate',
-      'managerId', 'employmentType', 'status', 'skills', 'userId',
+      'fullName', 'email', 'phone', 'departmentId', 'branchId', 'designationId',
+      'designation', 'grade', 'joiningDate', 'managerId', 'employmentType', 'status',
+      'skills', 'userId', 'personalInfo', 'statutoryIds', 'bankDetails',
+      'emergencyContacts', 'education', 'workHistory', 'customFields',
     ];
     const updates = {};
     for (const field of allowedFields) {
@@ -305,6 +331,8 @@ const updateEmployee = async (req, res) => {
       { new: true, runValidators: true }
     )
       .populate('departmentId', 'name')
+      .populate('branchId', 'name code city isHeadquarters')
+      .populate('designationId', 'title code gradeLevel')
       .populate('managerId', 'fullName employeeCode')
       .populate('userId', MANAGER_FIELDS)
       .lean();

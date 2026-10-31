@@ -17,9 +17,14 @@ exports.reimburseClaim = async (req, res) => {
       return res.status(403).json({ error: 'Only Finance or Admin can mark claims as reimbursed.' });
     }
 
-    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId });
+    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId, deletedAt: null });
     if (!claim) {
       return res.status(404).json({ error: 'Claim not found.' });
+    }
+
+    // Segregation of duties: Submitter cannot disburse reimbursement to themselves
+    if (claim.employeeId.toString() === user._id.toString()) {
+      return res.status(403).json({ error: 'Segregation of duties: You cannot disburse reimbursement for your own claim.' });
     }
 
     if (claim.status !== 'approved') {
@@ -51,6 +56,18 @@ exports.reimburseClaim = async (req, res) => {
       },
     });
 
+    const { sendExpenseNotification, EVENT_TYPES } = require('../services/expenseNotificationService');
+    sendExpenseNotification({
+      organizationId: orgId,
+      eventType: EVENT_TYPES.CLAIM_REIMBURSED,
+      title: `Reimbursement Disbursed (${claim.claimNumber})`,
+      message: `Your claim ${claim.claimNumber} has been reimbursed via ${paymentMethod}. Reference: ${transactionReference || 'N/A'}`,
+      recipientIds: [claim.employeeId],
+      claimId: claim._id,
+      actorId: user._id,
+      metadata: { paymentMethod, transactionReference, amount: claim.totalAmount },
+    }).catch(() => {});
+
     const updated = await ExpenseClaim.findById(claim._id)
       .populate('employeeId', 'fullName email')
       .populate('departmentId', 'name')
@@ -71,7 +88,7 @@ exports.exportClaims = async (req, res) => {
     const orgId = req.organizationId;
     const { status, departmentId } = req.query;
 
-    const filter = { organizationId: orgId };
+    const filter = { organizationId: orgId, deletedAt: null };
     if (status && status !== 'all') filter.status = status;
     if (departmentId && departmentId !== 'all') filter.departmentId = departmentId;
 

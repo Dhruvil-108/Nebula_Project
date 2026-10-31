@@ -344,61 +344,47 @@
   color: var(--pl-text-primary) !important;
 }
 
-/* Main content */
-.authenticated-shell > div > main [class*="bg-slate-"] {
-  background-color: var(--pl-card) !important;
+/* Module modal backdrops must remain overlays, not inherit card surfaces. */
+.authenticated-shell > div > main .module-modal-backdrop,
+.authenticated-shell > div > main [class*="fixed"][class*="inset-0"][class*="bg-black/"],
+.authenticated-shell > div > main [class*="fixed"][class*="inset-0"][class*="bg-slate-900/"] {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.authenticated-shell > div > main [class*="bg-slate-950/"],
-.authenticated-shell > div > main [class*="bg-slate-900/"],
-.authenticated-shell > div > main [class*="bg-slate-800/"] {
-  background-color: var(--pl-card) !important;
-}
-
-.authenticated-shell > div > main [class*="border-slate-"] {
-  border-color: var(--pl-border) !important;
-}
-
-.authenticated-shell > div > main [class*="text-white"],
-.authenticated-shell > div > main [class*="text-slate-50"],
-.authenticated-shell > div > main [class*="text-slate-100"],
-.authenticated-shell > div > main [class*="text-slate-200"],
-.authenticated-shell > div > main [class*="text-slate-300"] {
+/* Keep legacy native selects consistent with the shared floating dropdown. */
+.authenticated-shell > div > main select:not(.native-dark-select) {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 38px;
+  color-scheme: light;
   color: var(--pl-text-primary) !important;
+  background-color: var(--pl-surface) !important;
+  border-color: var(--pl-border-strong) !important;
+  border-radius: 0.75rem;
+  padding-right: 2.25rem !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.authenticated-shell > div > main [class*="text-slate-400"] {
-  color: var(--pl-text-secondary) !important;
-}
-
-.authenticated-shell > div > main [class*="text-slate-500"],
-.authenticated-shell > div > main [class*="text-slate-600"] {
-  color: var(--pl-text-muted) !important;
-}
-
-.authenticated-shell > div > main [class*="bg-[#f0512f]"],
-.authenticated-shell > div > main [class*="bg-indigo-"] {
-  background-color: var(--pl-brand) !important;
-}
-
-.authenticated-shell > div > main [class*="text-[#f0512f]"],
-.authenticated-shell > div > main [class*="text-[#ff7a59]"] {
-  color: var(--pl-brand) !important;
-}
-
-.authenticated-shell > div > main [class*="border-[#f0512f]"] {
+.authenticated-shell > div > main select:not(.native-dark-select):hover {
   border-color: var(--pl-brand-border) !important;
 }
 
-.authenticated-shell > div > main [class*="hover\:bg-indigo-"]:hover,
-.authenticated-shell > div > main [class*="hover\:bg-[#d63f1e]"]:hover {
-  background-color: var(--pl-brand-dark) !important;
+.authenticated-shell > div > main select:not(.native-dark-select):focus {
+  outline: none;
+  border-color: var(--pl-brand) !important;
+  box-shadow: 0 0 0 3px var(--pl-brand-soft) !important;
 }
 
-.authenticated-shell > div > main [class*="text-emerald-400"] { color: var(--pl-success) !important; }
-.authenticated-shell > div > main [class*="text-amber-400"]   { color: var(--pl-warning) !important; }
-.authenticated-shell > div > main [class*="text-rose-400"]    { color: var(--pl-danger)  !important; }
-.authenticated-shell > div > main [class*="text-sky-400"]     { color: var(--pl-info)    !important; }
+.authenticated-shell > div > main select:not(.native-dark-select) option {
+  background: var(--pl-surface);
+  color: var(--pl-text-primary);
+}
 
 /* Profile hero */
 .authenticated-shell .post-login-profile-hero [class*="bg-slate-"] {

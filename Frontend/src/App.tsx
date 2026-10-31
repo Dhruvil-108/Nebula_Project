@@ -26,6 +26,12 @@ import LeavePage from './pages/hrms/LeavePage';
 import DepartmentsPage from './pages/hrms/DepartmentsPage';
 import HolidaysPage from './pages/hrms/HolidaysPage';
 import DocumentsPage from './pages/hrms/DocumentsPage';
+import OrgChartPage from './pages/hrms/OrgChartPage';
+import PayrollPage from './pages/hrms/PayrollPage';
+import { PerformancePage } from './pages/hrms/PerformancePage';
+import { LifecyclePage } from './pages/hrms/LifecyclePage';
+import { TalentPlanningPage } from './pages/hrms/TalentPlanningPage';
+import HrSettingsPage from './pages/hrms/settings/HrSettingsPage';
 import { RecruitmentDashboardPage } from './pages/recruitment/RecruitmentDashboardPage';
 import { JobsPage } from './pages/recruitment/JobsPage';
 import { PipelinePage as RecruitmentPipelinePage } from './pages/recruitment/PipelinePage';
@@ -46,7 +52,15 @@ import { MyExpensesPage } from './pages/expenses/MyExpensesPage';
 import { ExpenseApprovalsPage } from './pages/expenses/ExpenseApprovalsPage';
 import { ExpenseBudgetsPage } from './pages/expenses/ExpenseBudgetsPage';
 import { ExpenseCategoriesPage } from './pages/expenses/ExpenseCategoriesPage';
-import InventoryPage from './pages/modules/InventoryPage';
+import { InventoryOverviewPage } from './pages/inventory/InventoryOverviewPage';
+import { InventoryItemsPage } from './pages/inventory/InventoryItemsPage';
+import { InventoryWarehousesPage } from './pages/inventory/InventoryWarehousesPage';
+import { InventoryMovementsPage } from './pages/inventory/InventoryMovementsPage';
+import { InventorySuppliersPage } from './pages/inventory/InventorySuppliersPage';
+import { InventoryProcurementPage } from './pages/inventory/InventoryProcurementPage';
+import { InventoryAssetsIntegrationsPage } from './pages/inventory/InventoryAssetsIntegrationsPage';
+import { InventoryAiCopilotPage } from './pages/inventory/InventoryAiCopilotPage';
+import { InventoryAnalyticsPage } from './pages/inventory/InventoryAnalyticsPage';
 import AnalyticsPage from './pages/modules/AnalyticsPage';
 import { ManagePermissionsPage } from './pages/ManagePermissionsPage';
 import { AccountCreatorPage } from './pages/AccountCreatorPage';
@@ -235,6 +249,12 @@ export const App: React.FC = () => {
               <Route path="hrms/departments" element={<DepartmentsPage />} />
               <Route path="hrms/holidays" element={<HolidaysPage />} />
               <Route path="hrms/documents" element={<DocumentsPage />} />
+              <Route path="hrms/org-chart" element={<OrgChartPage />} />
+              <Route path="hrms/payroll" element={<PayrollPage />} />
+              <Route path="hrms/performance" element={<PerformancePage />} />
+              <Route path="hrms/lifecycle" element={<LifecyclePage />} />
+              <Route path="hrms/talent-planning" element={<TalentPlanningPage />} />
+              <Route path="hrms/settings" element={<HrSettingsPage />} />
               <Route path="recruitment" element={<RecruitmentDashboardPage />} />
               <Route path="recruitment/jobs" element={<JobsPage />} />
               <Route path="recruitment/requisitions" element={<RequisitionsPage />} />
@@ -252,7 +272,15 @@ export const App: React.FC = () => {
               <Route path="expenses/approvals" element={<ExpenseApprovalsPage />} />
               <Route path="expenses/budgets" element={<ExpenseBudgetsPage />} />
               <Route path="expenses/categories" element={<ExpenseCategoriesPage />} />
-              <Route path="inventory" element={<InventoryPage />} />
+              <Route path="inventory" element={<InventoryOverviewPage />} />
+              <Route path="inventory/items" element={<InventoryItemsPage />} />
+              <Route path="inventory/warehouses" element={<InventoryWarehousesPage />} />
+              <Route path="inventory/movements" element={<InventoryMovementsPage />} />
+              <Route path="inventory/suppliers" element={<InventorySuppliersPage />} />
+              <Route path="inventory/procurement" element={<InventoryProcurementPage />} />
+              <Route path="inventory/assets" element={<InventoryAssetsIntegrationsPage />} />
+              <Route path="inventory/ai" element={<InventoryAiCopilotPage />} />
+              <Route path="inventory/analytics" element={<InventoryAnalyticsPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="settings" element={<PlaceholderPage title="Settings" />} />
               <Route path="org" element={<PlaceholderPage title="Organization" />} />

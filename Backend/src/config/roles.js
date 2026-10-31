@@ -12,6 +12,11 @@ const ROLES = {
   SALES: 'sales',
   FINANCE: 'finance',
   INVENTORY_MANAGER: 'inventory_manager',
+  INVENTORY_ADMIN: 'inventory_admin',
+  WAREHOUSE_MANAGER: 'warehouse_manager',
+  STOREKEEPER: 'storekeeper',
+  PROCUREMENT_OFFICER: 'procurement_officer',
+  AUDITOR: 'auditor',
   EMPLOYEE: 'employee',
   INTERN: 'intern',
 };

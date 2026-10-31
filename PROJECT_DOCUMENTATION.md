@@ -87,13 +87,14 @@
 - **Activities** — timeline of calls/notes/tasks linked to CRM entities.
 - **CRM Summary** — aggregated stats for the CRM landing page.
 
-### 3.5 HRMS Module
-- **Employees** — profiles with employee code (unique per org), department, designation, manager hierarchy, employment type, status, skills; optional link to login account.
-- **Employee Documents** — typed attachments (id_proof, certificate, offer_letter, contract, other).
-- **Departments** — org structure CRUD.
-- **Attendance** — check-in / check-out / break-in / break-out; one record per employee per day (unique index); tracks worked minutes, late flag, status (present, absent, half_day, on_leave, holiday, weekend); timezone-aware day boundaries (org timezone, default `Asia/Kolkata`); org-wide roster gated to manager/HR/admin inside the controller.
-- **Leave Management** — leave types, per-employee balances, leave requests with approve/reject workflow (approver roles enforced).
-- **Holidays** — per-org holiday calendar with auto-seeded standard holidays per year; upcoming-holidays widget.
+### 3.5 HRMS Module (Enterprise ERP Edition)
+- **Dual-Key Identity & Lifecycle** — Canonical `user` + `employee` dual-key model with bi-directional resolution; 360° personnel dossier across 6 dedicated tabs (Personal/Statutory, Bank/Payroll, Career Timeline, Education/Work, Attendance/Docs); career progression tracking (`JobHistory`) for promotions, transfers, and grade revisions.
+- **Org Structure & Interactive Org Chart** — Multi-branch physical locations (`BranchLocation`), standardized designations with pay grade bands (`L1`–`L7`), and interactive zoomable/collapsible command tree (`OrgChartPage`) with report metrics.
+- **Advanced Attendance & Multi-Shift Rostering** — Multi-shift configurations with grace times, rotational shift assignments, real-time live attendance punch bar, attendance regularizations (missed punch dispute/approval workflow), and compensatory off (comp-off) generation from overtime.
+- **Enterprise Leave Policy & Accruals Engine** — Multi-tier leave requests with automated sandwich policy detection, transactional `LeaveLedger`, background monthly pro-rata accrual engine, and leave encashment workflows.
+- **Enterprise Payroll & Statutory Compliance** — Grade-aware salary structures (`SalaryStructure`), monthly batch payroll runs (`draft → approved → paid`), attendance-driven loss-of-pay (LOP) calculations, dynamic line-item adjustments, and native server-side vector PDF payslip streaming via `pdfkit`.
+- **Performance Management, OKRs & HR AI Copilot** — Goal tracking with measurable weighted key results and progress rollups; 360° appraisal cycles (self, manager, peer); 3×3 9-box talent calibration matrix with promotion/increment planning; predictive workforce attrition risk radar; and an embedded natural-language HR AI Copilot.
+- **Holidays & Document Vault** — Per-org holiday calendar with auto-seeding; secure digital employee document repository with typed verification badges.
 
 ### 3.6 User & Account Management
 - **Account Creator page** (super_admin/admin/hr): provisions user accounts; HR is restricted to `employee`, `intern`, `recruiter` roles.
@@ -300,10 +301,16 @@ npm run build          # tsc -b && vite build
 
 ## 10. Current Status & Roadmap
 
-**Implemented:** Auth & onboarding, multi-tenant RBAC + permission matrix UI, full CRM (leads, contacts, companies, deals/kanban, activities, summary), full HRMS (employees, documents, departments, attendance, leave, holidays), dashboard, account creator, profile & photo.
+**Implemented:** 
+- **Core Platform**: Auth & onboarding, multi-tenant RBAC + permission matrix UI, dashboard, account creator, profile & photo.
+- **CRM Module**: Leads, contacts, companies, deals/kanban pipeline, activities, summary.
+- **HRMS Module**: Employees, documents, departments, attendance, leave, holidays.
+- **Recruitment (ATS) Module**: Jobs, requisitions, candidate pipeline, interviews, offer letters, careers portal (`RECRUITMENT_MODULE_DOCUMENTATION.md`).
+- **Expense Management Module**: Claims, OCR receipt scanning, 2-tier approval workflows, department budgets, reimbursement settlements (`EXPENSE_MODULE_DOCUMENTATION.md`).
+- **Inventory Management Module**: Master data, immutable append-only stock ledger, FIFO/WAC valuation, procurement & 3-way match, equipment kit HRMS provisioning, AI demand forecasting & shrinkage radar, Pareto ABC-XYZ matrix & executive reports (`INVENTORY_MODULE_DOCUMENTATION.md`, `docs/inventory/`).
 
-**Scaffolded / planned:** Recruitment, Expenses, Inventory, and Analytics modules (routes, permissions, and UI stubs exist), Settings & Organization pages (placeholders).
+**Scaffolded / planned:** Standalone cross-module BI Analytics studio, Settings & Organization general configuration pages.
 
 ---
 
-*Documentation generated September 2026 from the repository source.*
+*Documentation updated October 2026 from the repository source.*

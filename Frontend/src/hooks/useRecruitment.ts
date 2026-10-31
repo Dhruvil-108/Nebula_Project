@@ -822,6 +822,8 @@ export const useTalentPools = () =>
   useQuery<any[], Error>({
     queryKey: ['recruitment', 'talent-pools'],
     queryFn: () => recruitmentApi.getTalentPools(),
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
 export const useTalentPool = (id: string | null) =>
@@ -837,7 +839,11 @@ export const useCreateTalentPool = () => {
     mutationFn: (input) => recruitmentApi.createTalentPool(input),
     onSuccess: (pool) => {
       toast.success(`Talent pool "${pool.name}" created.`);
-      qc.invalidateQueries({ queryKey: ['recruitment', 'talent-pools'] });
+      qc.setQueryData<any[]>(['recruitment', 'talent-pools'], (current = []) => {
+        const withoutDuplicate = current.filter((existing) => existing._id !== pool._id);
+        return [pool, ...withoutDuplicate];
+      });
+      void qc.invalidateQueries({ queryKey: ['recruitment', 'talent-pools'] });
     },
     onError: (err) => toast.error(getErrMessage(err, 'Failed to create talent pool.')),
   });
@@ -1023,4 +1029,3 @@ export const useRecruiterCopilot = () => {
     onError: (err) => toast.error(getErrMessage(err, 'Recruiter Copilot synthesis failed.')),
   });
 };
-

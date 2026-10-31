@@ -33,6 +33,15 @@ import {
   FileCheck,
   Sliders,
   Database,
+  Truck,
+  Boxes,
+  ArrowLeftRight,
+  ShoppingCart,
+  Laptop,
+  Banknote,
+  Award,
+  UserCheck,
+  GraduationCap,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { SidebarNavItem } from './SidebarNavItem';
@@ -282,12 +291,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 label={item.label}
                 collapsed={collapsed}
                 subItems={[
+                  { to: '/dashboard/hrms', icon: <LayoutDashboard className="w-3.5 h-3.5" />, label: 'Overview' },
                   { to: '/dashboard/hrms/employees', icon: <Users className="w-3.5 h-3.5" />, label: 'Employees' },
+                  { to: '/dashboard/hrms/org-chart', icon: <Network className="w-3.5 h-3.5" />, label: 'Org Chart' },
                   { to: '/dashboard/hrms/attendance', icon: <Clock className="w-3.5 h-3.5" />, label: 'Attendance' },
                   { to: '/dashboard/hrms/leave', icon: <CalendarOff className="w-3.5 h-3.5" />, label: 'Leave' },
-                  { to: '/dashboard/hrms/departments', icon: <Network className="w-3.5 h-3.5" />, label: 'Departments' },
+                  { to: '/dashboard/hrms/payroll', icon: <Banknote className="w-3.5 h-3.5" />, label: 'Payroll' },
+                  { to: '/dashboard/hrms/performance', icon: <Award className="w-3.5 h-3.5" />, label: 'Performance' },
+                  { to: '/dashboard/hrms/lifecycle', icon: <UserCheck className="w-3.5 h-3.5" />, label: 'Lifecycle & Desk' },
+                  { to: '/dashboard/hrms/talent-planning', icon: <GraduationCap className="w-3.5 h-3.5" />, label: 'Talent & Planning' },
+                  { to: '/dashboard/hrms/departments', icon: <Building2 className="w-3.5 h-3.5" />, label: 'Departments' },
                   { to: '/dashboard/hrms/holidays', icon: <CalendarEvent className="w-3.5 h-3.5" />, label: 'Holidays' },
                   { to: '/dashboard/hrms/documents', icon: <FileText className="w-3.5 h-3.5" />, label: 'Documents' },
+                  { to: '/dashboard/hrms/settings', icon: <Sliders className="w-3.5 h-3.5" />, label: 'Settings' },
                 ]}
               />
             );
@@ -333,6 +349,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   { to: '/dashboard/expenses/approvals', icon: <CheckSquare className="w-3.5 h-3.5" />, label: 'Approvals' },
                   { to: '/dashboard/expenses/budgets', icon: <PieChart className="w-3.5 h-3.5" />, label: 'Budgets' },
                   { to: '/dashboard/expenses/categories', icon: <Tags className="w-3.5 h-3.5" />, label: 'Categories & Policy' },
+                ]}
+              />
+            );
+          }
+
+          if (item.to === '/dashboard/inventory') {
+            return (
+              <SidebarNavGroup
+                key={item.to}
+                to={item.to}
+                icon={item.icon}
+                label={item.label}
+                collapsed={collapsed}
+                subItems={[
+                  { to: '/dashboard/inventory', icon: <LayoutDashboard className="w-3.5 h-3.5" />, label: 'Overview' },
+                  { to: '/dashboard/inventory/items', icon: <Boxes className="w-3.5 h-3.5" />, label: 'Items & Catalog' },
+                  { to: '/dashboard/inventory/warehouses', icon: <Building2 className="w-3.5 h-3.5" />, label: 'Warehouses & Bins' },
+                  { to: '/dashboard/inventory/movements', icon: <ArrowLeftRight className="w-3.5 h-3.5" />, label: 'Stock & Movements' },
+                  { to: '/dashboard/inventory/procurement', icon: <ShoppingCart className="w-3.5 h-3.5" />, label: 'Procurement & POs' },
+                  { to: '/dashboard/inventory/assets', icon: <Laptop className="w-3.5 h-3.5" />, label: 'Equipment & Assets' },
+                  { to: '/dashboard/inventory/ai', icon: <Sparkles className="w-3.5 h-3.5" />, label: 'AI Copilot & Radar' },
+                  { to: '/dashboard/inventory/analytics', icon: <BarChart3 className="w-3.5 h-3.5" />, label: 'Analytics & Reports' },
+                  { to: '/dashboard/inventory/suppliers', icon: <Truck className="w-3.5 h-3.5" />, label: 'Suppliers' },
                 ]}
               />
             );

@@ -82,11 +82,23 @@ const requireModuleAccess = (moduleName, action) => {
               : moduleName === 'analytics'
                 ? ['view']
                 : [];
-        } else if (role === ROLES.INVENTORY_MANAGER) {
+        } else if (role === ROLES.INVENTORY_MANAGER || role === ROLES.INVENTORY_ADMIN) {
+          enabled = moduleName === 'inventory' || moduleName === 'analytics';
+          actions = enabled ? (moduleName === 'inventory' ? ['view', 'create', 'edit', 'delete', 'approve'] : ['view']) : [];
+        } else if (role === ROLES.WAREHOUSE_MANAGER) {
           enabled = moduleName === 'inventory';
           actions = enabled ? ['view', 'create', 'edit', 'approve'] : [];
+        } else if (role === ROLES.STOREKEEPER) {
+          enabled = moduleName === 'inventory';
+          actions = enabled ? ['view', 'create', 'edit'] : [];
+        } else if (role === ROLES.PROCUREMENT_OFFICER) {
+          enabled = moduleName === 'inventory';
+          actions = enabled ? ['view', 'create', 'edit'] : [];
+        } else if (role === ROLES.AUDITOR) {
+          enabled = ['inventory', 'expenses', 'analytics'].includes(moduleName);
+          actions = enabled ? ['view'] : [];
         } else if (role === ROLES.EMPLOYEE || role === ROLES.INTERN) {
-          enabled = moduleName === 'hrms' || moduleName === 'expenses';
+          enabled = moduleName === 'hrms' || moduleName === 'expenses' || moduleName === 'inventory';
           actions = enabled ? (moduleName === 'hrms' ? ['view'] : ['view', 'create']) : [];
         }
       }

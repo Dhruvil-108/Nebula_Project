@@ -1,34 +1,29 @@
 const ExpenseClaim = require('../models/ExpenseClaim');
 const ExpenseCategory = require('../models/ExpenseCategory');
 const ExpenseActivity = require('../models/ExpenseActivity');
+const Counter = require('../models/Counter');
 const Employee = require('../models/Employee');
 const Department = require('../models/Department');
 const { ROLES } = require('../config/roles');
+const { roundMoney, sumMoney } = require('../utils/money');
+const { evaluateClaimPolicies } = require('../services/policyEngineService');
+const { resolveWorkflowForClaim } = require('../services/approvalWorkflowService');
+const { checkBudgetCompliance } = require('../services/budgetControlService');
 
 /**
- * Generate sequential claim number: EXP-YYYY-XXXX
+ * Generate sequential claim number: EXP-YYYY-XXXX (Atomic per organization)
  */
 async function generateClaimNumber(organizationId) {
   const currentYear = new Date().getFullYear();
-  const prefix = `EXP-${currentYear}-`;
+  const entityType = `expense_claim_${currentYear}`;
 
-  const lastClaim = await ExpenseClaim.findOne({
-    organizationId,
-    claimNumber: new RegExp(`^${prefix}`),
-  })
-    .sort({ claimNumber: -1 })
-    .lean();
+  const counter = await Counter.findOneAndUpdate(
+    { organizationId, entityType },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
 
-  let nextSequence = 1;
-  if (lastClaim && lastClaim.claimNumber) {
-    const parts = lastClaim.claimNumber.split('-');
-    const lastSeq = parseInt(parts[2], 10);
-    if (!isNaN(lastSeq)) {
-      nextSequence = lastSeq + 1;
-    }
-  }
-
-  return `${prefix}${String(nextSequence).padStart(4, '0')}`;
+  return `EXP-${currentYear}-${String(counter.seq).padStart(4, '0')}`;
 }
 
 /**
@@ -40,7 +35,7 @@ exports.getClaims = async (req, res) => {
     const user = req.user;
     const { status, departmentId, employeeId, search, page = 1, limit = 50 } = req.query;
 
-    const filter = { organizationId: orgId };
+    const filter = { organizationId: orgId, deletedAt: null };
 
     // Role-based visibility scoping
     const isElevated = [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE, ROLES.HR].includes(user.role);
@@ -123,9 +118,14 @@ exports.getClaimById = async (req, res) => {
     const orgId = req.organizationId;
     const { id } = req.params;
 
-    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId })
+    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId, deletedAt: null })
       .populate('employeeId', 'fullName email role designation')
       .populate('departmentId', 'name')
+      .populate('projectId', 'name code clientName')
+      .populate('costCenterId', 'name code')
+      .populate('travelRequestId', 'requestNumber destination startDate endDate totalEstimated spentAmount')
+      .populate('cashAdvanceId', 'advanceNumber amount remainingBalance status')
+      .populate('paymentBatchId', 'batchNumber status paidAt')
       .populate('items.categoryId', 'name icon color glCode maxClaimLimit receiptThresholdAmount')
       .populate('managerApproval.approverId', 'fullName email')
       .populate('financeApproval.approverId', 'fullName email')
@@ -164,7 +164,19 @@ exports.createClaim = async (req, res) => {
   try {
     const orgId = req.organizationId;
     const user = req.user;
-    const { title, departmentId, items = [], notes, currency = 'USD', submitNow = false } = req.body;
+    const {
+      title,
+      departmentId,
+      items = [],
+      notes,
+      currency = 'USD',
+      projectId = null,
+      costCenterId = null,
+      travelRequestId = null,
+      cashAdvanceId = null,
+      violations: userViolations = [],
+      submitNow = false,
+    } = req.body;
 
     if (!title || !title.trim()) {
       return res.status(400).json({ error: 'Claim title is required.' });
@@ -203,40 +215,166 @@ exports.createClaim = async (req, res) => {
         amount: itemAmount,
         taxAmount: tax,
         currency: it.currency || currency,
+        baseAmount: itemAmount, // Normalized to base currency
+        fxRate: 1,
         receiptUrl: it.receiptUrl || '',
         receiptFileName: it.receiptFileName || '',
+        receiptHash: it.receiptHash || '',
+        expenseType: it.expenseType || 'receipt',
+        mileageDetails: it.mileageDetails || undefined,
+        perDiemDetails: it.perDiemDetails || undefined,
+        taxCodeId: it.taxCodeId || null,
+        lineStatus: 'pending',
         isBillableToClient: Boolean(it.isBillableToClient),
         clientName: it.clientName ? it.clientName.trim() : '',
+        allocations: it.allocations || [],
       };
     });
 
+    // ── Cash Advance Net-Settlement Calculation (M3) ──
+    let advanceDeductedAmount = 0;
+    let netReimbursableAmount = roundMoney(totalAmount, currency);
+
+    if (cashAdvanceId) {
+      const CashAdvance = require('../models/CashAdvance');
+      const advance = await CashAdvance.findOne({
+        _id: cashAdvanceId,
+        organizationId: orgId,
+        employeeId: user._id,
+        deletedAt: null,
+      });
+
+      if (advance && advance.remainingBalance > 0) {
+        const { calculateNetPaySettlement } = require('../services/cashAdvanceService');
+        const settlement = calculateNetPaySettlement(totalAmount, advance.remainingBalance);
+        advanceDeductedAmount = settlement.advanceDeduction;
+        netReimbursableAmount = settlement.netReimbursement;
+      }
+    }
+
+    // ── Phase 1: Policy Engine & Budget Enforcement ──
+    let activeViolations = [];
+    let approvalRoute = [];
+    let initialStatus = submitNow ? 'submitted' : 'draft';
+
+    if (submitNow) {
+      // 1. Evaluate policies
+      const policyResult = await evaluateClaimPolicies({
+        organizationId: orgId,
+        departmentId: targetDeptId,
+        items: validatedItems,
+      });
+
+      if (policyResult.hasBlocks) {
+        return res.status(400).json({
+          error: 'Claim blocked by organization expense policy.',
+          violations: policyResult.violations,
+        });
+      }
+
+      activeViolations = policyResult.violations.map((v) => {
+        const found = userViolations.find((uv) => uv.policyId?.toString() === v.policyId?.toString());
+        return {
+          ...v,
+          userJustification: found?.userJustification || '',
+        };
+      });
+
+      // 2. Evaluate budget compliance
+      const budgetCheck = await checkBudgetCompliance({
+        organizationId: orgId,
+        departmentId: targetDeptId,
+        projectId,
+        costCenterId,
+        claimAmount: totalAmount,
+      });
+
+      if (!budgetCheck.allowed) {
+        return res.status(400).json({
+          error: budgetCheck.message || 'Claim exceeds department budget allocation limit.',
+        });
+      }
+
+      // 3. Resolve approval workflow
+      const workflow = await resolveWorkflowForClaim({
+        organizationId: orgId,
+        totalAmount,
+        departmentId: targetDeptId,
+        projectId,
+      });
+
+      approvalRoute = (workflow.steps || []).map((s) => ({
+        stepOrder: s.stepOrder,
+        approverType: s.approverType,
+        approverId: s.specificUserId || null,
+        status: 'pending',
+      }));
+
+      // Check auto-approve condition
+      if (workflow.autoApproveBelow > 0 && totalAmount <= workflow.autoApproveBelow && !activeViolations.length) {
+        initialStatus = 'approved';
+      }
+    }
+
     const claimNumber = await generateClaimNumber(orgId);
-    const initialStatus = submitNow ? 'submitted' : 'draft';
 
     const claim = await ExpenseClaim.create({
       organizationId: orgId,
       claimNumber,
       employeeId: user._id,
       departmentId: targetDeptId,
+      projectId: projectId || null,
+      costCenterId: costCenterId || null,
+      travelRequestId: travelRequestId || null,
+      cashAdvanceId: cashAdvanceId || null,
+      advanceDeductedAmount,
+      netReimbursableAmount,
       title: title.trim(),
       items: validatedItems,
-      totalAmount: Math.round(totalAmount * 100) / 100,
-      totalTaxAmount: Math.round(totalTaxAmount * 100) / 100,
+      totalAmount: roundMoney(totalAmount, currency),
+      totalTaxAmount: roundMoney(totalTaxAmount, currency),
       currency: currency.toUpperCase(),
+      baseCurrency: currency.toUpperCase(),
+      totalBase: roundMoney(totalAmount, currency),
       status: initialStatus,
+      approvalRoute,
+      violations: activeViolations,
       notes: notes ? notes.trim() : '',
       submittedAt: submitNow ? new Date() : null,
     });
+
+    // Update Travel Request spentAmount if linked
+    if (travelRequestId) {
+      const { recordActualSpend } = require('../services/travelRequestService');
+      await recordActualSpend(travelRequestId, claim.totalAmount).catch(() => {});
+    }
 
     // Record activity
     await ExpenseActivity.create({
       organizationId: orgId,
       claimId: claim._id,
       actorId: user._id,
-      action: submitNow ? 'submitted' : 'created',
-      comment: submitNow ? 'Claim submitted for manager review' : 'Claim draft created',
+      action: initialStatus === 'approved' ? 'finance_approved' : submitNow ? 'submitted' : 'created',
+      comment: initialStatus === 'approved'
+        ? 'Claim auto-approved below threshold'
+        : submitNow
+        ? 'Claim submitted for review'
+        : 'Claim draft created',
       details: { totalAmount: claim.totalAmount, itemCount: claim.items.length },
     });
+
+    const { sendExpenseNotification, EVENT_TYPES } = require('../services/expenseNotificationService');
+    if (submitNow) {
+      sendExpenseNotification({
+        organizationId: orgId,
+        eventType: EVENT_TYPES.CLAIM_SUBMITTED,
+        title: `Claim Submitted (${claim.claimNumber})`,
+        message: `${user.fullName || 'Employee'} submitted expense claim ${claim.claimNumber} for ${claim.currency} ${claim.totalAmount.toFixed(2)}.`,
+        claimId: claim._id,
+        actorId: user._id,
+        metadata: { totalAmount: claim.totalAmount, currency: claim.currency },
+      }).catch(() => {});
+    }
 
     const populated = await ExpenseClaim.findById(claim._id)
       .populate('employeeId', 'fullName email')
@@ -301,6 +439,11 @@ exports.updateClaim = async (req, res) => {
           currency: it.currency || claim.currency,
           receiptUrl: it.receiptUrl || '',
           receiptFileName: it.receiptFileName || '',
+          receiptHash: it.receiptHash || '',
+          expenseType: it.expenseType || 'receipt',
+          mileageDetails: it.mileageDetails || undefined,
+          perDiemDetails: it.perDiemDetails || undefined,
+          taxCodeId: it.taxCodeId || null,
           isBillableToClient: Boolean(it.isBillableToClient),
           clientName: it.clientName ? it.clientName.trim() : '',
         };
@@ -341,13 +484,14 @@ exports.submitClaim = async (req, res) => {
     const orgId = req.organizationId;
     const user = req.user;
     const { id } = req.params;
+    const { violations: userViolations = [] } = req.body || {};
 
-    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId });
+    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId, deletedAt: null });
     if (!claim) {
       return res.status(404).json({ error: 'Claim not found.' });
     }
 
-    if (!['draft', 'rejected'].includes(claim.status)) {
+    if (!['draft', 'rejected', 'sent_back'].includes(claim.status)) {
       return res.status(400).json({ error: `Claim is already in "${claim.status}" state.` });
     }
 
@@ -355,22 +499,98 @@ exports.submitClaim = async (req, res) => {
       return res.status(400).json({ error: 'Cannot submit a claim with no expense items.' });
     }
 
-    claim.status = 'submitted';
+    // 1. Evaluate policies
+    const policyResult = await evaluateClaimPolicies({
+      organizationId: orgId,
+      departmentId: claim.departmentId,
+      items: claim.items,
+    });
+
+    if (policyResult.hasBlocks) {
+      return res.status(400).json({
+        error: 'Claim blocked by organization expense policy.',
+        violations: policyResult.violations,
+      });
+    }
+
+    const activeViolations = policyResult.violations.map((v) => {
+      const found = userViolations.find((uv) => uv.policyId?.toString() === v.policyId?.toString());
+      return {
+        ...v,
+        userJustification: found?.userJustification || '',
+      };
+    });
+
+    // 2. Evaluate budget compliance
+    const budgetCheck = await checkBudgetCompliance({
+      organizationId: orgId,
+      departmentId: claim.departmentId,
+      projectId: claim.projectId,
+      costCenterId: claim.costCenterId,
+      claimAmount: claim.totalAmount,
+    });
+
+    if (!budgetCheck.allowed) {
+      return res.status(400).json({
+        error: budgetCheck.message || 'Claim exceeds department budget allocation limit.',
+      });
+    }
+
+    // 3. Resolve approval workflow
+    const workflow = await resolveWorkflowForClaim({
+      organizationId: orgId,
+      totalAmount: claim.totalAmount,
+      departmentId: claim.departmentId,
+      projectId: claim.projectId,
+    });
+
+    const approvalRoute = (workflow.steps || []).map((s) => ({
+      stepOrder: s.stepOrder,
+      approverType: s.approverType,
+      approverId: s.specificUserId || null,
+      status: 'pending',
+    }));
+
+    let targetStatus = 'submitted';
+    if (workflow.autoApproveBelow > 0 && claim.totalAmount <= workflow.autoApproveBelow && !activeViolations.length) {
+      targetStatus = 'approved';
+    }
+
+    claim.status = targetStatus;
     claim.submittedAt = new Date();
+    claim.violations = activeViolations;
+    claim.approvalRoute = approvalRoute;
+    claim.currentStepIndex = 0;
     await claim.save();
 
     await ExpenseActivity.create({
       organizationId: orgId,
       claimId: claim._id,
       actorId: user._id,
-      action: 'submitted',
-      comment: 'Claim submitted for manager review',
+      action: targetStatus === 'approved' ? 'finance_approved' : 'submitted',
+      comment: targetStatus === 'approved' ? 'Claim auto-approved below threshold' : 'Claim submitted for review',
     });
 
-    return res.json({ success: true, message: 'Claim submitted successfully.', claim });
+    const { sendExpenseNotification, EVENT_TYPES } = require('../services/expenseNotificationService');
+    sendExpenseNotification({
+      organizationId: orgId,
+      eventType: EVENT_TYPES.CLAIM_SUBMITTED,
+      title: `Claim Submitted (${claim.claimNumber})`,
+      message: `${user.fullName || 'Employee'} submitted expense claim ${claim.claimNumber} for ${claim.currency} ${claim.totalAmount.toFixed(2)}.`,
+      claimId: claim._id,
+      actorId: user._id,
+      metadata: { totalAmount: claim.totalAmount, currency: claim.currency },
+    }).catch(() => {});
+
+    const populated = await ExpenseClaim.findById(claim._id)
+      .populate('employeeId', 'fullName email')
+      .populate('departmentId', 'name')
+      .populate('items.categoryId', 'name icon color');
+
+    return res.json({ success: true, claim: populated });
   } catch (error) {
     console.error('Error submitting claim:', error);
-    return res.status(500).json({ error: 'Failed to submit claim.' });
+    return res.status(500).json({ error: error.message || 'Failed to submit claim.' });
   }
 };
 
@@ -419,7 +639,7 @@ exports.deleteClaim = async (req, res) => {
     const user = req.user;
     const { id } = req.params;
 
-    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId });
+    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId, deletedAt: null });
     if (!claim) {
       return res.status(404).json({ error: 'Claim not found.' });
     }
@@ -428,8 +648,18 @@ exports.deleteClaim = async (req, res) => {
       return res.status(400).json({ error: 'Only draft claims can be deleted.' });
     }
 
-    await ExpenseClaim.deleteOne({ _id: id });
-    await ExpenseActivity.deleteMany({ claimId: id, organizationId: orgId });
+    // Soft delete: stamp deletedAt, retain claim and all activity records for audit integrity
+    claim.deletedAt = new Date();
+    claim.status = 'cancelled';
+    await claim.save();
+
+    await ExpenseActivity.create({
+      organizationId: orgId,
+      claimId: id,
+      actorId: user._id,
+      action: 'cancelled',
+      comment: 'Draft claim soft-deleted by user',
+    });
 
     return res.json({ success: true, message: 'Draft claim deleted successfully.' });
   } catch (error) {

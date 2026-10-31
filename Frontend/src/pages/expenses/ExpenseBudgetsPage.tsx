@@ -19,6 +19,7 @@ import {
   useDepartmentBudgets,
   useSaveDepartmentBudget,
   useDeleteDepartmentBudget,
+  useBudgetForecasts,
 } from '../../hooks/useExpenses';
 import type { DepartmentBudget } from '../../types/expenses';
 
@@ -31,6 +32,7 @@ export const ExpenseBudgetsPage: React.FC = () => {
   const { data: budgets = [], isLoading } = useDepartmentBudgets({
     fiscalYear: selectedYear,
   });
+  const { data: forecasts = [] } = useBudgetForecasts(selectedYear);
 
   const saveMutation = useSaveDepartmentBudget();
   const deleteMutation = useDeleteDepartmentBudget();
@@ -265,6 +267,35 @@ export const ExpenseBudgetsPage: React.FC = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Predictive Forecast Section */}
+              {(() => {
+                const fc = forecasts.find((f) => f.budgetId === b._id);
+                if (!fc) return null;
+                return (
+                  <div className="p-2.5 rounded-xl bg-orange-50/40 border border-orange-200/60 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="text-[10px] text-slate-500 uppercase font-bold block">
+                        Projected Year-End
+                      </span>
+                      <span className="font-extrabold text-slate-900 font-mono">
+                        ${fc.projectedTotalSpend.toFixed(0)} ({fc.projectedUtilizationPercent}%)
+                      </span>
+                    </div>
+                    <span
+                      className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                        fc.forecastStatus === 'breach_imminent'
+                          ? 'bg-rose-100 text-rose-700 border border-rose-200'
+                          : fc.forecastStatus === 'caution'
+                          ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                          : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                      }`}
+                    >
+                      {fc.forecastStatus.replace('_', ' ')}
+                    </span>
+                  </div>
+                );
+              })()}
 
               {b.notes && (
                 <p className="text-xs text-slate-500 italic bg-orange-50/30 p-2.5 rounded-lg border border-orange-100">

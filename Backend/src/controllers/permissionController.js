@@ -51,9 +51,33 @@ function getDefaultActions(role, module) {
     return { enabled: false, actions: [] };
   }
 
-  if (role === 'inventory_manager') {
+  if (role === 'inventory_manager' || role === 'inventory_admin') {
+    if (module === 'inventory') {
+      return { enabled: true, actions: ['view', 'create', 'edit', 'delete', 'approve'] };
+    }
+    if (module === 'analytics') {
+      return { enabled: true, actions: ['view'] };
+    }
+    return { enabled: false, actions: [] };
+  }
+
+  if (role === 'warehouse_manager') {
     if (module === 'inventory') {
       return { enabled: true, actions: ['view', 'create', 'edit', 'approve'] };
+    }
+    return { enabled: false, actions: [] };
+  }
+
+  if (role === 'storekeeper' || role === 'procurement_officer') {
+    if (module === 'inventory') {
+      return { enabled: true, actions: ['view', 'create', 'edit'] };
+    }
+    return { enabled: false, actions: [] };
+  }
+
+  if (role === 'auditor') {
+    if (['inventory', 'expenses', 'analytics'].includes(module)) {
+      return { enabled: true, actions: ['view'] };
     }
     return { enabled: false, actions: [] };
   }

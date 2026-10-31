@@ -20,6 +20,7 @@ import { useModuleAccess } from '../../hooks/useModuleAccess';
 import { useAuth } from '../../contexts/AuthContext';
 import { DOC_TYPES, DOC_TYPE_LABELS, type DocType } from '../../types/hrms';
 import { FloatingDropdown } from '../../components/ui/FloatingDropdown';
+import { apiClient } from '../../lib/apiClient';
 
 export const DocumentsPage: React.FC = () => {
   const { user } = useAuth();
@@ -30,6 +31,9 @@ export const DocumentsPage: React.FC = () => {
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('');
   const [showUpload, setShowUpload] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'file' | 'url'>('file');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [form, setForm] = useState<{ docType: DocType; fileName: string; fileUrl: string }>({
     docType: 'other',
     fileName: '',
@@ -51,25 +55,87 @@ export const DocumentsPage: React.FC = () => {
     }
   }, [ownEmployee, employees, isManagement, selectedEmployeeId]);
 
-  const { data: documents, isLoading } = useEmployeeDocuments(selectedEmployeeId || null);
+  const { data: documents, isLoading, refetch } = useEmployeeDocuments(selectedEmployeeId || null);
 
   const uploadMutation = useUploadEmployeeDocument();
   const deleteMutation = useDeleteEmployeeDocument();
 
   const visibleEmployees = isManagement ? employees || [] : ownEmployee ? [ownEmployee] : [];
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.fileName.trim() || !form.fileUrl.trim() || !selectedEmployeeId) return;
-    uploadMutation.mutate(
-      { employeeId: selectedEmployeeId, input: form },
-      {
-        onSuccess: () => {
-          setShowUpload(false);
-          setForm({ docType: 'other', fileName: '', fileUrl: '' });
-        },
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      if (!form.fileName) {
+        setForm((prev) => ({ ...prev, fileName: file.name }));
       }
-    );
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEmployeeId) return;
+
+    if (uploadMode === 'file') {
+      if (!selectedFile) return;
+      setIsUploadingFile(true);
+      try {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const base64Data = reader.result as string;
+            const uploadRes = await apiClient.post('/hr/documents/upload', {
+              fileData: base64Data,
+              originalName: selectedFile.name,
+              mimeType: selectedFile.type,
+              employeeId: selectedEmployeeId,
+              docType: form.docType,
+            });
+
+            const uploadedFileUrl = uploadRes.data.fileUrl;
+            const finalFileName = form.fileName.trim() || selectedFile.name;
+
+            uploadMutation.mutate(
+              {
+                employeeId: selectedEmployeeId,
+                input: {
+                  docType: form.docType,
+                  fileName: finalFileName,
+                  fileUrl: uploadedFileUrl,
+                },
+              },
+              {
+                onSuccess: () => {
+                  setShowUpload(false);
+                  setSelectedFile(null);
+                  setForm({ docType: 'other', fileName: '', fileUrl: '' });
+                  setIsUploadingFile(false);
+                },
+                onError: () => setIsUploadingFile(false),
+              }
+            );
+          } catch (uploadErr) {
+            console.error('File upload failed:', uploadErr);
+            setIsUploadingFile(false);
+          }
+        };
+        reader.readAsDataURL(selectedFile);
+      } catch (err) {
+        console.error('Reader error:', err);
+        setIsUploadingFile(false);
+      }
+    } else {
+      if (!form.fileName.trim() || !form.fileUrl.trim()) return;
+      uploadMutation.mutate(
+        { employeeId: selectedEmployeeId, input: form },
+        {
+          onSuccess: () => {
+            setShowUpload(false);
+            setForm({ docType: 'other', fileName: '', fileUrl: '' });
+          },
+        }
+      );
+    }
   };
 
   const inputCls =
@@ -111,9 +177,9 @@ export const DocumentsPage: React.FC = () => {
           )}
           <button
             type="button"
-            onClick={() => window.location.reload()}
+            onClick={() => refetch()}
             className="p-2 rounded-xl text-[#6B6B6B] hover:text-[#1A1A1A] hover:bg-[#fff7ed] border border-[#ECE0D6] transition-colors"
-            title="Refresh"
+            title="Refresh documents"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -247,6 +313,32 @@ export const DocumentsPage: React.FC = () => {
                   <X className="w-4 h-4" />
                 </button>
               </div>
+              {/* Upload Mode Toggle */}
+              <div className="px-6 pt-4 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setUploadMode('file')}
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
+                    uploadMode === 'file'
+                      ? 'bg-[#fff7ed] text-[#f97316] border-[#fed7aa]'
+                      : 'bg-[#FBF8F4] text-[#6B6B6B] border-[#ECE0D6]'
+                  }`}
+                >
+                  Upload Local File
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUploadMode('url')}
+                  className={`flex-1 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
+                    uploadMode === 'url'
+                      ? 'bg-[#fff7ed] text-[#f97316] border-[#fed7aa]'
+                      : 'bg-[#FBF8F4] text-[#6B6B6B] border-[#ECE0D6]'
+                  }`}
+                >
+                  External Link URL
+                </button>
+              </div>
+
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 <div>
                   <FloatingDropdown
@@ -259,48 +351,74 @@ export const DocumentsPage: React.FC = () => {
                     }))}
                   />
                 </div>
+
+                {uploadMode === 'file' ? (
+                  <div>
+                    <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                      Choose File (PDF, PNG, JPG, DOCX up to 10MB) <span className="text-[#DC2626]">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      required
+                      accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx"
+                      onChange={handleFileSelect}
+                      className="w-full text-xs text-[#1A1A1A] file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#fff7ed] file:text-[#f97316] hover:file:bg-[#fed7aa] cursor-pointer"
+                    />
+                    {selectedFile && (
+                      <p className="text-[11px] font-mono text-[#6B6B6B] mt-1.5">
+                        Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
+                      File URL <span className="text-[#DC2626]">*</span>
+                    </label>
+                    <input
+                      required
+                      value={form.fileUrl}
+                      onChange={(e) => setForm({ ...form, fileUrl: e.target.value })}
+                      className={inputCls}
+                      placeholder="https://storage.example.com/documents/passport.pdf"
+                    />
+                    <p className="text-[10px] text-[#9B9B9B] mt-1">
+                      Direct URL to external cloud document (Google Drive, Dropbox, AWS S3).
+                    </p>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                    File name <span className="text-[#DC2626]">*</span>
+                    Display Name
                   </label>
                   <input
-                    required
                     value={form.fileName}
                     onChange={(e) => setForm({ ...form, fileName: e.target.value })}
                     className={inputCls}
-                    placeholder="e.g. passport.pdf"
+                    placeholder="e.g. passport_scan_2026.pdf"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-[#6B6B6B] mb-1">
-                    File URL <span className="text-[#DC2626]">*</span>
-                  </label>
-                  <input
-                    required
-                    value={form.fileUrl}
-                    onChange={(e) => setForm({ ...form, fileUrl: e.target.value })}
-                    className={inputCls}
-                    placeholder="https://storage.example.com/documents/passport.pdf"
-                  />
-                  <p className="text-[10px] text-[#9B9B9B] mt-1">
-                    Link to the stored file (S3, Drive, or your storage provider).
-                  </p>
-                </div>
+
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => setShowUpload(false)}
-                    className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors"
+                    className="px-4 py-2 rounded-lg text-xs font-semibold text-[#6B6B6B] hover:text-[#1A1A1A] border border-[#ECE0D6] hover:bg-[#fff7ed] transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    disabled={uploadMutation.isPending || !form.fileName.trim() || !form.fileUrl.trim()}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50"
+                    disabled={
+                      uploadMutation.isPending ||
+                      isUploadingFile ||
+                      (uploadMode === 'file' ? !selectedFile : !form.fileUrl.trim())
+                    }
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-[#f97316] hover:bg-[#ea580c] text-white transition-colors disabled:opacity-50 cursor-pointer"
                   >
-                    {uploadMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                    Upload
+                    {(uploadMutation.isPending || isUploadingFile) && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    {isUploadingFile ? 'Encrypting & Storing...' : 'Upload'}
                   </button>
                 </div>
               </form>

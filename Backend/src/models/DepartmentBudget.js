@@ -49,6 +49,26 @@ const departmentBudgetSchema = new mongoose.Schema(
       uppercase: true,
       trim: true,
     },
+    controlMode: {
+      type: String,
+      enum: ['warn', 'block'],
+      default: 'warn',
+    },
+    costCenterId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'CostCenter',
+      default: null,
+    },
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+      default: null,
+    },
+    parentBudgetId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'DepartmentBudget',
+      default: null,
+    },
     alertThresholdPercent: {
       type: Number,
       default: 80,

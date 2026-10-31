@@ -31,11 +31,13 @@ const getDayMidnightUtc = (dateInput = new Date(), timezone = 'Asia/Kolkata') =>
 
 /**
  * Checks if a check-in time is late relative to shift start time in org timezone.
+ * Supports configurable grace period buffer.
  * @param {Date} checkInTime 
  * @param {string} shiftStartTimeStr - e.g. "09:30"
  * @param {string} timezone - e.g. "Asia/Kolkata"
+ * @param {number} graceMinutes - default 15
  */
-const isTimeLate = (checkInTime, shiftStartTimeStr = '09:30', timezone = 'Asia/Kolkata') => {
+const isTimeLate = (checkInTime, shiftStartTimeStr = '09:30', timezone = 'Asia/Kolkata', graceMinutes = 15) => {
   if (!checkInTime) return false;
   try {
     const formatter = new Intl.DateTimeFormat('en-US', {
@@ -51,7 +53,7 @@ const isTimeLate = (checkInTime, shiftStartTimeStr = '09:30', timezone = 'Asia/K
     const [shiftHours, shiftMinutes] = (shiftStartTimeStr || '09:30').split(':').map((v) => parseInt(v, 10));
 
     const checkInTotalMin = checkInHours * 60 + checkInMinutes;
-    const shiftTotalMin = shiftHours * 60 + shiftMinutes;
+    const shiftTotalMin = shiftHours * 60 + shiftMinutes + (Number(graceMinutes) || 0);
 
     return checkInTotalMin > shiftTotalMin;
   } catch (err) {
@@ -87,14 +89,67 @@ const calculateWorkedMinutes = (record, referenceTime = new Date()) => {
   return Math.floor(netWorkedMs / (1000 * 60));
 };
 
-/**
- * Default standard leave types seeded for each organization.
- */
 const DEFAULT_LEAVE_TYPES = [
-  { name: 'Casual Leave', annualQuota: 12, carryForward: false },
-  { name: 'Sick Leave', annualQuota: 8, carryForward: false },
-  { name: 'Earned Leave', annualQuota: 15, carryForward: true },
-  { name: 'Unpaid Leave', annualQuota: 0, carryForward: false },
+  {
+    name: 'Casual Leave',
+    code: 'CL',
+    annualQuota: 12,
+    accrualFrequency: 'monthly',
+    monthlyAccrualRate: 1.0,
+    carryForward: false,
+    sandwichRuleEnabled: true,
+    isPaid: true,
+    priorNoticeDays: 2,
+    color: '#f97316',
+  },
+  {
+    name: 'Sick Leave',
+    code: 'SL',
+    annualQuota: 8,
+    accrualFrequency: 'yearly',
+    monthlyAccrualRate: 0,
+    carryForward: false,
+    sandwichRuleEnabled: false,
+    isPaid: true,
+    docRequiredAfterDays: 2,
+    color: '#ef4444',
+  },
+  {
+    name: 'Earned Leave',
+    code: 'EL',
+    annualQuota: 15,
+    accrualFrequency: 'monthly',
+    monthlyAccrualRate: 1.25,
+    carryForward: true,
+    maxCarryForward: 30,
+    maxEncashable: 15,
+    sandwichRuleEnabled: false,
+    isPaid: true,
+    priorNoticeDays: 7,
+    color: '#3b82f6',
+  },
+  {
+    name: 'Compensatory Off',
+    code: 'COMP',
+    annualQuota: 0,
+    accrualFrequency: 'none',
+    monthlyAccrualRate: 0,
+    carryForward: false,
+    sandwichRuleEnabled: false,
+    isPaid: true,
+    color: '#10b981',
+  },
+  {
+    name: 'Unpaid Leave',
+    code: 'LWP',
+    annualQuota: 0,
+    accrualFrequency: 'none',
+    monthlyAccrualRate: 0,
+    carryForward: false,
+    sandwichRuleEnabled: true,
+    isPaid: false,
+    color: '#6b7280',
+  },
 ];
 
 /**

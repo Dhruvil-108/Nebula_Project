@@ -14,6 +14,7 @@ exports.getExpenseSummary = async (req, res) => {
       {
         $match: {
           organizationId: orgId,
+          deletedAt: null,
           status: { $ne: 'cancelled' },
         },
       },
@@ -44,6 +45,7 @@ exports.getExpenseSummary = async (req, res) => {
       {
         $match: {
           organizationId: orgId,
+          deletedAt: null,
           status: { $in: ['approved', 'reimbursed', 'manager_approved', 'submitted'] },
         },
       },
@@ -83,6 +85,7 @@ exports.getExpenseSummary = async (req, res) => {
       {
         $match: {
           organizationId: orgId,
+          deletedAt: null,
           createdAt: { $gte: sixMonthsAgo },
           status: { $ne: 'cancelled' },
         },
@@ -145,7 +148,7 @@ exports.getExpenseSummary = async (req, res) => {
     const overallBudgetUsedPercent = totalAllocated > 0 ? Math.round(((totalApproved + totalReimbursed) / totalAllocated) * 100) : 0;
 
     // 5. Recent 5 claims
-    const recentClaims = await ExpenseClaim.find({ organizationId: orgId })
+    const recentClaims = await ExpenseClaim.find({ organizationId: orgId, deletedAt: null })
       .populate('employeeId', 'fullName email')
       .populate('departmentId', 'name')
       .populate('items.categoryId', 'name icon color')

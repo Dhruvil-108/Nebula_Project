@@ -5,71 +5,60 @@ const aiRunSchema = new mongoose.Schema(
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Organization',
-      required: [true, 'organizationId is required'],
+      required: true,
       index: true,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      default: null,
+      required: true,
+      index: true,
     },
     task: {
       type: String,
-      required: [true, 'Task identifier is required'],
+      required: true,
       index: true,
     },
     promptVersion: {
       type: String,
-      default: 'v1',
+      default: 'v1.0',
     },
     model: {
       type: String,
-      required: true,
-    },
-    provider: {
-      type: String,
-      enum: ['gemini', 'fallback', 'other'],
-      required: true,
+      default: 'gemini-flash-latest',
     },
     inputHash: {
       type: String,
-      default: '',
+      index: true,
     },
-    output: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {},
+    claimId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ExpenseClaim',
+      index: true,
     },
-    tokens: {
-      promptTokens: { type: Number, default: 0 },
-      completionTokens: { type: Number, default: 0 },
+    tokensUsed: {
+      inputTokens: { type: Number, default: 0 },
+      outputTokens: { type: Number, default: 0 },
       totalTokens: { type: Number, default: 0 },
     },
     latencyMs: {
       type: Number,
       default: 0,
     },
-    cost: {
-      type: Number,
-      default: 0,
-    },
-    entityType: {
+    resultSummary: {
       type: String,
-      default: '',
     },
-    entityId: {
-      type: mongoose.Schema.Types.ObjectId,
-      default: null,
-    },
-    humanDisposition: {
+    userInteraction: {
       type: String,
       enum: ['pending', 'accepted', 'edited', 'discarded'],
       default: 'pending',
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 aiRunSchema.index({ organizationId: 1, task: 1, createdAt: -1 });
-aiRunSchema.index({ organizationId: 1, createdAt: -1 });
 
 module.exports = mongoose.model('AiRun', aiRunSchema);

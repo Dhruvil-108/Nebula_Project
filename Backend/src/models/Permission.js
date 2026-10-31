@@ -15,6 +15,11 @@ const VALID_ROLES = [
 const VALID_MODULES = [
   'crm',
   'hrms',
+  'hrms:payroll',
+  'hrms:performance',
+  'hrms:settings',
+  'hrms:ai',
+  'hrms:sensitive',
   'recruitment',
   'expenses',
   'inventory',

@@ -16,6 +16,11 @@ export type PermissionRole =
 export type PermissionModule =
   | 'crm'
   | 'hrms'
+  | 'hrms:payroll'
+  | 'hrms:performance'
+  | 'hrms:settings'
+  | 'hrms:ai'
+  | 'hrms:sensitive'
   | 'recruitment'
   | 'expenses'
   | 'inventory'
@@ -62,6 +67,41 @@ export const MODULE_METADATA: Record<
   hrms: {
     label: 'HRMS',
     description: 'Attendance, leaves, employee directory & records',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
+  },
+  'hrms:payroll': {
+    label: 'HRMS Payroll',
+    description: 'Salary structures, payroll runs, payslips & tax reports',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
+  },
+  'hrms:performance': {
+    label: 'HRMS Performance',
+    description: 'Goals, OKRs, reviews & 360 feedback cycles',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
+  },
+  'hrms:settings': {
+    label: 'HRMS Settings',
+    description: 'HR policies, approval workflows, custom fields & audit',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
+  },
+  'hrms:ai': {
+    label: 'HRMS AI Copilot',
+    description: 'HR intelligence, smart leave assistant & predictions',
+    color: 'text-[#ea580c]',
+    badgeBg: 'bg-[#fff7ed]',
+    badgeBorder: 'border-[#fed7aa]',
+  },
+  'hrms:sensitive': {
+    label: 'HRMS Sensitive Data',
+    description: 'Salaries, bank accounts & statutory ID records',
     color: 'text-[#ea580c]',
     badgeBg: 'bg-[#fff7ed]',
     badgeBorder: 'border-[#fed7aa]',

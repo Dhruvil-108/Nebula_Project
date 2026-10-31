@@ -24,6 +24,8 @@ import {
   useCreateTalentPool,
   useTalentPool,
   useRemoveCandidateFromPool,
+  useCandidates,
+  useAddCandidatesToPool,
 } from '../../hooks/useRecruitment';
 import type { TalentPool } from '../../types/recruitment';
 import { toast } from 'react-toastify';
@@ -37,6 +39,10 @@ export const TalentPoolsPage: React.FC = () => {
   const createPoolMutation = useCreateTalentPool();
   const { data: selectedPool, isLoading: isSelectedPoolLoading } = useTalentPool(selectedPoolId || '');
   const removeCandidateMutation = useRemoveCandidateFromPool();
+  const addCandidatesMutation = useAddCandidatesToPool();
+  const { data: candidates = [] } = useCandidates();
+  const [isAddCandidateOpen, setIsAddCandidateOpen] = useState(false);
+  const [candidateIdsToAdd, setCandidateIdsToAdd] = useState<string[]>([]);
 
   // Create form state
   const [formData, setFormData] = useState({
@@ -85,6 +91,22 @@ export const TalentPoolsPage: React.FC = () => {
       toast.error(err.response?.data?.message || 'Failed to remove candidate');
     }
   };
+
+  const handleAddCandidates = async () => {
+    if (!selectedPoolId || candidateIdsToAdd.length === 0) return;
+    await addCandidatesMutation.mutateAsync({
+      id: selectedPoolId,
+      candidateIds: candidateIdsToAdd,
+    });
+    setCandidateIdsToAdd([]);
+    setIsAddCandidateOpen(false);
+  };
+
+  const existingCandidateIds = new Set(
+    (selectedPool?.candidates || []).map((candidate: any) =>
+      String(candidate.candidateId?._id || candidate._id)
+    )
+  );
 
   const filteredPools = (pools || []).filter((p) => {
     const term = search.toLowerCase();
@@ -279,6 +301,87 @@ export const TalentPoolsPage: React.FC = () => {
 
               {/* Drawer Candidates List */}
               <div className="flex-1 overflow-y-auto p-6 space-y-3">
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddCandidateOpen((open) => !open)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#f97316] hover:bg-[#ea580c] text-white text-xs font-bold transition-colors"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Add Candidates
+                  </button>
+                </div>
+
+                {isAddCandidateOpen && (
+                  <div className="rounded-2xl border border-[#fed7aa] bg-[#fff7ed]/60 p-4 space-y-3">
+                    <p className="text-xs font-bold text-[#111827]">Select candidates from the ATS</p>
+                    <div className="max-h-52 overflow-y-auto space-y-1.5">
+                      {candidates.filter((candidate: any) => !existingCandidateIds.has(String(candidate._id))).length === 0 ? (
+                        <p className="text-[11px] text-slate-500 py-3 text-center">
+                          No available candidates to add.
+                        </p>
+                      ) : (
+                        candidates
+                          .filter((candidate: any) => !existingCandidateIds.has(String(candidate._id)))
+                          .map((candidate: any) => {
+                            const candidateName =
+                              candidate.fullName ||
+                              `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim() ||
+                              candidate.email;
+                            const checked = candidateIdsToAdd.includes(candidate._id);
+                            return (
+                              <label
+                                key={candidate._id}
+                                className="flex items-center gap-2 rounded-xl bg-white border border-[#ECE0D6] px-3 py-2 cursor-pointer hover:border-orange-300"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() =>
+                                    setCandidateIdsToAdd((current) =>
+                                      checked
+                                        ? current.filter((id) => id !== candidate._id)
+                                        : [...current, candidate._id]
+                                    )
+                                  }
+                                  className="accent-orange-500"
+                                />
+                                <span className="min-w-0">
+                                  <span className="block text-xs font-semibold text-[#111827] truncate">
+                                    {candidateName}
+                                  </span>
+                                  <span className="block text-[10px] text-slate-500 truncate">
+                                    {candidate.email || candidate.currentDesignation || 'Candidate'}
+                                  </span>
+                                </span>
+                              </label>
+                            );
+                          })
+                      )}
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCandidateIdsToAdd([]);
+                          setIsAddCandidateOpen(false);
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        disabled={candidateIdsToAdd.length === 0 || addCandidatesMutation.isPending}
+                        onClick={handleAddCandidates}
+                        className="px-3 py-1.5 rounded-lg bg-[#f97316] text-white text-xs font-semibold disabled:opacity-50"
+                      >
+                        {addCandidatesMutation.isPending ? 'Adding...' : 'Add Selected'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {isSelectedPoolLoading ? (
                   <div className="text-center py-12 text-slate-400">Loading candidates...</div>
                 ) : !selectedPool?.candidates || selectedPool.candidates.length === 0 ? (

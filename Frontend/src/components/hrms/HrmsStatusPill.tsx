@@ -24,13 +24,13 @@ const PILL_SUCCESS = 'bg-emerald-50 text-emerald-700 border-emerald-200';
 const PILL_WARNING = 'bg-amber-50 text-amber-700 border-amber-200';
 const PILL_DANGER = 'bg-rose-50 text-rose-700 border-rose-200';
 const PILL_BRAND = 'bg-[#fff7ed] text-[#ea580c] border-[#fed7aa]';
-const PILL_NEUTRAL = 'bg-slate-100 text-slate-700 border-slate-200';
+const PILL_NEUTRAL = 'bg-[#FBF8F4] text-[#6B6B6B] border-[#ECE0D6]';
 
 const DOT_SUCCESS = 'bg-emerald-500';
 const DOT_WARNING = 'bg-amber-500';
 const DOT_DANGER = 'bg-rose-500';
 const DOT_BRAND = 'bg-[#f97316]';
-const DOT_NEUTRAL = 'bg-slate-400';
+const DOT_NEUTRAL = 'bg-[#9B9B9B]';
 
 // ── Attendance status ──
 const ATTENDANCE_STYLES: Record<AttendanceStatus | 'pending', { pill: string; dot: string; label: string }> = {
@@ -121,6 +121,24 @@ export const EmployeeStatusPill: React.FC<PillProps & { status: EmployeeStatus }
     <span className={clsx(base, cfg.pill, className)}>
       <span className={clsx('w-1.5 h-1.5 rounded-full', cfg.dot)} />
       {EMPLOYEE_STATUS_LABELS[status]}
+    </span>
+  );
+};
+
+export const RegularizationStatusPill: React.FC<PillProps & { status: 'pending' | 'approved' | 'rejected' }> = ({
+  status,
+  className = '',
+}) => {
+  const cfg = {
+    pending: { pill: PILL_WARNING, dot: DOT_WARNING, label: 'Pending Approval' },
+    approved: { pill: PILL_SUCCESS, dot: DOT_SUCCESS, label: 'Approved' },
+    rejected: { pill: PILL_DANGER, dot: DOT_DANGER, label: 'Rejected' },
+  }[status] || { pill: PILL_NEUTRAL, dot: DOT_NEUTRAL, label: status };
+
+  return (
+    <span className={clsx(base, cfg.pill, className)}>
+      <span className={clsx('w-1.5 h-1.5 rounded-full', cfg.dot)} />
+      {cfg.label}
     </span>
   );
 };

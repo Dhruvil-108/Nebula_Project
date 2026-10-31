@@ -34,6 +34,10 @@ const talentPoolSchema = new mongoose.Schema(
       default: '#f97316',
       trim: true,
     },
+    isPrivate: {
+      type: Boolean,
+      default: false,
+    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

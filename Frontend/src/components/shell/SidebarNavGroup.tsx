@@ -29,13 +29,14 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
   const currentPath = location.pathname.replace(/\/$/, '');
   const groupPath = to.replace(/\/$/, '');
 
-  // Check if current route is exactly the group root or any sub-route
+  // Check if current route is the group root or any sub-route
   const isExactGroupRoute = currentPath === groupPath;
+  const isInsideGroupRoute = currentPath.startsWith(groupPath + '/');
   const isAnySubRouteActive = subItems.some((sub) => {
     const target = sub.to.replace(/\/$/, '');
-    return currentPath === target || (target !== groupPath && currentPath.startsWith(target + '/'));
+    return currentPath === target || currentPath.startsWith(target + '/');
   });
-  const isGroupActive = isExactGroupRoute || isAnySubRouteActive;
+  const isGroupActive = isExactGroupRoute || isInsideGroupRoute || isAnySubRouteActive;
 
   const [open, setOpen] = useState(isGroupActive);
 
@@ -83,9 +84,6 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
     );
   }
 
-  // When open and a child is active, parent acts as open section header (not a competing active card)
-  const isParentActiveCard = isExactGroupRoute || (!open && isGroupActive);
-
   return (
     <div className="space-y-0.5">
       {/* Group header button */}
@@ -93,15 +91,13 @@ export const SidebarNavGroup: React.FC<SidebarNavGroupProps> = ({
         onClick={() => setOpen((o) => !o)}
         className={clsx(
           'post-login-nav-item w-full group relative flex items-center gap-3 px-3 py-2 rounded-xl text-sm select-none focus-visible:outline-none transition-all duration-150',
-          isParentActiveCard
+          isGroupActive
             ? 'post-login-nav-active bg-white text-slate-900 border border-slate-200/90 shadow-2xs font-semibold'
-            : isGroupActive
-              ? 'text-slate-900 hover:bg-slate-100/70 border border-transparent font-semibold'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 border border-transparent font-medium'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70 border border-transparent font-medium'
         )}
         aria-expanded={open}
       >
-        {isParentActiveCard && (
+        {isGroupActive && (
           <span
             className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#ea580c]"
             aria-hidden="true"

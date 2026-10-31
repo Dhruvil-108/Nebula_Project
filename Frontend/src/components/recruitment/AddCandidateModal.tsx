@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, UserPlus } from 'lucide-react';
 import { useJobs, useCreateCandidate } from '../../hooks/useRecruitment';
@@ -23,7 +23,7 @@ export const AddCandidateModal: React.FC<AddCandidateModalProps> = ({
   onClose,
   defaultJobId,
 }) => {
-  const { data: jobs } = useJobs({ status: 'published' });
+  const { data: jobs = [], isLoading: isJobsLoading, isError: isJobsError, refetch: refetchJobs } = useJobs();
   const createCandidateMutation = useCreateCandidate();
 
   const [form, setForm] = useState({
@@ -45,6 +45,12 @@ export const AddCandidateModal: React.FC<AddCandidateModalProps> = ({
     stage: 'applied' as CandidateStage,
     notes: '',
   });
+
+  useEffect(() => {
+    if (open) {
+      void refetchJobs();
+    }
+  }, [open, refetchJobs]);
 
   if (!open) return null;
 
@@ -87,6 +93,10 @@ export const AddCandidateModal: React.FC<AddCandidateModalProps> = ({
 
   const inputCls =
     'w-full rounded-xl border border-[#ECE0D6] bg-white px-3 py-2 text-xs text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:outline-none focus:ring-2 focus:ring-[#f97316]/25 focus:border-[#f97316] transition-all';
+
+  const availableJobs = jobs.filter(
+    (job) => job.status !== 'closed' || job._id === form.jobOpeningId
+  );
 
   return (
     <AnimatePresence>
@@ -131,14 +141,29 @@ export const AddCandidateModal: React.FC<AddCandidateModalProps> = ({
                 label="Applying For Job Opening *"
                 value={form.jobOpeningId}
                 onChange={(val) => setForm({ ...form, jobOpeningId: val })}
-                options={(jobs || []).map((j) => ({
+                options={availableJobs.map((j) => ({
                   value: j._id,
-                  label: `${j.title} (${j.jobCode})`,
+                  label: `${j.title} (${j.jobCode})${j.status !== 'published' ? ` — ${j.status.replace('_', ' ')}` : ''}`,
                 }))}
                 searchable={true}
                 searchPlaceholder="Search job opening..."
                 placeholder="Select Job Opening"
               />
+              {isJobsLoading && (
+                <p className="mt-1 text-[11px] text-slate-500">Loading job openings...</p>
+              )}
+              {isJobsError && (
+                <p className="mt-1 text-[11px] text-rose-600">
+                  Job openings could not be loaded. Please close and reopen this form.
+                </p>
+              )}
+              {availableJobs.length === 0 && (
+                <p className="mt-1 text-[11px] text-amber-700">
+                  {isJobsError
+                    ? 'Check your Recruitment access and try again.'
+                    : 'No open job openings are available. Create a job opening first.'}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-3">

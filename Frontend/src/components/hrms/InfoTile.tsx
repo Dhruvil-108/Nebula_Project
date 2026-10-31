@@ -1,7 +1,7 @@
 import React from 'react';
 
 /** Small label/value tile used inside HRMS detail drawers (mirrors CRM InfoTile) */
-export const InfoTile: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({
+export const InfoTile: React.FC<{ icon?: React.ReactNode; label: string; value: string }> = ({
   icon,
   label,
   value,

@@ -18,8 +18,14 @@ const attendanceRecordSchema = new mongoose.Schema(
   {
     employeeId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'Employee',
       required: true,
+      index: true,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
       index: true,
     },
     organizationId: {
@@ -54,6 +60,25 @@ const attendanceRecordSchema = new mongoose.Schema(
     isLate: {
       type: Boolean,
       default: false,
+    },
+    shiftId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Shift',
+      default: null,
+    },
+    overtimeMinutes: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    isRegularized: {
+      type: Boolean,
+      default: false,
+    },
+    regularizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'AttendanceRegularization',
+      default: null,
     },
   },
   { timestamps: true }

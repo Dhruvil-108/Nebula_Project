@@ -8,6 +8,7 @@ const RecruitmentActivity = require('../models/RecruitmentActivity');
 const { scopedFilter } = require('../middleware/tenant');
 
 const counterService = require('../services/counterService');
+const hrmsInventoryBridgeService = require('../services/hrmsInventoryBridgeService');
 
 // ─────────────────────────────────────────────────────────
 // POST /api/v1/recruitment/candidates/:id/onboard-employee
@@ -114,11 +115,12 @@ const onboardCandidateToEmployee = async (req, res) => {
     }
 
     // 3. Update Candidate stage to 'hired'
+    const previousStage = candidate.stage;
     candidate.stage = 'hired';
     candidate.convertedEmployeeId = newEmployee._id;
     candidate.hiredAt = new Date();
     candidate.stageHistory.push({
-      fromStage: candidate.stage,
+      fromStage: previousStage,
       toStage: 'hired',
       changedBy: req.user._id,
       changedAt: new Date(),
@@ -153,6 +155,20 @@ const onboardCandidateToEmployee = async (req, res) => {
       performedBy: req.user._id,
       metadata: { employeeId: newEmployee._id, employeeCode: newEmployee.employeeCode },
     });
+
+    // 7. Inventory Bridge: Automatically create equipment kit provisioning request for new hire
+    try {
+      await hrmsInventoryBridgeService.autoCreateOnboardingAssetRequest({
+        organizationId: req.organizationId,
+        employeeId: newEmployee._id,
+        candidateId: candidate._id,
+        departmentId: finalDepartmentId,
+        designation: finalDesignation,
+        actorId: req.user._id,
+      });
+    } catch (kitErr) {
+      console.warn('[hiringHrmsBridgeController] Equipment kit auto-request notice:', kitErr.message);
+    }
 
     const populatedEmployee = await Employee.findById(newEmployee._id)
       .populate('departmentId', 'name')

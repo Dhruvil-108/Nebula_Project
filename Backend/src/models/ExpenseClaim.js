@@ -58,6 +58,62 @@ const expenseItemSchema = new mongoose.Schema({
     trim: true,
     default: '',
   },
+  receiptHash: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  baseAmount: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  fxRate: {
+    type: Number,
+    default: 1,
+    min: 0,
+  },
+  lineStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  },
+  rejectionReason: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  allocations: [
+    {
+      costCenterId: { type: mongoose.Schema.Types.ObjectId, ref: 'CostCenter' },
+      projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
+      percent: { type: Number, default: 100 },
+    },
+  ],
+  expenseType: {
+    type: String,
+    enum: ['receipt', 'mileage', 'per_diem'],
+    default: 'receipt',
+  },
+  mileageDetails: {
+    distance: { type: Number, default: 0 },
+    unit: { type: String, enum: ['km', 'mile'], default: 'km' },
+    vehicleType: { type: String, default: 'car' },
+    ratePerUnit: { type: Number, default: 0 },
+  },
+  perDiemDetails: {
+    destination: { type: String, default: '' },
+    days: { type: Number, default: 1 },
+    ratePerDay: { type: Number, default: 0 },
+    breakfastProvided: { type: Boolean, default: false },
+    lunchProvided: { type: Boolean, default: false },
+    dinnerProvided: { type: Boolean, default: false },
+  },
+  taxCodeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TaxCode',
+    default: null,
+  },
   isBillableToClient: {
     type: Boolean,
     default: false,
@@ -121,6 +177,22 @@ const expenseClaimSchema = new mongoose.Schema(
       uppercase: true,
       trim: true,
     },
+    baseCurrency: {
+      type: String,
+      default: 'USD',
+      uppercase: true,
+      trim: true,
+    },
+    totalBase: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    fxSnapshot: {
+      type: Map,
+      of: Number,
+      default: {},
+    },
     status: {
       type: String,
       enum: CLAIM_STATUSES,
@@ -131,6 +203,70 @@ const expenseClaimSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: '',
+    },
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Project',
+      default: null,
+    },
+    costCenterId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'CostCenter',
+      default: null,
+    },
+    travelRequestId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TravelRequest',
+      default: null,
+      index: true,
+    },
+    cashAdvanceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'CashAdvance',
+      default: null,
+      index: true,
+    },
+    advanceDeductedAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    netReimbursableAmount: {
+      type: Number,
+      default: 0,
+    },
+    paymentBatchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'PaymentBatch',
+      default: null,
+      index: true,
+    },
+    approvalRoute: [
+      {
+        stepOrder: Number,
+        approverType: String,
+        approverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+        approvedAt: Date,
+        comments: { type: String, default: '' },
+      },
+    ],
+    currentStepIndex: {
+      type: Number,
+      default: 0,
+    },
+    violations: [
+      {
+        policyId: { type: mongoose.Schema.Types.ObjectId, ref: 'ExpensePolicy' },
+        ruleType: String,
+        severity: { type: String, enum: ['info', 'warn', 'block'] },
+        message: String,
+        userJustification: String,
+      },
+    ],
+    version: {
+      type: Number,
+      default: 1,
     },
     // Multi-tier Approval Tracking
     managerApproval: {
@@ -157,11 +293,17 @@ const expenseClaimSchema = new mongoose.Schema(
       transactionReference: { type: String, default: '', trim: true },
     },
     submittedAt: Date,
+    deletedAt: {
+      type: Date,
+      default: null,
+      index: true,
+    },
   },
   { timestamps: true }
 );
 
 // Unique claim number per organization
 expenseClaimSchema.index({ organizationId: 1, claimNumber: 1 }, { unique: true });
+expenseClaimSchema.index({ organizationId: 1, deletedAt: 1, createdAt: -1 });
 
 module.exports = mongoose.model('ExpenseClaim', expenseClaimSchema);

@@ -9,6 +9,17 @@ import type {
   EmployeeInput,
   HolidayInput,
   LeaveRequestInput,
+  LeaveTypeInput,
+  ShiftInput,
+  RegularizationInput,
+  CompOffInput,
+  BranchLocationInput,
+  DesignationInput,
+  PromoteTransferInput,
+  PayrollRunInput,
+  SalaryStructureInput,
+  GoalInput,
+  ReviewCycleInput,
 } from '../types/hrms';
 
 // Shared query keys
@@ -23,9 +34,43 @@ export const hrmsKeys = {
   leaveTypes: ['hrms', 'leaves', 'types'] as const,
   leaveBalances: (params: Record<string, unknown>) => ['hrms', 'leaves', 'balance', params] as const,
   leaveRequests: (params: Record<string, unknown>) => ['hrms', 'leaves', 'requests', params] as const,
+  leaveLedger: (params: Record<string, unknown>) => ['hrms', 'leaves', 'ledger', params] as const,
+  compOffRequests: (params: Record<string, unknown>) => ['hrms', 'leaves', 'compOff', params] as const,
   holidays: (year?: number) => ['hrms', 'holidays', year ?? 'all'] as const,
   upcomingHolidays: ['hrms', 'holidays', 'upcoming'] as const,
   summary: ['hrms', 'summary'] as const,
+  shifts: ['hrms', 'shifts'] as const,
+  activeShift: (empId: string) => ['hrms', 'shift', 'active', empId] as const,
+  regularizations: (params: Record<string, unknown>) => ['hrms', 'regularizations', params] as const,
+  branches: ['hrms', 'branches'] as const,
+  designations: (params: Record<string, unknown>) => ['hrms', 'designations', params] as const,
+  orgChart: (params: Record<string, unknown>) => ['hrms', 'orgChart', params] as const,
+  jobHistory: (employeeId: string) => ['hrms', 'jobHistory', employeeId] as const,
+  payrollRuns: ['hrms', 'payroll', 'runs'] as const,
+  payrollRun: (id: string) => ['hrms', 'payroll', 'run', id] as const,
+  myPayslips: ['hrms', 'payroll', 'myPayslips'] as const,
+  payslip: (id: string) => ['hrms', 'payroll', 'payslip', id] as const,
+  salaryStructure: (empId: string) => ['hrms', 'payroll', 'salaryStructure', empId] as const,
+  goals: (params: Record<string, unknown>) => ['hrms', 'performance', 'goals', params] as const,
+  goal: (id: string) => ['hrms', 'performance', 'goal', id] as const,
+  reviewCycles: ['hrms', 'performance', 'reviewCycles'] as const,
+  reviews: (params: Record<string, unknown>) => ['hrms', 'performance', 'reviews', params] as const,
+  review: (id: string) => ['hrms', 'performance', 'review', id] as const,
+  nineBoxGrid: (deptId?: string) => ['hrms', 'performance', 'nineBox', deptId ?? 'all'] as const,
+  attritionRisks: (level?: string) => ['hrms', 'performance', 'attritionRisks', level ?? 'all'] as const,
+  onboardingCases: (params: Record<string, unknown> = {}) => ['hrms', 'lifecycle', 'onboarding', params] as const,
+  onboardingCase: (id: string) => ['hrms', 'lifecycle', 'onboardingCase', id] as const,
+  offboardingCases: (params: Record<string, unknown> = {}) => ['hrms', 'lifecycle', 'offboarding', params] as const,
+  tickets: (params: Record<string, unknown> = {}) => ['hrms', 'lifecycle', 'tickets', params] as const,
+  letterTemplates: ['hrms', 'lifecycle', 'letterTemplates'] as const,
+  policies: ['hrms', 'lifecycle', 'policies'] as const,
+  announcements: ['hrms', 'lifecycle', 'announcements'] as const,
+  skills: ['hrms', 'talent', 'skills'] as const,
+  employeeSkills: (params: Record<string, unknown> = {}) => ['hrms', 'talent', 'employeeSkills', params] as const,
+  trainings: (params: Record<string, unknown> = {}) => ['hrms', 'talent', 'trainings', params] as const,
+  headcountPlans: (params: Record<string, unknown> = {}) => ['hrms', 'talent', 'headcountPlans', params] as const,
+  headcountAnalytics: (year?: number) => ['hrms', 'talent', 'headcountAnalytics', year ?? 'current'] as const,
+  requisitions: (params: Record<string, unknown> = {}) => ['hrms', 'talent', 'requisitions', params] as const,
 };
 
 const getErrMessage = (err: unknown, fallback: string): string => {
@@ -315,6 +360,87 @@ export const useReviewLeaveRequest = () => {
   });
 };
 
+export const useCreateLeaveType = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: LeaveTypeInput) => hrmsApi.createLeaveType(input),
+    onSuccess: (lt) => {
+      toast.success(`Leave type "${lt.name}" created.`);
+      qc.invalidateQueries({ queryKey: hrmsKeys.leaveTypes });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to create leave type.')),
+  });
+};
+
+export const useUpdateLeaveType = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Partial<LeaveTypeInput> }) =>
+      hrmsApi.updateLeaveType(id, patch),
+    onSuccess: (lt) => {
+      toast.success(`Leave policy for "${lt.name}" updated.`);
+      qc.invalidateQueries({ queryKey: hrmsKeys.leaveTypes });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update leave policy.')),
+  });
+};
+
+export const useLeaveLedger = (params: { employeeId?: string; year?: number; transactionType?: string } = {}) =>
+  useQuery({
+    queryKey: hrmsKeys.leaveLedger(params),
+    queryFn: () => hrmsApi.getLeaveLedger(params),
+  });
+
+export const useRunMonthlyAccrual = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { month?: number; year?: number } = {}) => hrmsApi.runMonthlyAccrual(payload),
+    onSuccess: (res) => {
+      toast.success(
+        `Monthly accrual processed: ${res.totalCreditsIssued} day(s) credited across ${res.employeesProcessed} employee(s).`
+      );
+      qc.invalidateQueries({ queryKey: ['hrms', 'leaves'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to run monthly accrual.')),
+  });
+};
+
+export const useCompOffRequests = (params: { status?: string; employeeId?: string } = {}) =>
+  useQuery({
+    queryKey: hrmsKeys.compOffRequests(params),
+    queryFn: () => hrmsApi.getCompOffRequests(params),
+  });
+
+export const useCreateCompOff = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: CompOffInput) => hrmsApi.createCompOffRequest(input),
+    onSuccess: () => {
+      toast.success('Compensatory off request submitted.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'leaves', 'compOff'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to submit comp-off request.')),
+  });
+};
+
+export const useReviewCompOff = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, decision, comments }: { id: string; decision: 'approve' | 'reject'; comments?: string }) =>
+      decision === 'approve' ? hrmsApi.approveCompOff(id, comments) : hrmsApi.rejectCompOff(id, comments),
+    onSuccess: (_, vars) => {
+      toast.success(
+        vars.decision === 'approve'
+          ? 'Comp-off approved & credited to leave balance.'
+          : 'Comp-off request rejected.'
+      );
+      qc.invalidateQueries({ queryKey: ['hrms', 'leaves'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.summary });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to review comp-off request.')),
+  });
+};
+
 // ─────────────────────────────────────────────────────────
 // Holidays
 // ─────────────────────────────────────────────────────────
@@ -423,3 +549,902 @@ export const useHrSummary = (options: { enabled?: boolean } = {}) =>
     staleTime: 1000 * 60,
     enabled: options.enabled ?? true,
   });
+
+// ─────────────────────────────────────────────────────────
+// Shifts
+// ─────────────────────────────────────────────────────────
+export const useShifts = () =>
+  useQuery({
+    queryKey: hrmsKeys.shifts,
+    queryFn: () => hrmsApi.getShifts(),
+    staleTime: 1000 * 60 * 5,
+  });
+
+export const useCreateShift = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: ShiftInput) => hrmsApi.createShift(input),
+    onSuccess: (shift) => {
+      toast.success(`Shift "${shift.name}" created.`);
+      qc.invalidateQueries({ queryKey: hrmsKeys.shifts });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to create shift.')),
+  });
+};
+
+export const useUpdateShift = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Partial<ShiftInput> }) =>
+      hrmsApi.updateShift(id, patch),
+    onSuccess: (shift) => {
+      toast.success(`Shift "${shift.name}" updated.`);
+      qc.invalidateQueries({ queryKey: hrmsKeys.shifts });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update shift.')),
+  });
+};
+
+export const useDeleteShift = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => hrmsApi.deleteShift(id),
+    onSuccess: () => {
+      toast.info('Shift deleted.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.shifts });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to delete shift.')),
+  });
+};
+
+export const useAssignShift = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { employeeIds: string[]; shiftId: string; effectiveFrom: string; effectiveTo?: string | null }) =>
+      hrmsApi.assignShift(payload),
+    onSuccess: (res) => {
+      toast.success(res.message);
+      qc.invalidateQueries({ queryKey: ['hrms', 'attendance'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.shifts });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to assign shift.')),
+  });
+};
+
+export const useActiveShift = (employeeId: string) =>
+  useQuery({
+    queryKey: hrmsKeys.activeShift(employeeId),
+    queryFn: () => hrmsApi.getActiveShift(employeeId),
+    enabled: !!employeeId,
+  });
+
+// ─────────────────────────────────────────────────────────
+// Attendance Regularizations
+// ─────────────────────────────────────────────────────────
+export const useRegularizations = (params: { status?: string; employeeId?: string } = {}) =>
+  useQuery({
+    queryKey: hrmsKeys.regularizations(params),
+    queryFn: () => hrmsApi.getRegularizations(params),
+  });
+
+export const useCreateRegularization = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: RegularizationInput) => hrmsApi.createRegularization(input),
+    onSuccess: () => {
+      toast.success('Regularization request submitted.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'regularizations'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.attendanceToday });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to submit regularization.')),
+  });
+};
+
+export const useReviewRegularization = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, decision, comments }: { id: string; decision: 'approve' | 'reject'; comments?: string }) =>
+      decision === 'approve'
+        ? hrmsApi.approveRegularization(id, comments)
+        : hrmsApi.rejectRegularization(id, comments),
+    onSuccess: (res, vars) => {
+      toast.success(vars.decision === 'approve' ? 'Punch regularized & attendance updated.' : 'Regularization request rejected.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'regularizations'] });
+      qc.invalidateQueries({ queryKey: ['hrms', 'attendance'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.attendanceToday });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to process regularization decision.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// PHASE 3 — Branch Locations
+// ─────────────────────────────────────────────────────────
+export const useBranches = () =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getBranches>>, Error>({
+    queryKey: hrmsKeys.branches,
+    queryFn: () => hrmsApi.getBranches(),
+  });
+
+export const useCreateBranch = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: BranchLocationInput) => hrmsApi.createBranch(input),
+    onSuccess: () => {
+      toast.success('Branch location created.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.branches });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to create branch location.')),
+  });
+};
+
+export const useUpdateBranch = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Partial<BranchLocationInput> }) =>
+      hrmsApi.updateBranch(id, patch),
+    onSuccess: () => {
+      toast.success('Branch location updated.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.branches });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update branch location.')),
+  });
+};
+
+export const useDeleteBranch = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => hrmsApi.deleteBranch(id),
+    onSuccess: () => {
+      toast.success('Branch location removed.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.branches });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to delete branch location.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// PHASE 3 — Designations & Job Grades
+// ─────────────────────────────────────────────────────────
+export const useDesignations = (params: { departmentId?: string; gradeLevel?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getDesignations>>, Error>({
+    queryKey: hrmsKeys.designations(params),
+    queryFn: () => hrmsApi.getDesignations(params),
+  });
+
+export const useCreateDesignation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: DesignationInput) => hrmsApi.createDesignation(input),
+    onSuccess: () => {
+      toast.success('Designation created.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'designations'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to create designation.')),
+  });
+};
+
+export const useUpdateDesignation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Partial<DesignationInput> }) =>
+      hrmsApi.updateDesignation(id, patch),
+    onSuccess: () => {
+      toast.success('Designation updated.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'designations'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update designation.')),
+  });
+};
+
+export const useDeleteDesignation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => hrmsApi.deleteDesignation(id),
+    onSuccess: () => {
+      toast.success('Designation deleted.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'designations'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to delete designation.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// PHASE 3 — Interactive Org Chart
+// ─────────────────────────────────────────────────────────
+export const useOrgChart = (params: { departmentId?: string; branchId?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getOrgChart>>, Error>({
+    queryKey: hrmsKeys.orgChart(params),
+    queryFn: () => hrmsApi.getOrgChart(params),
+  });
+
+// ─────────────────────────────────────────────────────────
+// PHASE 3 — Employee Lifecycle & History
+// ─────────────────────────────────────────────────────────
+export const useEmployeeJobHistory = (employeeId: string | null) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getEmployeeJobHistory>>, Error>({
+    queryKey: hrmsKeys.jobHistory(employeeId || ''),
+    queryFn: () => hrmsApi.getEmployeeJobHistory(employeeId as string),
+    enabled: !!employeeId,
+  });
+
+export const usePromoteTransfer = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: PromoteTransferInput }) =>
+      hrmsApi.promoteOrTransfer(id, payload),
+    onSuccess: (_, vars) => {
+      toast.success('Employee career transition executed successfully.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.employee(vars.id) });
+      qc.invalidateQueries({ queryKey: hrmsKeys.employees });
+      qc.invalidateQueries({ queryKey: hrmsKeys.jobHistory(vars.id) });
+      qc.invalidateQueries({ queryKey: ['hrms', 'orgChart'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to execute transition.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// PHASE 4 — Enterprise Payroll & Compliance
+// ─────────────────────────────────────────────────────────
+export const usePayrollRuns = () =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getPayrollRuns>>, Error>({
+    queryKey: hrmsKeys.payrollRuns,
+    queryFn: () => hrmsApi.getPayrollRuns(),
+  });
+
+export const usePayrollRun = (id: string | null) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getPayrollRun>>, Error>({
+    queryKey: hrmsKeys.payrollRun(id || ''),
+    queryFn: () => hrmsApi.getPayrollRun(id as string),
+    enabled: !!id,
+  });
+
+export const useCreatePayrollRun = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: PayrollRunInput) => hrmsApi.createPayrollRun(input),
+    onSuccess: (res) => {
+      toast.success(res.message || 'Payroll run generated.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.payrollRuns });
+      qc.invalidateQueries({ queryKey: hrmsKeys.summary });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to generate payroll run.')),
+  });
+};
+
+export const useUpdatePayslipLineItem = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Record<string, unknown> }) =>
+      hrmsApi.updatePayslipLineItem(id, patch),
+    onSuccess: (res, vars) => {
+      toast.success('Payslip line item updated.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.payslip(vars.id) });
+      qc.invalidateQueries({ queryKey: hrmsKeys.payrollRuns });
+      qc.invalidateQueries({ queryKey: ['hrms', 'payroll', 'run'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update payslip line item.')),
+  });
+};
+
+export const useApprovePayrollRun = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => hrmsApi.approvePayrollRun(id),
+    onSuccess: (res, id) => {
+      toast.success(res.message || 'Payroll run approved & published.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.payrollRuns });
+      qc.invalidateQueries({ queryKey: hrmsKeys.payrollRun(id) });
+      qc.invalidateQueries({ queryKey: hrmsKeys.myPayslips });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to approve payroll run.')),
+  });
+};
+
+export const useMarkPayrollPaid = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload?: { paymentReference?: string; paymentDate?: string } }) =>
+      hrmsApi.markPayrollPaid(id, payload),
+    onSuccess: (res, vars) => {
+      toast.success(res.message || 'Payroll disbursed & marked paid.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.payrollRuns });
+      qc.invalidateQueries({ queryKey: hrmsKeys.payrollRun(vars.id) });
+      qc.invalidateQueries({ queryKey: hrmsKeys.myPayslips });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to mark payroll as paid.')),
+  });
+};
+
+export const useMyPayslips = () =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getMyPayslips>>, Error>({
+    queryKey: hrmsKeys.myPayslips,
+    queryFn: () => hrmsApi.getMyPayslips(),
+  });
+
+export const usePayslip = (id: string | null) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getPayslip>>, Error>({
+    queryKey: hrmsKeys.payslip(id || ''),
+    queryFn: () => hrmsApi.getPayslip(id as string),
+    enabled: !!id,
+  });
+
+export const useSalaryStructure = (employeeId: string | null) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getSalaryStructure>>, Error>({
+    queryKey: hrmsKeys.salaryStructure(employeeId || ''),
+    queryFn: () => hrmsApi.getSalaryStructure(employeeId as string),
+    enabled: !!employeeId,
+  });
+
+export const useUpsertSalaryStructure = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ employeeId, input }: { employeeId: string; input: SalaryStructureInput }) =>
+      hrmsApi.upsertSalaryStructure(employeeId, input),
+    onSuccess: (res, vars) => {
+      toast.success('Salary structure saved successfully.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.salaryStructure(vars.employeeId) });
+      qc.invalidateQueries({ queryKey: hrmsKeys.employee(vars.employeeId) });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to save salary structure.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// PHASE 5 — Performance Management & OKRs
+// ─────────────────────────────────────────────────────────
+export const useGoals = (params: { employeeId?: string; departmentId?: string; status?: string; period?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getGoals>>, Error>({
+    queryKey: hrmsKeys.goals(params),
+    queryFn: () => hrmsApi.getGoals(params),
+  });
+
+export const useGoal = (id: string | null) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getGoal>>, Error>({
+    queryKey: hrmsKeys.goal(id || ''),
+    queryFn: () => hrmsApi.getGoal(id as string),
+    enabled: !!id,
+  });
+
+export const useCreateGoal = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: GoalInput) => hrmsApi.createGoal(input),
+    onSuccess: () => {
+      toast.success('Goal created successfully.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'goals'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to create goal.')),
+  });
+};
+
+export const useUpdateGoal = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Partial<GoalInput> & { status?: string } }) =>
+      hrmsApi.updateGoal(id, patch),
+    onSuccess: (res, vars) => {
+      toast.success('Goal updated.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'goals'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.goal(vars.id) });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update goal.')),
+  });
+};
+
+export const useDeleteGoal = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => hrmsApi.deleteGoal(id),
+    onSuccess: () => {
+      toast.success('Goal archived.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'goals'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to archive goal.')),
+  });
+};
+
+export const useAddGoalCheckIn = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { note?: string; progress?: number; keyResults?: any[] } }) =>
+      hrmsApi.addGoalCheckIn(id, payload),
+    onSuccess: (res, vars) => {
+      toast.success('Progress check-in logged.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'goals'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.goal(vars.id) });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to log check-in.')),
+  });
+};
+
+// ── Review Cycles & Appraisals ──
+
+export const useReviewCycles = () =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getReviewCycles>>, Error>({
+    queryKey: hrmsKeys.reviewCycles,
+    queryFn: () => hrmsApi.getReviewCycles(),
+  });
+
+export const useCreateReviewCycle = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (input: ReviewCycleInput) => hrmsApi.createReviewCycle(input),
+    onSuccess: () => {
+      toast.success('Performance review cycle launched.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.reviewCycles });
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'reviews'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to launch review cycle.')),
+  });
+};
+
+export const useReviews = (params: { reviewCycleId?: string; employeeId?: string; managerId?: string; status?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getReviews>>, Error>({
+    queryKey: hrmsKeys.reviews(params),
+    queryFn: () => hrmsApi.getReviews(params),
+  });
+
+export const useReview = (id: string | null) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getReview>>, Error>({
+    queryKey: hrmsKeys.review(id || ''),
+    queryFn: () => hrmsApi.getReview(id as string),
+    enabled: !!id,
+  });
+
+export const useSubmitSelfReview = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { summary?: string; strengths?: string; growthAreas?: string; achievements?: string; rating?: number } }) =>
+      hrmsApi.submitSelfReview(id, payload),
+    onSuccess: (res, vars) => {
+      toast.success('Self-appraisal submitted.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'reviews'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.review(vars.id) });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to submit self-review.')),
+  });
+};
+
+export const useSubmitManagerReview = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { summary?: string; strengths?: string; growthAreas?: string; rating?: number; potentialRating?: number; recommendations?: string } }) =>
+      hrmsApi.submitManagerReview(id, payload),
+    onSuccess: (res, vars) => {
+      toast.success('Manager review submitted.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'reviews'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.review(vars.id) });
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'nineBox'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to submit manager review.')),
+  });
+};
+
+export const useCalibrateReview = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { performanceScore?: number; potentialScore?: number; promotionRecommended?: boolean; salaryIncrementPercentage?: number; calibrationNotes?: string } }) =>
+      hrmsApi.calibrateReview(id, payload),
+    onSuccess: (res, vars) => {
+      toast.success('Calibration finalized.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'reviews'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.review(vars.id) });
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'nineBox'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to finalize calibration.')),
+  });
+};
+
+// ── 9-Box Grid ──
+
+export const useNineBoxGrid = (departmentId?: string) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getNineBoxGrid>>, Error>({
+    queryKey: hrmsKeys.nineBoxGrid(departmentId),
+    queryFn: () => hrmsApi.getNineBoxGrid(departmentId),
+  });
+
+// ── Attrition Risk ──
+
+export const useAttritionRisks = (riskLevel?: string) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getAttritionRisks>>, Error>({
+    queryKey: hrmsKeys.attritionRisks(riskLevel),
+    queryFn: () => hrmsApi.getAttritionRisks(riskLevel),
+  });
+
+export const useRecomputeAttritionRisks = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => hrmsApi.recomputeAttritionRisks(),
+    onSuccess: () => {
+      toast.success('Workforce attrition risk model recomputed.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'performance', 'attritionRisks'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to recompute attrition risks.')),
+  });
+};
+
+// ── HR AI Copilot ──
+
+export const useHrmsCopilot = () =>
+  useMutation({
+    mutationFn: (prompt: string) => hrmsApi.queryHrmsCopilot(prompt),
+    onError: (err) => toast.error(getErrMessage(err, 'Copilot query failed.')),
+  });
+
+// ─────────────────────────────────────────────────────────
+// Lifecycle: Onboarding
+// ─────────────────────────────────────────────────────────
+
+export const useOnboardingCases = (params: { status?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getOnboardingCases>>, Error>({
+    queryKey: hrmsKeys.onboardingCases(params),
+    queryFn: () => hrmsApi.getOnboardingCases(params),
+  });
+
+export const useOnboardingCase = (id: string | null) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getOnboardingCase>>, Error>({
+    queryKey: hrmsKeys.onboardingCase(id || ''),
+    queryFn: () => hrmsApi.getOnboardingCase(id as string),
+    enabled: !!id,
+  });
+
+export const useCreateOnboardingCase = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { employeeId: string; joiningDate?: string; templateId?: string }) =>
+      hrmsApi.createOnboardingCase(payload),
+    onSuccess: () => {
+      toast.success('Onboarding case initiated.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'lifecycle', 'onboarding'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to initiate onboarding.')),
+  });
+};
+
+export const useToggleOnboardingTask = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, taskId, payload }: { id: string; taskId: string; payload: { isCompleted: boolean; notes?: string } }) =>
+      hrmsApi.toggleOnboardingTask(id, taskId, payload),
+    onSuccess: (_data, vars) => {
+      toast.success('Task progress updated.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'lifecycle', 'onboarding'] });
+      qc.invalidateQueries({ queryKey: hrmsKeys.onboardingCase(vars.id) });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update task.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// Lifecycle: Offboarding
+// ─────────────────────────────────────────────────────────
+
+export const useOffboardingCases = (params: { status?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getOffboardingCases>>, Error>({
+    queryKey: hrmsKeys.offboardingCases(params),
+    queryFn: () => hrmsApi.getOffboardingCases(params),
+  });
+
+export const useCreateOffboardingCase = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { employeeId: string; reason?: string; lastWorkingDate: string; noticePeriodDays?: number }) =>
+      hrmsApi.createOffboardingCase(payload),
+    onSuccess: () => {
+      toast.success('Offboarding case created.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'lifecycle', 'offboarding'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to create offboarding case.')),
+  });
+};
+
+export const useUpdateOffboardingClearance = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { department: 'it' | 'finance' | 'adminAssets' | 'hr'; isCleared: boolean; remarks?: string; finalSettlementAmount?: number } }) =>
+      hrmsApi.updateOffboardingClearance(id, payload),
+    onSuccess: () => {
+      toast.success('Department clearance status updated.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'lifecycle', 'offboarding'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update clearance.')),
+  });
+};
+
+export const useSubmitExitInterview = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { feedback?: string; ratingOverall?: number; primaryReasonForLeaving?: string; wouldRecommendCompany?: boolean } }) =>
+      hrmsApi.submitExitInterview(id, payload),
+    onSuccess: () => {
+      toast.success('Exit interview feedback submitted.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'lifecycle', 'offboarding'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to submit exit interview.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// Lifecycle: Helpdesk / Tickets
+// ─────────────────────────────────────────────────────────
+
+export const useHrTickets = (params: { status?: string; category?: string; priority?: string; employeeId?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getTickets>>, Error>({
+    queryKey: hrmsKeys.tickets(params),
+    queryFn: () => hrmsApi.getTickets(params),
+  });
+
+export const useCreateHrTicket = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { category: string; priority?: string; subject: string; description: string; employeeId?: string }) =>
+      hrmsApi.createTicket(payload),
+    onSuccess: () => {
+      toast.success('Support ticket created.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'lifecycle', 'tickets'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to create ticket.')),
+  });
+};
+
+export const useUpdateTicketStatus = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { status?: string; assignedTo?: string; resolutionNotes?: string } }) =>
+      hrmsApi.updateTicketStatus(id, payload),
+    onSuccess: () => {
+      toast.success('Ticket updated.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'lifecycle', 'tickets'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update ticket.')),
+  });
+};
+
+export const useAddTicketComment = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, message }: { id: string; message: string }) =>
+      hrmsApi.addTicketComment(id, message),
+    onSuccess: () => {
+      toast.success('Reply posted.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'lifecycle', 'tickets'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to post reply.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// Lifecycle: Letters, Policies & Announcements
+// ─────────────────────────────────────────────────────────
+
+export const useLetterTemplates = (params: { type?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getLetterTemplates>>, Error>({
+    queryKey: [...hrmsKeys.letterTemplates, params],
+    queryFn: () => hrmsApi.getLetterTemplates(params),
+  });
+
+export const useGenerateLetterPdf = () =>
+  useMutation({
+    mutationFn: (payload: { templateId: string; employeeId: string; customVariables?: Record<string, string> }) =>
+      hrmsApi.generateLetterPdf(payload),
+    onSuccess: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Official_Letter_${Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Official letter PDF generated.');
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to generate letter.')),
+  });
+
+export const usePolicies = () =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getPolicies>>, Error>({
+    queryKey: hrmsKeys.policies,
+    queryFn: () => hrmsApi.getPolicies(),
+  });
+
+export const useAcknowledgePolicy = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => hrmsApi.acknowledgePolicy(id),
+    onSuccess: () => {
+      toast.success('Policy acknowledged.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.policies });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to acknowledge policy.')),
+  });
+};
+
+export const useAnnouncements = () =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getAnnouncements>>, Error>({
+    queryKey: hrmsKeys.announcements,
+    queryFn: () => hrmsApi.getAnnouncements(),
+  });
+
+export const useCreateAnnouncement = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { title: string; content: string; priority?: string; targetDepartments?: string[]; isPinned?: boolean }) =>
+      hrmsApi.createAnnouncement(payload),
+    onSuccess: () => {
+      toast.success('Company announcement broadcasted.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.announcements });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to post announcement.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// Talent: Skills & Competencies
+// ─────────────────────────────────────────────────────────
+
+export const useSkills = () =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getSkills>>, Error>({
+    queryKey: hrmsKeys.skills,
+    queryFn: () => hrmsApi.getSkills(),
+  });
+
+export const useCreateSkill = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { name: string; category?: string; description?: string }) =>
+      hrmsApi.createSkill(payload),
+    onSuccess: () => {
+      toast.success('Skill added to catalog.');
+      qc.invalidateQueries({ queryKey: hrmsKeys.skills });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to create skill.')),
+  });
+};
+
+export const useEmployeeSkills = (params: { employeeId?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getEmployeeSkills>>, Error>({
+    queryKey: hrmsKeys.employeeSkills(params),
+    queryFn: () => hrmsApi.getEmployeeSkills(params),
+  });
+
+export const useUpsertEmployeeSkill = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { employeeId: string; skillId: string; proficiencyLevel?: number; yearsOfExperience?: number; certifications?: Array<{ name: string; issuer?: string; issueDate?: string }> }) =>
+      hrmsApi.upsertEmployeeSkill(payload),
+    onSuccess: () => {
+      toast.success('Employee competency saved.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'talent', 'employeeSkills'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update employee skill.')),
+  });
+};
+
+export const useVerifyEmployeeSkill = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => hrmsApi.verifyEmployeeSkill(id),
+    onSuccess: () => {
+      toast.success('Skill verified by HR/Manager.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'talent', 'employeeSkills'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to verify skill.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// Talent: Training & LMS
+// ─────────────────────────────────────────────────────────
+
+export const useTrainings = (params: { status?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getTrainings>>, Error>({
+    queryKey: hrmsKeys.trainings(params),
+    queryFn: () => hrmsApi.getTrainings(params),
+  });
+
+export const useCreateTraining = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { title: string; description?: string; trainer?: string; mode?: string; startDate: string; endDate: string; capacity?: number; skillsCovered?: string[] }) =>
+      hrmsApi.createTraining(payload),
+    onSuccess: () => {
+      toast.success('Training program scheduled.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'talent', 'trainings'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to schedule training.')),
+  });
+};
+
+export const useEnrollInTraining = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, employeeId }: { id: string; employeeId?: string }) =>
+      hrmsApi.enrollInTraining(id, employeeId),
+    onSuccess: () => {
+      toast.success('Enrollment confirmed.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'talent', 'trainings'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to enroll.')),
+  });
+};
+
+export const useUpdateEnrollmentStatus = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, enrollmentId, payload }: { id: string; enrollmentId: string; payload: { status: 'enrolled' | 'completed' | 'dropped'; score?: number; feedback?: string } }) =>
+      hrmsApi.updateEnrollmentStatus(id, enrollmentId, payload),
+    onSuccess: () => {
+      toast.success('Training completion status updated.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'talent', 'trainings'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to update enrollment.')),
+  });
+};
+
+// ─────────────────────────────────────────────────────────
+// Talent: Headcount Planning & Manpower Requisition
+// ─────────────────────────────────────────────────────────
+
+export const useHeadcountPlans = (params: { fiscalYear?: number } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getHeadcountPlans>>, Error>({
+    queryKey: hrmsKeys.headcountPlans(params),
+    queryFn: () => hrmsApi.getHeadcountPlans(params),
+  });
+
+export const useUpsertHeadcountPlan = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { departmentId: string; fiscalYear?: number; targetHeadcount: number; allocatedBudget?: number; quarterlyTargets?: { q1: number; q2: number; q3: number; q4: number } }) =>
+      hrmsApi.upsertHeadcountPlan(payload),
+    onSuccess: () => {
+      toast.success('Headcount targets updated.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'talent', 'headcountPlans'] });
+      qc.invalidateQueries({ queryKey: ['hrms', 'talent', 'headcountAnalytics'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to save headcount plan.')),
+  });
+};
+
+export const useHeadcountAnalytics = (fiscalYear?: number) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getHeadcountAnalytics>>, Error>({
+    queryKey: hrmsKeys.headcountAnalytics(fiscalYear),
+    queryFn: () => hrmsApi.getHeadcountAnalytics(fiscalYear),
+  });
+
+export const useManpowerRequisitions = (params: { status?: string; departmentId?: string } = {}) =>
+  useQuery<Awaited<ReturnType<typeof hrmsApi.getRequisitions>>, Error>({
+    queryKey: hrmsKeys.requisitions(params),
+    queryFn: () => hrmsApi.getRequisitions(params),
+  });
+
+export const useCreateRequisition = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { departmentId: string; jobTitle: string; headcount: number; priority?: string; justification?: string; budgetPerHire?: number; requiredByDate: string }) =>
+      hrmsApi.createRequisition(payload),
+    onSuccess: () => {
+      toast.success('Manpower requisition submitted.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'talent', 'requisitions'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to submit requisition.')),
+  });
+};
+
+export const useApproveRequisition = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => hrmsApi.approveRequisition(id),
+    onSuccess: (data) => {
+      toast.success('Requisition approved! Job opening created in ATS.');
+      qc.invalidateQueries({ queryKey: ['hrms', 'talent', 'requisitions'] });
+      qc.invalidateQueries({ queryKey: ['recruitment', 'jobOpenings'] });
+    },
+    onError: (err) => toast.error(getErrMessage(err, 'Failed to approve requisition.')),
+  });
+};
+
+
+
+

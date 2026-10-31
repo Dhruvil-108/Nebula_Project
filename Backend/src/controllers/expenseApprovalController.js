@@ -12,7 +12,7 @@ exports.getApprovalQueue = async (req, res) => {
     const user = req.user;
     const { stage = 'all' } = req.query;
 
-    const filter = { organizationId: orgId };
+    const filter = { organizationId: orgId, deletedAt: null, employeeId: { $ne: user._id } };
 
     const isFinanceOrAdmin = [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE].includes(user.role);
     const isManager = user.role === ROLES.MANAGER;
@@ -34,8 +34,6 @@ exports.getApprovalQueue = async (req, res) => {
       if (deptId) {
         filter.departmentId = deptId;
       }
-      // Cannot approve own claim
-      filter.employeeId = { $ne: user._id };
     } else {
       return res.status(403).json({ error: 'You do not have approval privileges.' });
     }
@@ -65,9 +63,14 @@ exports.approveClaim = async (req, res) => {
     const { id } = req.params;
     const { comments = '' } = req.body;
 
-    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId });
+    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId, deletedAt: null });
     if (!claim) {
       return res.status(404).json({ error: 'Claim not found.' });
+    }
+
+    // Universal Anti-Self-Approval check across all roles
+    if (claim.employeeId.toString() === user._id.toString()) {
+      return res.status(403).json({ error: 'Anti-self-approval rule: You cannot approve your own expense claim.' });
     }
 
     const isFinanceOrAdmin = [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.FINANCE].includes(user.role);
@@ -142,6 +145,29 @@ exports.approveClaim = async (req, res) => {
 
     await claim.save();
 
+    const { sendExpenseNotification, EVENT_TYPES } = require('../services/expenseNotificationService');
+    if (claim.status === 'manager_approved') {
+      sendExpenseNotification({
+        organizationId: orgId,
+        eventType: EVENT_TYPES.CLAIM_MANAGER_APPROVED,
+        title: `Manager Approved (${claim.claimNumber})`,
+        message: `Claim ${claim.claimNumber} verified by Line Manager. Forwarded to Finance clearance.`,
+        recipientIds: [claim.employeeId],
+        claimId: claim._id,
+        actorId: user._id,
+      }).catch(() => {});
+    } else if (claim.status === 'approved') {
+      sendExpenseNotification({
+        organizationId: orgId,
+        eventType: EVENT_TYPES.CLAIM_FINANCE_APPROVED,
+        title: `Final Approval Granted (${claim.claimNumber})`,
+        message: `Claim ${claim.claimNumber} has received final Finance approval and is queued for reimbursement.`,
+        recipientIds: [claim.employeeId],
+        claimId: claim._id,
+        actorId: user._id,
+      }).catch(() => {});
+    }
+
     const updated = await ExpenseClaim.findById(claim._id)
       .populate('employeeId', 'fullName email')
       .populate('departmentId', 'name')
@@ -170,9 +196,13 @@ exports.rejectClaim = async (req, res) => {
       return res.status(400).json({ error: 'A rejection reason is mandatory.' });
     }
 
-    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId });
+    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId, deletedAt: null });
     if (!claim) {
       return res.status(404).json({ error: 'Claim not found.' });
+    }
+
+    if (claim.employeeId.toString() === user._id.toString()) {
+      return res.status(403).json({ error: 'You cannot reject your own expense claim. Use cancel instead.' });
     }
 
     if (!['submitted', 'manager_approved'].includes(claim.status)) {
@@ -189,6 +219,18 @@ exports.rejectClaim = async (req, res) => {
     };
 
     await claim.save();
+
+    const { sendExpenseNotification, EVENT_TYPES } = require('../services/expenseNotificationService');
+    sendExpenseNotification({
+      organizationId: orgId,
+      eventType: EVENT_TYPES.CLAIM_REJECTED,
+      title: `Claim Rejected (${claim.claimNumber})`,
+      message: `Your claim ${claim.claimNumber} was rejected by ${stage} reviewer. Reason: ${reason.trim()}`,
+      recipientIds: [claim.employeeId],
+      claimId: claim._id,
+      actorId: user._id,
+      metadata: { stage, reason: reason.trim() },
+    }).catch(() => {});
 
     await ExpenseActivity.create({
       organizationId: orgId,
@@ -208,5 +250,130 @@ exports.rejectClaim = async (req, res) => {
   } catch (error) {
     console.error('Error rejecting claim:', error);
     return res.status(500).json({ error: 'Failed to reject claim.' });
+  }
+};
+
+/**
+ * Line-level decision: approve or reject an individual line item
+ */
+exports.lineDecision = async (req, res) => {
+  try {
+    const orgId = req.organizationId;
+    const user = req.user;
+    const { id } = req.params;
+    const { itemId, decision, reason = '' } = req.body;
+
+    if (!itemId || !['approved', 'rejected'].includes(decision)) {
+      return res.status(400).json({ error: 'Valid itemId and decision ("approved" or "rejected") are required.' });
+    }
+
+    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId, deletedAt: null });
+    if (!claim) {
+      return res.status(404).json({ error: 'Claim not found.' });
+    }
+
+    // Universal anti-self-approval
+    if (claim.employeeId.toString() === user._id.toString()) {
+      return res.status(403).json({ error: 'Anti-self-approval rule: You cannot review items on your own claim.' });
+    }
+
+    const item = claim.items.id(itemId);
+    if (!item) {
+      return res.status(404).json({ error: 'Expense item not found in this claim.' });
+    }
+
+    item.lineStatus = decision;
+    if (decision === 'rejected') {
+      item.rejectionReason = reason.trim();
+    } else {
+      item.rejectionReason = '';
+    }
+
+    // Log line-level activity
+    await ExpenseActivity.create({
+      organizationId: orgId,
+      claimId: claim._id,
+      actorId: user._id,
+      action: decision === 'approved' ? 'item_updated' : 'item_updated',
+      comment: `Item "${item.merchant}" line decision: ${decision}${reason ? ` (${reason})` : ''}`,
+      details: { itemId, decision, amount: item.amount },
+    });
+
+    await claim.save();
+
+    const updated = await ExpenseClaim.findById(claim._id)
+      .populate('employeeId', 'fullName email')
+      .populate('departmentId', 'name')
+      .populate('items.categoryId', 'name icon color glCode');
+
+    return res.json({ success: true, message: `Item ${decision}.`, claim: updated });
+  } catch (error) {
+    console.error('Error in line-level decision:', error);
+    return res.status(500).json({ error: 'Failed to record line decision.' });
+  }
+};
+
+/**
+ * Send back claim for clarification: reverts claim to draft with reviewer notes
+ */
+exports.sendBack = async (req, res) => {
+  try {
+    const orgId = req.organizationId;
+    const user = req.user;
+    const { id } = req.params;
+    const { comments } = req.body;
+
+    if (!comments || !comments.trim()) {
+      return res.status(400).json({ error: 'Clarification comments are mandatory when sending back a claim.' });
+    }
+
+    const claim = await ExpenseClaim.findOne({ _id: id, organizationId: orgId, deletedAt: null });
+    if (!claim) {
+      return res.status(404).json({ error: 'Claim not found.' });
+    }
+
+    // Universal anti-self-approval
+    if (claim.employeeId.toString() === user._id.toString()) {
+      return res.status(403).json({ error: 'You cannot send back your own claim.' });
+    }
+
+    if (!['submitted', 'manager_approved'].includes(claim.status)) {
+      return res.status(400).json({ error: `Cannot send back a claim in "${claim.status}" status.` });
+    }
+
+    // Revert status to draft with clarification remarks
+    claim.status = 'draft';
+    claim.notes = `${claim.notes ? `${claim.notes}\n\n` : ''}[Reviewer Clarification Request - ${new Date().toLocaleDateString()}]: ${comments.trim()}`;
+    await claim.save();
+
+    await ExpenseActivity.create({
+      organizationId: orgId,
+      claimId: claim._id,
+      actorId: user._id,
+      action: 'comment_added',
+      comment: `Claim sent back for clarification: ${comments.trim()}`,
+      details: { previousStatus: claim.status },
+    });
+
+    const { sendExpenseNotification, EVENT_TYPES } = require('../services/expenseNotificationService');
+    sendExpenseNotification({
+      organizationId: orgId,
+      eventType: EVENT_TYPES.CLAIM_SENT_BACK,
+      title: `Clarification Requested (${claim.claimNumber})`,
+      message: `Reviewer requested clarification: "${comments.trim()}". The claim has been returned to draft.`,
+      recipientIds: [claim.employeeId],
+      claimId: claim._id,
+      actorId: user._id,
+      metadata: { comments: comments.trim() },
+    }).catch(() => {});
+
+    const updated = await ExpenseClaim.findById(claim._id)
+      .populate('employeeId', 'fullName email')
+      .populate('departmentId', 'name');
+
+    return res.json({ success: true, message: 'Claim sent back for clarification.', claim: updated });
+  } catch (error) {
+    console.error('Error sending back claim:', error);
+    return res.status(500).json({ error: 'Failed to send back claim.' });
   }
 };

@@ -5,7 +5,10 @@ const Holiday = require('../models/Holiday');
 const LeaveRequest = require('../models/LeaveRequest');
 const Employee = require('../models/Employee');
 const User = require('../models/User');
+const Shift = require('../models/Shift');
+const EmployeeShift = require('../models/EmployeeShift');
 const { scopedFilter } = require('../middleware/tenant');
+const { resolveEmployeeFromUser, resolveUserFromEmployee } = require('../utils/employeeUtils');
 const {
   getDayMidnightUtc,
   isTimeLate,
@@ -23,29 +26,72 @@ const getOrgConfig = async (organizationId) => {
   };
 };
 
+/**
+ * Helper to resolve the active shift for an employee (or organization default)
+ */
+const resolveShiftForEmployee = async (organizationId, employeeId) => {
+  const now = new Date();
+  if (employeeId) {
+    const assignment = await EmployeeShift.findOne({
+      organizationId,
+      employeeId,
+      effectiveFrom: { $lte: now },
+      $or: [{ effectiveTo: null }, { effectiveTo: { $gte: now } }],
+    })
+      .populate('shiftId')
+      .sort({ effectiveFrom: -1 })
+      .lean();
+
+    if (assignment && assignment.shiftId) {
+      return assignment.shiftId;
+    }
+  }
+
+  let def = await Shift.findOne({ organizationId, isDefault: true }).lean();
+  if (!def) {
+    const org = await Organization.findById(organizationId).select('shiftStartTime').lean();
+    def = {
+      _id: null,
+      name: 'General Shift',
+      code: 'GEN-01',
+      startTime: org?.shiftStartTime || '09:30',
+      endTime: '18:30',
+      graceMinutes: 15,
+      halfDayMinutes: 270,
+      fullDayMinutes: 480,
+      color: '#f97316',
+    };
+  }
+  return def;
+};
+
 // Roles allowed to view other employees' attendance (summary by employeeId, roster)
 const canViewTeam = (role) =>
   ['super_admin', 'admin', 'manager', 'hr'].includes(role);
 
 // ─────────────────────────────────────────────────────────
 // Shared attendance actions. The platform's /attendance routes
-// operate on req.user._id; the HR module version additionally
-// resolves an Employee record for a userId so HRMS pages can
-// show employee-centric data. Actions themselves are identical.
+// operate on req.user._id; the HR module version resolves the
+// canonical Employee record so all records maintain dual identity.
 // ─────────────────────────────────────────────────────────
 const doCheckIn = async (req, res) => {
   try {
     const organizationId = req.organizationId;
-    const employeeId = req.user._id;
+    const employee = await resolveEmployeeFromUser(organizationId, req.user._id);
+    const shift = await resolveShiftForEmployee(organizationId, employee._id);
 
-    const { timezone, shiftStartTime } = await getOrgConfig(organizationId);
+    const { timezone } = await getOrgConfig(organizationId);
     const now = new Date();
     const todayMidnight = getDayMidnightUtc(now, timezone);
 
     let record = await AttendanceRecord.findOne({
       organizationId,
-      employeeId,
       date: todayMidnight,
+      $or: [
+        { employeeId: employee._id },
+        { employeeId: req.user._id },
+        { userId: req.user._id },
+      ],
     });
 
     if (record && record.checkInAt) {
@@ -57,20 +103,27 @@ const doCheckIn = async (req, res) => {
       });
     }
 
-    const isLate = isTimeLate(now, shiftStartTime, timezone);
+    const shiftStartTime = shift.startTime || '09:30';
+    const isLate = isTimeLate(now, shiftStartTime, timezone, shift.graceMinutes || 15);
 
     if (!record) {
       record = await AttendanceRecord.create({
         organizationId,
-        employeeId,
+        employeeId: employee._id,
+        userId: req.user._id,
+        shiftId: shift._id || null,
         date: todayMidnight,
         checkInAt: now,
         status: 'present',
         isLate,
         breaks: [],
         totalWorkedMinutes: 0,
+        overtimeMinutes: 0,
       });
     } else {
+      record.employeeId = employee._id;
+      record.userId = req.user._id;
+      if (shift._id) record.shiftId = shift._id;
       record.checkInAt = now;
       record.status = 'present';
       record.isLate = isLate;
@@ -81,6 +134,7 @@ const doCheckIn = async (req, res) => {
       message: 'Checked in successfully.',
       currentStatus: 'checked_in',
       record,
+      shift,
       totalWorkedMinutes: 0,
       isLate,
     });
@@ -93,7 +147,8 @@ const doCheckIn = async (req, res) => {
 const doCheckOut = async (req, res) => {
   try {
     const organizationId = req.organizationId;
-    const employeeId = req.user._id;
+    const employee = await resolveEmployeeFromUser(organizationId, req.user._id);
+    const shift = await resolveShiftForEmployee(organizationId, employee._id);
 
     const { timezone } = await getOrgConfig(organizationId);
     const now = new Date();
@@ -101,8 +156,12 @@ const doCheckOut = async (req, res) => {
 
     const record = await AttendanceRecord.findOne({
       organizationId,
-      employeeId,
       date: todayMidnight,
+      $or: [
+        { employeeId: employee._id },
+        { employeeId: req.user._id },
+        { userId: req.user._id },
+      ],
     });
 
     if (!record || !record.checkInAt) {
@@ -117,13 +176,18 @@ const doCheckOut = async (req, res) => {
 
     record.checkOutAt = now;
     record.totalWorkedMinutes = calculateWorkedMinutes(record, now);
+
+    const fullDayThreshold = shift.fullDayMinutes || 480;
+    record.overtimeMinutes = Math.max(0, record.totalWorkedMinutes - fullDayThreshold);
     await record.save();
 
     return res.status(200).json({
       message: 'Checked out successfully.',
       currentStatus: 'checked_out',
       record,
+      shift,
       totalWorkedMinutes: record.totalWorkedMinutes,
+      overtimeMinutes: record.overtimeMinutes,
     });
   } catch (err) {
     console.error('[hrAttendance.checkOut] Error:', err);
@@ -134,7 +198,7 @@ const doCheckOut = async (req, res) => {
 const doBreakIn = async (req, res) => {
   try {
     const organizationId = req.organizationId;
-    const employeeId = req.user._id;
+    const employee = await resolveEmployeeFromUser(organizationId, req.user._id);
 
     const { timezone } = await getOrgConfig(organizationId);
     const now = new Date();
@@ -142,8 +206,12 @@ const doBreakIn = async (req, res) => {
 
     const record = await AttendanceRecord.findOne({
       organizationId,
-      employeeId,
       date: todayMidnight,
+      $or: [
+        { employeeId: employee._id },
+        { employeeId: req.user._id },
+        { userId: req.user._id },
+      ],
     });
 
     if (!record || !record.checkInAt) {
@@ -174,7 +242,7 @@ const doBreakIn = async (req, res) => {
 const doBreakOut = async (req, res) => {
   try {
     const organizationId = req.organizationId;
-    const employeeId = req.user._id;
+    const employee = await resolveEmployeeFromUser(organizationId, req.user._id);
 
     const { timezone } = await getOrgConfig(organizationId);
     const now = new Date();
@@ -182,8 +250,12 @@ const doBreakOut = async (req, res) => {
 
     const record = await AttendanceRecord.findOne({
       organizationId,
-      employeeId,
       date: todayMidnight,
+      $or: [
+        { employeeId: employee._id },
+        { employeeId: req.user._id },
+        { userId: req.user._id },
+      ],
     });
 
     if (!record || !record.checkInAt) {
@@ -217,17 +289,24 @@ const doBreakOut = async (req, res) => {
 const getToday = async (req, res) => {
   try {
     const organizationId = req.organizationId;
-    const employeeId = req.user._id;
+    const employee = await resolveEmployeeFromUser(organizationId, req.user._id);
+    const shift = await resolveShiftForEmployee(organizationId, employee._id);
 
-    const { timezone, shiftStartTime } = await getOrgConfig(organizationId);
+    const { timezone } = await getOrgConfig(organizationId);
     const now = new Date();
     const todayMidnight = getDayMidnightUtc(now, timezone);
 
     const record = await AttendanceRecord.findOne({
       organizationId,
-      employeeId,
       date: todayMidnight,
-    }).lean();
+      $or: [
+        { employeeId: employee._id },
+        { employeeId: req.user._id },
+        { userId: req.user._id },
+      ],
+    })
+      .populate('shiftId')
+      .lean();
 
     if (!record || !record.checkInAt) {
       return res.json({
@@ -235,10 +314,26 @@ const getToday = async (req, res) => {
         checkInAt: null,
         checkOutAt: null,
         totalWorkedMinutes: 0,
+        overtimeMinutes: 0,
         breaks: [],
         isLate: false,
         record: null,
-        shiftStartTime,
+        shiftStartTime: shift.startTime || '09:30',
+        shift: {
+          _id: shift._id,
+          name: shift.name,
+          code: shift.code,
+          startTime: shift.startTime,
+          endTime: shift.endTime,
+          graceMinutes: shift.graceMinutes,
+          color: shift.color || '#f97316',
+        },
+        employee: {
+          _id: employee._id,
+          employeeCode: employee.employeeCode,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+        },
       });
     }
 
@@ -251,16 +346,38 @@ const getToday = async (req, res) => {
       ? record.totalWorkedMinutes
       : calculateWorkedMinutes(record, now);
 
+    const fullDayMinutes = shift.fullDayMinutes || 480;
+    const overtimeMinutes = record.checkOutAt
+      ? record.overtimeMinutes || Math.max(0, liveWorkedMinutes - fullDayMinutes)
+      : Math.max(0, liveWorkedMinutes - fullDayMinutes);
+
     return res.json({
       currentStatus,
       checkInAt: record.checkInAt,
       checkOutAt: record.checkOutAt,
       totalWorkedMinutes: liveWorkedMinutes,
+      overtimeMinutes,
       breaks: record.breaks,
       isLate: record.isLate,
+      isRegularized: record.isRegularized || false,
       status: record.status,
       record,
-      shiftStartTime,
+      shiftStartTime: shift.startTime || '09:30',
+      shift: {
+        _id: shift._id,
+        name: shift.name,
+        code: shift.code,
+        startTime: shift.startTime,
+        endTime: shift.endTime,
+        graceMinutes: shift.graceMinutes,
+        color: shift.color || '#f97316',
+      },
+      employee: {
+        _id: employee._id,
+        employeeCode: employee.employeeCode,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+      },
     });
   } catch (err) {
     console.error('[hrAttendance.getToday] Error:', err);
@@ -438,60 +555,137 @@ const getRoster = async (req, res) => {
     const isToday =
       dayMidnight.getTime() === getDayMidnightUtc(now, timezone).getTime();
 
-    const [users, records] = await Promise.all([
+    const [employees, users, records] = await Promise.all([
+      Employee.find({ organizationId: req.organizationId, employmentStatus: { $ne: 'terminated' } })
+        .populate('userId', 'fullName email role')
+        .populate('departmentId', 'name')
+        .lean(),
       User.find({ organizationId: req.organizationId, status: { $ne: 'disabled' } })
         .select('fullName email role')
         .lean(),
       AttendanceRecord.find({
         organizationId: req.organizationId,
         date: dayMidnight,
-      }).lean(),
+      })
+        .populate('shiftId')
+        .lean(),
     ]);
 
-    const recordMap = new Map(
-      records.map((r) => [r.employeeId.toString(), r])
-    );
+    // Build multi-index map for instant lookup by employeeId or userId
+    const recordMap = new Map();
+    for (const r of records) {
+      if (r.employeeId) recordMap.set(r.employeeId.toString(), r);
+      if (r.userId) recordMap.set(r.userId.toString(), r);
+    }
 
-    const roster = users
-      .map((u) => {
-        const r = recordMap.get(u._id.toString());
-        let status = 'not_checked_in';
-        let checkInAt = null;
-        let checkOutAt = null;
-        let workedMinutes = 0;
-        let late = false;
+    const seenEmployeeCodes = new Set();
+    const seenUserIds = new Set();
+    const roster = [];
 
-        if (r && r.checkInAt) {
-          checkInAt = r.checkInAt;
-          late = !!r.isLate;
-          if (r.checkOutAt) {
-            status = 'checked_out';
-            checkOutAt = r.checkOutAt;
-            workedMinutes = r.totalWorkedMinutes || 0;
-          } else if (r.breaks && r.breaks.some((b) => b.breakOutAt === null)) {
-            status = 'on_break';
-            workedMinutes = isToday ? calculateWorkedMinutes(r, now) : calculateWorkedMinutes(r, r.breaks[r.breaks.length - 1]?.breakInAt || r.checkInAt);
-          } else {
-            status = 'checked_in';
-            workedMinutes = isToday ? calculateWorkedMinutes(r, now) : r.totalWorkedMinutes || 0;
-          }
-        } else if (r && r.status === 'on_leave') {
-          status = 'on_leave';
+    // Process canonical employees first
+    for (const emp of employees) {
+      seenEmployeeCodes.add(emp.employeeCode);
+      const uid = emp.userId?._id?.toString() || emp.userId?.toString();
+      if (uid) seenUserIds.add(uid);
+
+      const r = recordMap.get(emp._id.toString()) || (uid ? recordMap.get(uid) : null);
+      let status = 'not_checked_in';
+      let checkInAt = null;
+      let checkOutAt = null;
+      let workedMinutes = 0;
+      let late = false;
+
+      if (r && r.checkInAt) {
+        checkInAt = r.checkInAt;
+        late = !!r.isLate;
+        if (r.checkOutAt) {
+          status = 'checked_out';
+          checkOutAt = r.checkOutAt;
+          workedMinutes = r.totalWorkedMinutes || 0;
+        } else if (r.breaks && r.breaks.some((b) => b.breakOutAt === null)) {
+          status = 'on_break';
+          workedMinutes = isToday ? calculateWorkedMinutes(r, now) : calculateWorkedMinutes(r, r.breaks[r.breaks.length - 1]?.breakInAt || r.checkInAt);
+        } else {
+          status = 'checked_in';
+          workedMinutes = isToday ? calculateWorkedMinutes(r, now) : r.totalWorkedMinutes || 0;
         }
+      } else if (r && r.status === 'on_leave') {
+        status = 'on_leave';
+      }
 
-        return {
-          userId: u._id.toString(),
-          fullName: u.fullName,
-          email: u.email,
-          role: u.role,
-          status,
-          checkInAt,
-          checkOutAt,
-          workedMinutes,
-          isLate: late,
-        };
-      })
-      .sort((a, b) => a.fullName.localeCompare(b.fullName));
+      roster.push({
+        employeeId: emp._id.toString(),
+        employeeCode: emp.employeeCode,
+        userId: uid || null,
+        fullName: emp.userId?.fullName || `${emp.firstName || ''} ${emp.lastName || ''}`.trim() || 'Employee',
+        email: emp.userId?.email || emp.workEmail || '',
+        role: emp.userId?.role || emp.designation || 'employee',
+        department: emp.departmentId?.name || null,
+        shift: r?.shiftId
+          ? {
+              _id: r.shiftId._id,
+              name: r.shiftId.name,
+              code: r.shiftId.code,
+              color: r.shiftId.color,
+            }
+          : null,
+        status,
+        checkInAt,
+        checkOutAt,
+        workedMinutes,
+        overtimeMinutes: r?.overtimeMinutes || 0,
+        isLate: late,
+        isRegularized: r?.isRegularized || false,
+      });
+    }
+
+    // Merge any registered users that do not yet have an Employee dossier
+    for (const u of users) {
+      const uid = u._id.toString();
+      if (seenUserIds.has(uid)) continue;
+
+      const r = recordMap.get(uid);
+      let status = 'not_checked_in';
+      let checkInAt = null;
+      let checkOutAt = null;
+      let workedMinutes = 0;
+      let late = false;
+
+      if (r && r.checkInAt) {
+        checkInAt = r.checkInAt;
+        late = !!r.isLate;
+        if (r.checkOutAt) {
+          status = 'checked_out';
+          checkOutAt = r.checkOutAt;
+          workedMinutes = r.totalWorkedMinutes || 0;
+        } else if (r.breaks && r.breaks.some((b) => b.breakOutAt === null)) {
+          status = 'on_break';
+          workedMinutes = isToday ? calculateWorkedMinutes(r, now) : calculateWorkedMinutes(r, r.breaks[r.breaks.length - 1]?.breakInAt || r.checkInAt);
+        } else {
+          status = 'checked_in';
+          workedMinutes = isToday ? calculateWorkedMinutes(r, now) : r.totalWorkedMinutes || 0;
+        }
+      } else if (r && r.status === 'on_leave') {
+        status = 'on_leave';
+      }
+
+      roster.push({
+        employeeId: uid,
+        employeeCode: 'USR',
+        userId: uid,
+        fullName: u.fullName,
+        email: u.email,
+        role: u.role,
+        department: null,
+        status,
+        checkInAt,
+        checkOutAt,
+        workedMinutes,
+        isLate: late,
+      });
+    }
+
+    roster.sort((a, b) => a.fullName.localeCompare(b.fullName));
 
     return res.json({ date: dayMidnight.toISOString().slice(0, 10), roster });
   } catch (err) {

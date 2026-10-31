@@ -42,12 +42,29 @@ const employeeSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    branchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'BranchLocation',
+      default: null,
+      index: true,
+    },
     departmentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Department',
       default: null,
     },
+    designationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Designation',
+      default: null,
+      index: true,
+    },
     designation: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    grade: {
       type: String,
       trim: true,
       default: '',
@@ -83,6 +100,60 @@ const employeeSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    // ── 360° Dossier: Personal & Demographic ──
+    personalInfo: {
+      dateOfBirth: { type: Date, default: null },
+      gender: { type: String, trim: true, default: '' },
+      maritalStatus: { type: String, trim: true, default: '' },
+      bloodGroup: { type: String, trim: true, default: '' },
+      nationality: { type: String, trim: true, default: 'Indian' },
+      address: { type: String, trim: true, default: '' },
+    },
+    // ── 360° Dossier: Statutory & Tax Identification ──
+    statutoryIds: {
+      taxId: { type: String, trim: true, uppercase: true, default: '' }, // PAN / Tax ID
+      nationalId: { type: String, trim: true, default: '' }, // Aadhaar / SSN
+      passportNumber: { type: String, trim: true, uppercase: true, default: '' },
+      drivingLicense: { type: String, trim: true, uppercase: true, default: '' },
+    },
+    // ── 360° Dossier: Bank & Payroll Disbursement ──
+    bankDetails: {
+      accountName: { type: String, trim: true, default: '' },
+      accountNumber: { type: String, trim: true, default: '' },
+      bankName: { type: String, trim: true, default: '' },
+      ifscOrRouting: { type: String, trim: true, uppercase: true, default: '' },
+      branchName: { type: String, trim: true, default: '' },
+    },
+    // ── 360° Dossier: Emergency Contacts ──
+    emergencyContacts: [
+      {
+        name: { type: String, trim: true, default: '' },
+        relationship: { type: String, trim: true, default: '' },
+        phone: { type: String, trim: true, default: '' },
+        email: { type: String, trim: true, default: '' },
+        address: { type: String, trim: true, default: '' },
+      },
+    ],
+    // ── 360° Dossier: Education & Academic Qualifications ──
+    education: [
+      {
+        degree: { type: String, trim: true, default: '' },
+        fieldOfStudy: { type: String, trim: true, default: '' },
+        institution: { type: String, trim: true, default: '' },
+        graduationYear: { type: Number, default: null },
+        gradeOrGpa: { type: String, trim: true, default: '' },
+      },
+    ],
+    // ── 360° Dossier: Prior Work Experience ──
+    workHistory: [
+      {
+        companyName: { type: String, trim: true, default: '' },
+        role: { type: String, trim: true, default: '' },
+        startDate: { type: Date, default: null },
+        endDate: { type: Date, default: null },
+        description: { type: String, trim: true, default: '' },
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -34,6 +34,7 @@ exports.getBudgets = async (req, res) => {
           {
             $match: {
               organizationId: orgId,
+              deletedAt: null,
               departmentId: deptId,
               status: { $in: ['approved', 'reimbursed'] },
             },
@@ -51,6 +52,7 @@ exports.getBudgets = async (req, res) => {
           {
             $match: {
               organizationId: orgId,
+              deletedAt: null,
               departmentId: deptId,
               status: { $in: ['submitted', 'manager_approved'] },
             },

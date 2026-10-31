@@ -2,10 +2,19 @@ const mongoose = require('mongoose');
 const LeaveType = require('../models/LeaveType');
 const LeaveBalance = require('../models/LeaveBalance');
 const LeaveRequest = require('../models/LeaveRequest');
+const LeaveLedger = require('../models/LeaveLedger');
 const AttendanceRecord = require('../models/AttendanceRecord');
 const Employee = require('../models/Employee');
 const Organization = require('../models/Organization');
 const { scopedFilter } = require('../middleware/tenant');
+const { resolveEmployeeFromUser, resolveUserFromEmployee } = require('../utils/employeeUtils');
+const { startApproval, actOnStep } = require('../services/approvalWorkflowEngine');
+const { logAuditEvent } = require('../services/auditService');
+const {
+  runMonthlyAccrual,
+  evaluateSandwichRule,
+  runYearEndProcessing,
+} = require('../services/leaveAccrualService');
 const {
   ensureLeaveBalancesForEmployee,
   getDayMidnightUtc,
@@ -20,13 +29,12 @@ const canManageTypes = (role) =>
 
 /**
  * Resolve a ?employeeId= (Employee record id or "me") to the attendance/leave
- * subject id. Records are keyed by the linked User id when one exists
- * (check-in flows use req.user._id), otherwise the Employee record id —
- * a single canonical key prevents duplicate balance rows.
+ * subject id. Dual-keys both Employee._id and User._id to bridge legacy records.
  */
 const resolveSubjectIds = async (req, employeeIdParam) => {
   if (!employeeIdParam || employeeIdParam === 'me') {
-    return { subjectIds: [req.user._id], self: true };
+    const selfEmp = await resolveEmployeeFromUser(req.organizationId, req.user._id);
+    return { subjectIds: [selfEmp._id, req.user._id], self: true };
   }
   if (!canApprove(req.user.role)) {
     return { error: { status: 403, message: 'Access denied. Only managers, HR, and admins can view other employees\' leave data.' } };
@@ -38,8 +46,9 @@ const resolveSubjectIds = async (req, employeeIdParam) => {
   if (!emp) {
     return { error: { status: 404, message: 'Employee not found.' } };
   }
-  // Canonical key: linked User id when present, else the Employee record id
-  return { subjectIds: [emp.userId || emp._id] };
+  const ids = [emp._id];
+  if (emp.userId) ids.push(emp.userId);
+  return { subjectIds: ids };
 };
 
 // ─────────────────────────────────────────────────────────
@@ -69,7 +78,23 @@ const createLeaveType = async (req, res) => {
     if (!canManageTypes(req.user.role)) {
       return res.status(403).json({ error: 'Access denied. Only admins and HR can configure leave types.' });
     }
-    const { name, annualQuota, carryForward } = req.body;
+    const {
+      name,
+      code,
+      annualQuota,
+      accrualFrequency,
+      monthlyAccrualRate,
+      carryForward,
+      maxCarryForward,
+      maxEncashable,
+      isPaid,
+      sandwichRuleEnabled,
+      priorNoticeDays,
+      maxConsecutiveDays,
+      docRequiredAfterDays,
+      color,
+    } = req.body;
+
     if (!name || !String(name).trim()) {
       return res.status(400).json({ error: 'Leave type name is required.' });
     }
@@ -88,14 +113,72 @@ const createLeaveType = async (req, res) => {
     const leaveType = await LeaveType.create({
       organizationId: req.organizationId,
       name: String(name).trim(),
+      code: code ? String(code).trim().toUpperCase() : '',
       annualQuota: annualQuota !== undefined ? Number(annualQuota) : 0,
+      accrualFrequency: accrualFrequency || 'monthly',
+      monthlyAccrualRate: monthlyAccrualRate !== undefined ? Number(monthlyAccrualRate) : 0,
       carryForward: Boolean(carryForward),
+      maxCarryForward: maxCarryForward !== undefined ? Number(maxCarryForward) : 0,
+      maxEncashable: maxEncashable !== undefined ? Number(maxEncashable) : 0,
+      isPaid: isPaid !== undefined ? Boolean(isPaid) : true,
+      sandwichRuleEnabled: Boolean(sandwichRuleEnabled),
+      priorNoticeDays: priorNoticeDays !== undefined ? Number(priorNoticeDays) : 0,
+      maxConsecutiveDays: maxConsecutiveDays !== undefined ? Number(maxConsecutiveDays) : 30,
+      docRequiredAfterDays: docRequiredAfterDays !== undefined ? Number(docRequiredAfterDays) : 0,
+      color: color || '#f97316',
+    });
+
+    await logAuditEvent({
+      organizationId: req.organizationId,
+      actorUserId: req.user._id,
+      action: 'leave.type_created',
+      entityType: 'LeaveType',
+      entityId: leaveType._id,
+      after: leaveType.toObject(),
+      req,
     });
 
     return res.status(201).json(leaveType.toObject());
   } catch (err) {
     console.error('[hrLeave.createLeaveType] Error:', err);
     return res.status(500).json({ error: 'Failed to create leave type.' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────
+// PATCH /api/v1/hr/leaves/types/:id — admin/HR updates policy
+// ─────────────────────────────────────────────────────────
+const updateLeaveType = async (req, res) => {
+  try {
+    if (!canManageTypes(req.user.role)) {
+      return res.status(403).json({ error: 'Access denied. Only admins and HR can configure leave types.' });
+    }
+    const { id } = req.params;
+    const patch = req.body;
+
+    const leaveType = await LeaveType.findOneAndUpdate(
+      { _id: id, organizationId: req.organizationId },
+      { $set: patch },
+      { new: true }
+    );
+    if (!leaveType) {
+      return res.status(404).json({ error: 'Leave type not found.' });
+    }
+
+    await logAuditEvent({
+      organizationId: req.organizationId,
+      actorUserId: req.user._id,
+      action: 'leave.type_updated',
+      entityType: 'LeaveType',
+      entityId: id,
+      after: patch,
+      req,
+    });
+
+    return res.json(leaveType.toObject());
+  } catch (err) {
+    console.error('[hrLeave.updateLeaveType] Error:', err);
+    return res.status(500).json({ error: 'Failed to update leave type.' });
   }
 };
 
@@ -180,17 +263,22 @@ const getLeaveRequests = async (req, res) => {
       if (resolved.error) {
         return res.status(resolved.error.status).json({ error: resolved.error.message });
       }
-      extra.employeeId = { $in: resolved.subjectIds };
+      extra.$or = [
+        { employeeId: { $in: resolved.subjectIds } },
+        { userId: { $in: resolved.subjectIds } },
+      ];
     } else if (employeeId === 'me' || !canApprove(req.user.role)) {
-      // Explicit "me" (or a non-approver without a filter) scopes STRICTLY to
-      // the signed-in account. Approvers who omit employeeId get the whole
-      // org's requests — that wider view is for the Approvals screen only.
-      extra.employeeId = req.user._id;
+      const selfEmp = await resolveEmployeeFromUser(req.organizationId, req.user._id);
+      extra.$or = [
+        { employeeId: selfEmp._id },
+        { employeeId: req.user._id },
+        { userId: req.user._id },
+      ];
     }
 
     const requests = await LeaveRequest.find({ organizationId: req.organizationId, ...extra })
       .populate('leaveTypeId', 'name')
-      .populate('employeeId', 'fullName employeeCode designation')
+      .populate('employeeId', 'fullName firstName lastName employeeCode designation')
       .populate('reviewedBy', 'fullName')
       .sort({ createdAt: -1 })
       .limit(500)
@@ -225,46 +313,121 @@ const createLeaveRequest = async (req, res) => {
       return res.status(400).json({ error: 'End date cannot be earlier than start date.' });
     }
 
-    const totalDays = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
     const leaveType = await LeaveType.findOne({ _id: leaveTypeId, organizationId: req.organizationId }).lean();
     if (!leaveType) {
       return res.status(404).json({ error: 'Selected leave type not found.' });
     }
 
-    const employeeId = req.user._id;
+    const employee = await resolveEmployeeFromUser(req.organizationId, req.user._id);
+
+    // Policy check: Prior notice days
+    if (leaveType.priorNoticeDays > 0) {
+      const noticeMs = leaveType.priorNoticeDays * 24 * 60 * 60 * 1000;
+      if (start.getTime() - Date.now() < noticeMs - (12 * 60 * 60 * 1000)) {
+        return res.status(400).json({
+          error: `${leaveType.name} requires at least ${leaveType.priorNoticeDays} day(s) advance notice.`,
+        });
+      }
+    }
+
+    // Policy check & calculation: Sandwich rule
+    const sandwichAnalysis = await evaluateSandwichRule(
+      req.organizationId,
+      employee._id,
+      start,
+      end,
+      leaveTypeId
+    );
+    const totalDays = sandwichAnalysis.totalDays;
+
+    // Policy check: Maximum consecutive days
+    if (leaveType.maxConsecutiveDays && totalDays > leaveType.maxConsecutiveDays) {
+      return res.status(400).json({
+        error: `Maximum consecutive days allowed for ${leaveType.name} is ${leaveType.maxConsecutiveDays} day(s). You requested ${totalDays} day(s).`,
+      });
+    }
+
     const year = start.getUTCFullYear();
-    await ensureLeaveBalancesForEmployee(req.organizationId, employeeId, year);
+    await ensureLeaveBalancesForEmployee(req.organizationId, employee._id, year);
 
     const balance = await LeaveBalance.findOne({
       organizationId: req.organizationId,
-      employeeId,
       leaveTypeId,
       year,
+      $or: [{ employeeId: employee._id }, { employeeId: req.user._id }],
     });
 
     if (leaveType.annualQuota > 0 && balance) {
       const remaining = Math.max(0, balance.allocated - balance.used);
       if (totalDays > remaining) {
         return res.status(400).json({
-          error: `Insufficient leave balance. You requested ${totalDays} day(s), but only have ${remaining} day(s) remaining for ${leaveType.name}.`,
+          error: `Insufficient leave balance. You requested ${totalDays} day(s)${sandwichAnalysis.isSandwichApplied ? ' (including sandwich rule deductions)' : ''}, but only have ${remaining} day(s) remaining for ${leaveType.name}.`,
         });
       }
     }
 
+    let finalReason = reason ? String(reason).trim() : '';
+    if (sandwichAnalysis.isSandwichApplied) {
+      finalReason = finalReason
+        ? `${finalReason} | [Sandwich Policy: +${sandwichAnalysis.sandwichDays} day(s) included]`
+        : `[Sandwich Policy: +${sandwichAnalysis.sandwichDays} day(s) included]`;
+    }
+
     const leaveRequest = await LeaveRequest.create({
       organizationId: req.organizationId,
-      employeeId,
+      employeeId: employee._id,
+      userId: req.user._id,
       leaveTypeId,
       startDate: start,
       endDate: end,
       totalDays,
-      reason: reason ? String(reason).trim() : '',
+      reason: finalReason,
       status: 'pending',
+    });
+
+    // Start Workflow Engine Instance
+    try {
+      await startApproval({
+        organizationId: req.organizationId,
+        requestType: 'leave',
+        referenceId: leaveRequest._id,
+        referenceModel: 'LeaveRequest',
+        requesterEmployeeId: employee._id,
+        requesterUserId: req.user._id,
+        metadata: {
+          leaveTypeName: leaveType.name,
+          totalDays,
+          startDate: start,
+          endDate: end,
+          reason,
+        },
+      });
+    } catch (wfErr) {
+      console.warn('[hrLeave.createLeaveRequest] Workflow init warning:', wfErr.message);
+    }
+
+    // Audit log
+    await logAuditEvent({
+      organizationId: req.organizationId,
+      actorUserId: req.user._id,
+      actorEmployeeId: employee._id,
+      action: 'leave.request',
+      entityType: 'LeaveRequest',
+      entityId: leaveRequest._id,
+      after: {
+        leaveTypeId,
+        startDate: start,
+        endDate: end,
+        totalDays,
+        reason,
+        status: 'pending',
+      },
+      req,
     });
 
     const populated = await LeaveRequest.findById(leaveRequest._id)
       .populate('leaveTypeId', 'name')
+      .populate('employeeId', 'fullName firstName lastName employeeCode')
       .lean();
 
     return res.status(201).json(populated);
@@ -346,7 +509,7 @@ const approveLeaveRequest = async (req, res) => {
     }
 
     // 2. Increment LeaveBalance.used
-    await LeaveBalance.findOneAndUpdate(
+    const updatedBalance = await LeaveBalance.findOneAndUpdate(
       {
         organizationId: req.organizationId,
         employeeId: request.employeeId,
@@ -354,7 +517,28 @@ const approveLeaveRequest = async (req, res) => {
         year,
       },
       { $inc: { used: request.totalDays } },
-      { ...opts, upsert: true }
+      { ...opts, upsert: true, new: true }
+    );
+
+    await LeaveLedger.create(
+      [
+        {
+          organizationId: req.organizationId,
+          employeeId: request.employeeId,
+          userId: request.userId,
+          leaveTypeId: request.leaveTypeId,
+          year,
+          transactionType: 'debit_leave',
+          days: -request.totalDays,
+          balanceBefore: updatedBalance.allocated - (updatedBalance.used - request.totalDays),
+          balanceAfter: updatedBalance.allocated - updatedBalance.used,
+          referenceId: request._id,
+          referenceType: 'LeaveRequest',
+          notes: `Leave approved for ${request.totalDays} day(s)`,
+          performedBy: req.user._id,
+        },
+      ],
+      { ...opts }
     );
 
     // 3. Mark covered days' attendance as on_leave (org timezone)
@@ -403,9 +587,34 @@ const approveLeaveRequest = async (req, res) => {
     await session.commitTransaction();
     session.endSession();
 
+    // Trigger workflow engine advancement & audit log
+    try {
+      await actOnStep({
+        organizationId: req.organizationId,
+        referenceId: id,
+        actorUserId: req.user._id,
+        actorRole: req.user.role,
+        action: 'approved',
+        comments: req.body?.comments || 'Leave request approved',
+      });
+    } catch (wfErr) {
+      console.warn('[hrLeave.approveLeaveRequest] Workflow act warning:', wfErr.message);
+    }
+
+    await logAuditEvent({
+      organizationId: req.organizationId,
+      actorUserId: req.user._id,
+      action: 'leave.approved',
+      entityType: 'LeaveRequest',
+      entityId: id,
+      before: { status: 'pending' },
+      after: { status: 'approved', reviewedBy: req.user._id },
+      req,
+    });
+
     const populated = await LeaveRequest.findById(result.request._id)
       .populate('leaveTypeId', 'name')
-      .populate('employeeId', 'fullName employeeCode')
+      .populate('employeeId', 'fullName firstName lastName employeeCode')
       .populate('reviewedBy', 'fullName')
       .lean();
 
@@ -450,6 +659,22 @@ const approveLeaveRequest = async (req, res) => {
         { upsert: true, new: true }
       );
 
+      await LeaveLedger.create({
+        organizationId: req.organizationId,
+        employeeId: request.employeeId,
+        userId: request.userId,
+        leaveTypeId: request.leaveTypeId,
+        year,
+        transactionType: 'debit_leave',
+        days: -request.totalDays,
+        balanceBefore: balance.allocated - (balance.used - request.totalDays),
+        balanceAfter: balance.allocated - balance.used,
+        referenceId: request._id,
+        referenceType: 'LeaveRequest',
+        notes: `Leave approved for ${request.totalDays} day(s)`,
+        performedBy: req.user._id,
+      });
+
       const coveredIds = [];
       try {
         const fallbackOrg = await Organization.findById(req.organizationId).select('timezone').lean();
@@ -484,9 +709,33 @@ const approveLeaveRequest = async (req, res) => {
         request.reviewedBy = req.user._id;
         await request.save();
 
+        try {
+          await actOnStep({
+            organizationId: req.organizationId,
+            referenceId: id,
+            actorUserId: req.user._id,
+            actorRole: req.user.role,
+            action: 'approved',
+            comments: req.body?.comments || 'Leave request approved',
+          });
+        } catch (wfErr) {
+          console.warn('[hrLeave.approveLeaveRequest] Fallback workflow act warning:', wfErr.message);
+        }
+
+        await logAuditEvent({
+          organizationId: req.organizationId,
+          actorUserId: req.user._id,
+          action: 'leave.approved',
+          entityType: 'LeaveRequest',
+          entityId: id,
+          before: { status: 'pending' },
+          after: { status: 'approved', reviewedBy: req.user._id },
+          req,
+        });
+
         const populated = await LeaveRequest.findById(request._id)
           .populate('leaveTypeId', 'name')
-          .populate('employeeId', 'fullName employeeCode')
+          .populate('employeeId', 'fullName firstName lastName employeeCode')
           .populate('reviewedBy', 'fullName')
           .lean();
 
@@ -546,9 +795,33 @@ const rejectLeaveRequest = async (req, res) => {
     request.reviewedBy = req.user._id;
     await request.save();
 
+    try {
+      await actOnStep({
+        organizationId: req.organizationId,
+        referenceId: id,
+        actorUserId: req.user._id,
+        actorRole: req.user.role,
+        action: 'rejected',
+        comments: req.body?.comments || req.body?.reason || 'Leave request rejected',
+      });
+    } catch (wfErr) {
+      console.warn('[hrLeave.rejectLeaveRequest] Workflow act warning:', wfErr.message);
+    }
+
+    await logAuditEvent({
+      organizationId: req.organizationId,
+      actorUserId: req.user._id,
+      action: 'leave.rejected',
+      entityType: 'LeaveRequest',
+      entityId: id,
+      before: { status: 'pending' },
+      after: { status: 'rejected', reviewedBy: req.user._id },
+      req,
+    });
+
     const populated = await LeaveRequest.findById(request._id)
       .populate('leaveTypeId', 'name')
-      .populate('employeeId', 'fullName employeeCode')
+      .populate('employeeId', 'fullName firstName lastName employeeCode')
       .populate('reviewedBy', 'fullName')
       .lean();
 
@@ -559,12 +832,110 @@ const rejectLeaveRequest = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────
+// POST /api/v1/hr/leaves/sandwich-preview
+// ─────────────────────────────────────────────────────────
+const previewSandwich = async (req, res) => {
+  try {
+    const { leaveTypeId, startDate, endDate, employeeId } = req.body;
+    if (!leaveTypeId || !startDate || !endDate) {
+      return res.status(400).json({ error: 'Leave type, start date, and end date are required.' });
+    }
+    let targetEmployeeId = employeeId;
+    if (!targetEmployeeId || targetEmployeeId === 'me') {
+      const selfEmp = await resolveEmployeeFromUser(req.organizationId, req.user._id);
+      targetEmployeeId = selfEmp._id;
+    }
+    const result = await evaluateSandwichRule(
+      req.organizationId,
+      targetEmployeeId,
+      startDate,
+      endDate,
+      leaveTypeId
+    );
+    return res.json(result);
+  } catch (err) {
+    console.error('[hrLeave.previewSandwich] Error:', err);
+    return res.status(500).json({ error: err.message || 'Failed to preview sandwich rule.' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────
+// GET /api/v1/hr/leaves/ledger?employeeId=&year=&transactionType=
+// ─────────────────────────────────────────────────────────
+const getLeaveLedger = async (req, res) => {
+  try {
+    const { employeeId, year, transactionType } = req.query;
+    const filter = { organizationId: req.organizationId };
+
+    if (year) {
+      filter.year = parseInt(year, 10);
+    }
+    if (transactionType && transactionType !== 'all') {
+      filter.transactionType = transactionType;
+    }
+
+    if (canApprove(req.user.role)) {
+      if (employeeId && employeeId !== 'all') {
+        if (employeeId === 'me') {
+          const selfEmp = await resolveEmployeeFromUser(req.organizationId, req.user._id);
+          filter.employeeId = selfEmp._id;
+        } else {
+          filter.employeeId = employeeId;
+        }
+      }
+    } else {
+      const selfEmp = await resolveEmployeeFromUser(req.organizationId, req.user._id);
+      filter.employeeId = selfEmp._id;
+    }
+
+    const ledger = await LeaveLedger.find(filter)
+      .populate('leaveTypeId', 'name code color')
+      .populate('employeeId', 'fullName firstName lastName employeeCode')
+      .populate('performedBy', 'fullName')
+      .sort({ createdAt: -1 })
+      .limit(500)
+      .lean();
+
+    return res.json(ledger);
+  } catch (err) {
+    console.error('[hrLeave.getLeaveLedger] Error:', err);
+    return res.status(500).json({ error: 'Failed to retrieve leave ledger transactions.' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────
+// POST /api/v1/hr/leaves/accrual/run
+// ─────────────────────────────────────────────────────────
+const triggerMonthlyAccrual = async (req, res) => {
+  try {
+    if (!canManageTypes(req.user.role)) {
+      return res.status(403).json({ error: 'Only admins and HR can trigger monthly leave accruals.' });
+    }
+    const { month, year } = req.body;
+    const result = await runMonthlyAccrual(
+      req.organizationId,
+      month ? Number(month) : undefined,
+      year ? Number(year) : undefined,
+      req.user._id
+    );
+    return res.json(result);
+  } catch (err) {
+    console.error('[hrLeave.triggerMonthlyAccrual] Error:', err);
+    return res.status(500).json({ error: 'Failed to execute monthly accrual.' });
+  }
+};
+
 module.exports = {
   getLeaveTypes,
   createLeaveType,
+  updateLeaveType,
   getLeaveBalances,
   getLeaveRequests,
   createLeaveRequest,
   approveLeaveRequest,
   rejectLeaveRequest,
+  previewSandwich,
+  getLeaveLedger,
+  triggerMonthlyAccrual,
 };

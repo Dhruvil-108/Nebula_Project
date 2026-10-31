@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useId } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Check, Search, X } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -58,7 +58,15 @@ export function FloatingDropdown<T = string>({
 }: FloatingDropdownProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [menuPosition, setMenuPosition] = useState<{
+    top: number;
+    left: number;
+    right: number;
+    width: number;
+  } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const generatedId = useId();
   const dropdownId = id || generatedId;
@@ -69,7 +77,12 @@ export function FloatingDropdown<T = string>({
   // Click outside to close
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        !menuRef.current?.contains(target)
+      ) {
         setIsOpen(false);
         setSearchQuery('');
       }
@@ -110,6 +123,41 @@ export function FloatingDropdown<T = string>({
       )
     : options;
 
+  useEffect(() => {
+    if (!isOpen) {
+      setMenuPosition(null);
+      return;
+    }
+
+    const updateMenuPosition = () => {
+      if (!triggerRef.current) return;
+
+      const trigger = triggerRef.current.getBoundingClientRect();
+      const menuHeight = Math.min(320, Math.max(48, filteredOptions.length * 42 + (searchable ? 58 : 12)));
+      const viewportPadding = 8;
+      const spaceBelow = window.innerHeight - trigger.bottom;
+      const opensAbove = spaceBelow < menuHeight && trigger.top > menuHeight;
+      const top = opensAbove ? trigger.top - menuHeight - 6 : trigger.bottom + 6;
+      const left = trigger.left;
+      const right = window.innerWidth - trigger.right;
+
+      setMenuPosition({
+        top: Math.max(viewportPadding, Math.min(top, window.innerHeight - menuHeight - viewportPadding)),
+        left: Math.max(viewportPadding, Math.min(left, window.innerWidth - trigger.width - viewportPadding)),
+        right: Math.max(viewportPadding, Math.min(right, window.innerWidth - trigger.width - viewportPadding)),
+        width: trigger.width,
+      });
+    };
+
+    updateMenuPosition();
+    window.addEventListener('resize', updateMenuPosition);
+    window.addEventListener('scroll', updateMenuPosition, true);
+    return () => {
+      window.removeEventListener('resize', updateMenuPosition);
+      window.removeEventListener('scroll', updateMenuPosition, true);
+    };
+  }, [align, filteredOptions.length, isOpen, searchable]);
+
   const sizeClasses = {
     sm: 'text-xs py-1.5 px-2.5 gap-1.5 min-h-[32px]',
     md: 'text-xs py-2 px-3 gap-2 min-h-[38px]',
@@ -132,6 +180,7 @@ export function FloatingDropdown<T = string>({
 
       {/* Trigger Button */}
       <button
+        ref={triggerRef}
         id={dropdownId}
         type="button"
         disabled={disabled}
@@ -193,20 +242,22 @@ export function FloatingDropdown<T = string>({
       {error && <p className="mt-1 text-[11px] text-red-500">{error}</p>}
 
       {/* Floating Menu Popover */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 4, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
+      {isOpen && menuPosition && createPortal(
+          <div
+            ref={menuRef}
             className={clsx(
-              'absolute z-50 mt-1.5 rounded-2xl bg-white border border-[#ECE0D6] shadow-xl overflow-hidden min-w-[200px]',
-              align === 'right' ? 'right-0' : 'left-0',
-              fullWidth ? 'w-full' : 'w-max max-w-sm',
+              'fixed pointer-events-auto rounded-2xl bg-white border border-[#ECE0D6] shadow-xl overflow-hidden min-w-[200px]',
+              fullWidth ? 'w-auto' : 'w-max max-w-sm',
               menuClassName
             )}
             style={{
+              top: menuPosition.top,
+              left: align === 'right' ? undefined : menuPosition.left,
+              right: align === 'right' ? menuPosition.right : undefined,
+              width: fullWidth ? menuPosition.width : undefined,
+              zIndex: 2147483647,
+              visibility: 'visible',
+              opacity: 1,
               boxShadow:
                 '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02)',
             }}
@@ -283,9 +334,9 @@ export function FloatingDropdown<T = string>({
                 })
               )}
             </div>
-          </motion.div>
+          </div>,
+          document.body
         )}
-      </AnimatePresence>
     </div>
   );
 }

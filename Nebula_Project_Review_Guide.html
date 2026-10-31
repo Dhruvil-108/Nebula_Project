@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nebula Project Review Guide</title>
+<style>
+@page { size: A4; margin: 17mm 16mm 17mm 16mm; }
+* { box-sizing: border-box; }
+body { font-family: "Segoe UI", Arial, sans-serif; color:#202124; line-height:1.42; font-size:10.5pt; }
+h1 { color:#c2410c; font-size:28pt; margin:0 0 8px; }
+h2 { color:#9a3412; border-bottom:2px solid #fed7aa; padding-bottom:4px; margin-top:22px; }
+h3 { color:#c2410c; margin-bottom:4px; }
+.cover { height:245mm; display:flex; flex-direction:column; justify-content:center; page-break-after:always; }
+.subtitle { font-size:16pt; color:#57534e; margin-bottom:24px; }
+.tag { display:inline-block; background:#fff7ed; color:#9a3412; border:1px solid #fdba74; border-radius:6px; padding:6px 10px; margin:3px; }
+.box { background:#fff7ed; border-left:4px solid #f97316; padding:10px 13px; margin:10px 0; }
+.flow { background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; padding:10px; font-family:Consolas,monospace; white-space:pre-wrap; }
+table { width:100%; border-collapse:collapse; margin:8px 0 14px; }
+th { background:#ea580c; color:white; text-align:left; }
+th,td { border:1px solid #fed7aa; padding:6px; vertical-align:top; }
+ul { margin-top:4px; }
+li { margin:2px 0; }
+.page { page-break-before:always; }
+.small { color:#57534e; font-size:9pt; }
+.step { font-weight:700; color:#9a3412; }
+code { background:#f5f5f4; padding:1px 3px; border-radius:3px; }
+</style>
+</head>
+<body>
+<section class="cover">
+<h1>Nebula Business Operations Hub</h1>
+<div class="subtitle">Project Review Guide</div>
+<p><strong>Modules covered:</strong></p>
+<div><span class="tag">Recruitment / ATS</span><span class="tag">Expenses</span><span class="tag">Inventory</span><span class="tag">HRMS</span></div>
+<div class="box"><strong>Purpose:</strong> A review-ready explanation of the complete business flow, module responsibilities, database lifecycle, approvals, AI features, cross-module integrations, candidate resume location, and Recruitment Talent Pool.</div>
+<p class="small">Technology: React + TypeScript + TanStack Query + Axios, Node.js + Express, Mongoose + MongoDB, JWT authentication, RBAC and organization-level tenant isolation.</p>
+</section>
+
+<h2>1. Common System Architecture</h2>
+<div class="flow">React frontend
+  → TanStack Query state/cache
+  → Axios authenticated request
+  → Express authentication and permission middleware
+  → organizationId tenant scoping
+  → controller and service business logic
+  → Mongoose
+  → MongoDB
+  → response and UI refresh</div>
+<ul>
+<li><strong>Authentication:</strong> JWT identifies the current user and organization.</li>
+<li><strong>Multi-tenancy:</strong> Queries are scoped by <code>organizationId</code>, preventing cross-company data access.</li>
+<li><strong>RBAC:</strong> Actions such as view, create, edit, delete and approve are permission controlled.</li>
+<li><strong>Auditability:</strong> Important transitions create immutable or chronological activity records.</li>
+</ul>
+
+<h2>2. Recruitment / ATS Module</h2>
+<p>The Recruitment module manages the complete journey from identifying a vacancy to converting a selected candidate into an HRMS employee.</p>
+<div class="flow">Manpower requirement → job requisition/opening → AI advertisement → candidate application
+→ screening pipeline → interviews and scorecards → offer approval → acceptance
+→ one-click HRMS onboarding</div>
+<h3>Step-by-step flow</h3>
+<ol>
+<li><span class="step">Create job opening:</span> HR or a hiring manager enters title, department, employment type, location, experience, salary band, skills, recruiters, hiring manager and open positions. The normal status flow is <code>draft → published → on_hold → closed</code>.</li>
+<li><span class="step">Generate advertisement:</span> Gemini generates a job post in dynamic, technical or corporate tone. A deterministic template fallback keeps the feature usable if AI is unavailable.</li>
+<li><span class="step">Receive candidate:</span> Candidate profile stores contact details, resume, experience, compensation expectation, notice period, LinkedIn/GitHub/portfolio and source. A code such as <code>CAND-2026-0012</code> is generated.</li>
+<li><span class="step">Manage pipeline:</span> Recruiters use Kanban stages such as Applied, Screening, Interview R1/R2, Technical Assessment, HR Round, Offer Sent and Hired. Rejected and Withdrawn are terminal states. Stage changes are audited.</li>
+<li><span class="step">Schedule interviews:</span> Store round type, interview panel, start/end time, time zone, meeting link or room and status. Status can become completed, rescheduled, cancelled or no-show.</li>
+<li><span class="step">Evaluate candidate:</span> Interviewers submit 1–5 ratings for technical ability, communication and culture fit, plus notes and a hire/hold/reject recommendation.</li>
+<li><span class="step">Create offer:</span> HR enters designation, department, compensation, currency, joining date, benefits and validity. State flow: <code>draft → pending_approval → approved → sent → accepted</code>.</li>
+<li><span class="step">Onboard to HRMS:</span> The bridge validates the candidate, creates a unique Employee record, migrates resume and offer letter to EmployeeDocument, marks the candidate hired, increments filled positions, updates offer status and logs the conversion.</li>
+</ol>
+<h3>Where is the candidate resume?</h3>
+<div class="box"><strong>Recruitment → ATS Pipeline/Candidates → click candidate card → Candidate Drawer → Candidate Details → Resume Viewer → View/Preview/Download.</strong></div>
+<p>The candidate profile references the uploaded file through <code>resumeUrl</code>. After hiring, the same resume is available in the employee's HRMS document repository.</p>
+
+<h3>Talent Pool: meaning and flow</h3>
+<p>The <strong>Talent Pool</strong> is a reusable collection of candidates who may be suitable for current or future vacancies. It prevents good candidates from being lost when a job closes, a candidate is not selected for one role, or no matching job is currently open.</p>
+<div class="flow">Candidate sourced/applied → profile and resume saved → skills/tags/search data maintained
+→ candidate retained in pool → recruiter searches future opening → candidate linked/advanced to pipeline
+→ interview/offer/hire or remains available</div>
+<ul>
+<li>It can contain passive candidates, referrals, previous applicants, silver-medalist candidates and agency-sourced profiles.</li>
+<li>Recruiters can search using skills, experience, location, notice period, source, previous stage and job compatibility.</li>
+<li>Talent Pool is not the same as the active pipeline: the pipeline is tied to a particular job; the pool is reusable across jobs.</li>
+<li>A candidate can move from the pool into a specific job's Applied or Screening stage without recreating the profile.</li>
+</ul>
+
+<div class="page"></div>
+<h2>3. Expenses Module</h2>
+<p>The Expenses module controls employee business spending from receipt capture through two-level approval, reimbursement and accounting export.</p>
+<div class="flow">Expense incurred → receipt upload/AI scan → multi-item claim → policy and budget validation
+→ employee submission → manager approval → finance approval → reimbursement → ERP CSV export</div>
+<h3>Step-by-step flow</h3>
+<ol>
+<li><span class="step">Create claim:</span> An employee bundles multiple items such as travel, hotel, meals or taxi. Each item stores category, date, merchant, description, amount, tax, currency, receipt and billable-to-client information.</li>
+<li><span class="step">Scan receipt:</span> Gemini Vision extracts merchant, date, amount, tax, currency, description and suggested category. The employee verifies the result; a fallback parser is available when AI is unavailable.</li>
+<li><span class="step">Apply policy:</span> Category rules check maximum claim limits, receipt thresholds, active status and GL code mapping.</li>
+<li><span class="step">Check budget:</span> The system calculates spent amount, pending amount, remaining amount and percentage used. Less than 80% is normal, 80–99% is warning and above 100% is a breach.</li>
+<li><span class="step">Submit:</span> Claim status changes from <code>draft</code> to <code>submitted</code>; a number such as <code>EXP-2026-0012</code> and an activity record are created.</li>
+<li><span class="step">Manager review:</span> The line manager checks business purpose, receipt and departmental ownership. Approval gives <code>manager_approved</code>; rejection requires a reason. Self-approval is blocked.</li>
+<li><span class="step">Finance review:</span> Finance checks receipt, GL code, tax, budget and policy compliance. Approval gives <code>approved</code>.</li>
+<li><span class="step">Reimburse and export:</span> Finance records bank transfer, payroll, corporate card, cash or cheque, including transaction reference. The final state is <code>reimbursed</code>; CSV export supports ERP reconciliation.</li>
+</ol>
+
+<h2>4. Inventory Module</h2>
+<p>Inventory manages item masters, warehouses, procurement, receiving, stock valuation, traceability, equipment assets and supply-chain analytics.</p>
+<div class="flow">Item/warehouse setup → Purchase Requisition → budget check → Purchase Order
+→ Goods Receipt Note → immutable Stock Ledger → FIFO/WAC valuation
+→ issue/transfer/asset assignment → analytics and accounting events</div>
+<h3>Step-by-step flow</h3>
+<ol>
+<li><span class="step">Configure master data:</span> Define item SKU, category, UoM, barcode, reorder level and tracking type. Configure Warehouse → Zone → Bin and supplier terms.</li>
+<li><span class="step">Create PR:</span> A department requests material. The system checks budget through Expenses and prevents self-approval.</li>
+<li><span class="step">Create PO:</span> An approved PR becomes a supplier Purchase Order with prices, taxes, terms and versioned amendments.</li>
+<li><span class="step">Receive with GRN:</span> Warehouse staff record ordered, received, accepted and rejected quantities, plus batches or serial numbers and inspection results.</li>
+<li><span class="step">Post ledger:</span> Accepted receipt adds a positive StockLedger entry. Issues add negative entries. Corrections use compensating reversals rather than editing history.</li>
+<li><span class="step">Protect stock:</span> Available stock equals on-hand minus reserved stock. An issue exceeding available quantity is rejected before posting.</li>
+<li><span class="step">Value stock:</span> FIFO consumes the oldest cost layer first; Moving WAC recalculates the average cost after each receipt.</li>
+<li><span class="step">Transfer and trace:</span> Inter-warehouse movement follows dispatch → in_transit → receipt. Batch and serial lineage supports forward and backward traceability.</li>
+<li><span class="step">Three-way match:</span> The system compares Purchase Order, GRN and supplier invoice quantities and prices. Out-of-tolerance differences can block payment or create a debit note.</li>
+<li><span class="step">Analyze:</span> Forecasting, OCR, anomaly radar, ABC/XYZ matrix, aging, turnover, DSI and supplier OTIF reports support decisions.</li>
+</ol>
+
+<div class="page"></div>
+<h2>5. HRMS Module</h2>
+<p>HRMS manages employees, organization hierarchy, attendance, shifts, leave, payroll, documents, performance and workforce intelligence.</p>
+<div class="flow">User/Employee identity → organization and job profile → shift assignment → attendance
+→ leave and accruals → payroll → payslip/payment → performance and career → offboarding</div>
+<h3>Employee and identity flow</h3>
+<p>The system keeps authentication identity in <code>User</code> and personnel data in <code>Employee</code>, linked through canonical identity resolution. Employee profiles include department, designation, branch, manager, statutory details, bank/payroll information, documents and job history.</p>
+<h3>Attendance and shifts</h3>
+<ol>
+<li>HR configures morning, evening, night or custom shifts with grace and half-day rules.</li>
+<li>HR assigns a shift to the employee.</li>
+<li>The employee performs clock-in, break-in, break-out and clock-out.</li>
+<li>The system calculates worked minutes, lateness and attendance status.</li>
+<li>A missed punch can be submitted for manager regularization and automatic reconciliation.</li>
+<li>Weekend or holiday work may generate a compensatory-off credit.</li>
+</ol>
+<h3>Leave flow</h3>
+<ol>
+<li>HR defines leave types, quotas, accrual, carry-forward and caps.</li>
+<li>Employee submits a request with dates and reason.</li>
+<li>The system previews sandwich-policy days where weekends or holidays fall between leave days.</li>
+<li>Manager approves or rejects. Approval debits the LeaveLedger; rejection restores any reserved balance.</li>
+<li>A monthly accrual process adds credits and records each transaction.</li>
+</ol>
+<h3>Payroll flow</h3>
+<div class="flow">Salary structure + attendance + approved leave + holidays + LOP
+→ earnings and deductions → PayrollRun → Payslip → approval → paid</div>
+<ul>
+<li>Salary structures define Basic, HRA, allowances, PF, PT, TDS and ESI.</li>
+<li>Payroll reads attendance and approved leave to calculate loss-of-pay days.</li>
+<li>Monthly payroll moves through <code>draft → approved → paid</code>.</li>
+<li>PDF payslips contain attendance, earnings, deductions and net salary and are available in the employee self-service vault.</li>
+</ul>
+<h3>Performance and talent</h3>
+<p>Employees and managers use weighted OKRs, milestones, check-ins, 360-degree review cycles and the 3×3 performance-potential matrix. Attrition analysis uses attendance, leave, tenure and review trends to identify retention risk.</p>
+
+<h2>6. Cross-Module Integrations</h2>
+<table>
+<tr><th>Integration</th><th>Flow</th><th>Business value</th></tr>
+<tr><td>Recruitment → HRMS</td><td>Accepted candidate becomes Employee; resume and offer letter become EmployeeDocuments.</td><td>Zero duplicate onboarding entry.</td></tr>
+<tr><td>HRMS → Inventory</td><td>New employee role selects starter kit; assets are reserved and serial numbers assigned.</td><td>Controlled equipment provisioning and recovery.</td></tr>
+<tr><td>Inventory → Expenses</td><td>Purchase Requisition checks department budget before approval.</td><td>Prevents unauthorized departmental overspending.</td></tr>
+<tr><td>HRMS → Expenses</td><td>Employee, department and manager determine claim ownership and approval route.</td><td>Correct reimbursement routing.</td></tr>
+<tr><td>HRMS → Payroll</td><td>Attendance, approved leave and salary structure produce payroll and payslips.</td><td>Attendance-driven salary calculation.</td></tr>
+</table>
+
+<h2>7. Complete Review Example</h2>
+<ol>
+<li>Engineering creates a Software Engineer vacancy and publishes an AI-assisted job post.</li>
+<li>A candidate applies, enters the ATS pipeline, attends interviews and receives scorecards.</li>
+<li>HR approves and sends an offer; the candidate accepts.</li>
+<li>The HRMS bridge creates the employee and migrates the resume and offer letter.</li>
+<li>Inventory selects a Software Engineer kit and assigns a serial-numbered laptop.</li>
+<li>The employee punches attendance, applies for leave and is included in monthly payroll.</li>
+<li>The employee scans a client-meal receipt, submits an expense claim, receives manager and finance approval, and is reimbursed.</li>
+</ol>
+<div class="box"><strong>Final review statement:</strong> Nebula is not a set of isolated CRUD screens. It is an integrated, multi-tenant ERP workflow in which recruitment creates the workforce, HRMS governs the workforce, inventory equips the workforce, and expenses controls business spending.</div>
+
+<h2>8. Quick Viva Answers</h2>
+<ul>
+<li><strong>What is the Talent Pool?</strong> A reusable database of potential candidates available for current or future vacancies, separate from a job-specific active pipeline.</li>
+<li><strong>Where is the resume?</strong> Recruitment → ATS Pipeline/Candidates → Candidate Card → Candidate Drawer → Candidate Details → Resume Viewer.</li>
+<li><strong>Why use an immutable inventory ledger?</strong> To preserve audit history and correct mistakes through linked reversals instead of silently changing past movements.</li>
+<li><strong>Why two expense approvals?</strong> The manager validates business purpose; Finance validates policy, accounting and payment.</li>
+<li><strong>What is the strongest integration?</strong> The Recruitment-to-HRMS bridge, because one accepted candidate becomes a complete employee without re-entering data.</li>
+</ul>
+</body>
+</html>

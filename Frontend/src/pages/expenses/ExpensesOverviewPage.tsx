@@ -17,6 +17,8 @@ import {
   Building2,
   Calendar,
   AlertTriangle,
+  Bot,
+  FileCheck,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -34,12 +36,15 @@ import {
 import {
   useExpenseSummary,
   useDepartmentBudgets,
+  useBudgetForecasts,
 } from '../../hooks/useExpenses';
 import { useModuleAccess } from '../../hooks/useModuleAccess';
 import { ExpenseStatusPill } from '../../components/expenses/ExpenseStatusPill';
 import { CreateClaimModal } from '../../components/expenses/CreateClaimModal';
 import { ExpenseClaimDrawer } from '../../components/expenses/ExpenseClaimDrawer';
 import { BudgetProgressBar } from '../../components/expenses/BudgetProgressBar';
+import { SpendCopilotDrawer } from '../../components/expenses/SpendCopilotDrawer';
+import { AuditPackModal } from '../../components/expenses/AuditPackModal';
 import { exportExpensesCsv } from '../../lib/expenseApi';
 
 export const ExpensesOverviewPage: React.FC = () => {
@@ -51,6 +56,11 @@ export const ExpensesOverviewPage: React.FC = () => {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedClaimId, setSelectedClaimId] = useState<string | null>(null);
+  const [showCopilot, setShowCopilot] = useState(false);
+  const [showAuditPack, setShowAuditPack] = useState(false);
+
+  const { data: forecasts = [] } = useBudgetForecasts();
+  const imminentBreaches = forecasts.filter((f) => f.forecastStatus === 'breach_imminent');
 
   const metrics = summary?.metrics || {
     totalClaimed: 0,
@@ -98,7 +108,25 @@ export const ExpensesOverviewPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Spend Copilot Button */}
+          <button
+            onClick={() => setShowCopilot(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-orange-200 bg-orange-50/80 hover:bg-orange-100/80 text-orange-800 text-xs font-semibold shadow-2xs transition-colors"
+          >
+            <Bot className="w-3.5 h-3.5 text-orange-600" />
+            <span>Spend Copilot</span>
+          </button>
+
+          {/* Audit Pack Button */}
+          <button
+            onClick={() => setShowAuditPack(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-colors"
+          >
+            <FileCheck className="w-3.5 h-3.5 text-slate-500" />
+            <span>Audit Pack</span>
+          </button>
+
           <button
             onClick={handleExportCsv}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#ECE0D6] bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-colors"
@@ -118,6 +146,25 @@ export const ExpensesOverviewPage: React.FC = () => {
           )}
         </div>
       </motion.div>
+
+      {/* ── Forecast Alerts Banner (if any imminent budget breaches) ── */}
+      {imminentBreaches.length > 0 && (
+        <div className="p-4 rounded-2xl border border-rose-200 bg-rose-50/80 flex items-start gap-3 shadow-2xs">
+          <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <h4 className="text-xs font-bold text-rose-900">
+              Predictive Budget Alert: {imminentBreaches.length} Department(s) Projected to Breach Annual Limits
+            </h4>
+            <div className="space-y-0.5">
+              {imminentBreaches.map((b) => (
+                <p key={b.budgetId} className="text-xs text-rose-700">
+                  • {b.warningMessage}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── KPI Stats Grid ── */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -437,6 +484,18 @@ export const ExpensesOverviewPage: React.FC = () => {
       <ExpenseClaimDrawer
         claimId={selectedClaimId}
         onClose={() => setSelectedClaimId(null)}
+      />
+
+      {/* Spend Copilot Drawer */}
+      <SpendCopilotDrawer
+        isOpen={showCopilot}
+        onClose={() => setShowCopilot(false)}
+      />
+
+      {/* Compliance Audit Pack Modal */}
+      <AuditPackModal
+        isOpen={showAuditPack}
+        onClose={() => setShowAuditPack(false)}
       />
     </div>
   );

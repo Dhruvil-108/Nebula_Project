@@ -1,12 +1,12 @@
 /**
  * Google Gemini Cloud Provider
- * Uses GEMINI_API_KEY and configurable GEMINI_MODEL (defaults to gemini-1.5-flash)
+ * Uses GEMINI_API_KEY and configurable GEMINI_MODEL (defaults to gemini-flash-latest)
  */
 class GeminiProvider {
   name = 'gemini';
 
   getModel() {
-    return process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+    return process.env.GEMINI_MODEL || 'gemini-flash-latest';
   }
 
   getApiKey() {

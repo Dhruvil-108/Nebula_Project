@@ -1,5 +1,31 @@
 const mongoose = require('mongoose');
 
+const workflowStepSchema = new mongoose.Schema({
+  stepOrder: {
+    type: Number,
+    required: true,
+  },
+  approverType: {
+    type: String,
+    enum: ['manager', 'finance', 'admin', 'specific_user'],
+    required: true,
+  },
+  specificUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null,
+  },
+  slaHours: {
+    type: Number,
+    default: 48,
+    min: 1,
+  },
+  canDelegate: {
+    type: Boolean,
+    default: true,
+  },
+});
+
 const approvalWorkflowSchema = new mongoose.Schema(
   {
     organizationId: {
@@ -13,33 +39,44 @@ const approvalWorkflowSchema = new mongoose.Schema(
       required: [true, 'Workflow name is required'],
       trim: true,
     },
-    entityType: {
+    description: {
       type: String,
-      enum: ['requisition', 'job_offer'],
-      required: true,
-      index: true,
-    },
-    departmentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Department',
-      default: null, // null means organization-wide default
+      trim: true,
+      default: '',
     },
     isDefault: {
       type: Boolean,
       default: false,
     },
-    steps: [
-      {
-        order: { type: Number, required: true },
-        role: { type: String, required: true }, // e.g. 'manager', 'hr', 'super_admin'
-        specificUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-        title: { type: String, default: 'Step Approval' },
-      },
-    ],
+    conditions: {
+      minAmount: { type: Number, default: 0, min: 0 },
+      maxAmount: { type: Number, default: Infinity },
+      departmentIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Department' }],
+      categoryIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ExpenseCategory' }],
+      projectIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }],
+    },
+    autoApproveBelow: {
+      type: Number,
+      default: 0, // 0 = disabled
+      min: 0,
+    },
+    steps: {
+      type: [workflowStepSchema],
+      default: [],
+    },
+    active: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
 
-approvalWorkflowSchema.index({ organizationId: 1, entityType: 1 });
+approvalWorkflowSchema.index({ organizationId: 1, active: 1, isDefault: 1 });
 
 module.exports = mongoose.model('ApprovalWorkflow', approvalWorkflowSchema);

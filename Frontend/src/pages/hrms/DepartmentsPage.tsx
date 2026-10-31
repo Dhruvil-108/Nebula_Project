@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   Building2,
   Search,
@@ -9,6 +10,7 @@ import {
   Users,
   X,
   Pencil,
+  Network,
 } from 'lucide-react';
 import {
   useDepartments,
@@ -120,6 +122,13 @@ export const DepartmentsPage: React.FC = () => {
           >
             <RefreshCw className="w-4 h-4" />
           </button>
+          <Link
+            to="/dashboard/hrms/org-chart"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-[#FBF8F4] text-[#1A1A1A] border border-[#ECE0D6] shadow-2xs transition-colors"
+          >
+            <Network className="w-4 h-4 text-[#f97316]" />
+            Org Chart
+          </Link>
           {canCreate && (
             <button
               type="button"
